@@ -15,9 +15,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-100 dark:bg-gray-900`}>
-        <div className="container mx-auto px-4 py-8">{children}</div>
+      <body className={`${inter.className}`}>
+        <div className="container mx-auto">{children}</div>
       </body>
     </html>
   );
 }
+
+// dark:bg-tropical-indigo
