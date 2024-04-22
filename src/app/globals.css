@@ -6,31 +6,67 @@
 @import 'tailwindcss/utilities';
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
+    /* HEX */
+    /* --sandy-brown: #fc9f5bff;
+    --light-coral: #ed7b84ff;
+    --vista-blue: #72a1e5ff;
+    --tropical-indigo: #9883e5ff;
+    --tea-green: #c4f4c7ff;
+    --chocolate-cosmos: #4c212aff;
+    --light-coral: #ed7b84ff;
+    --caribbean-current: #0d5c63ff;
+    --mint: #5fbb97ff;
+    --sunset: #f2d0a4ff;
+    --ecru: #a69658ff;
+    --light-coral: #ed7b84ff;
+    --ecru-2: #d9b26fff;
+    --jasmine: #fadf7fff;
+    --vanilla: #f2e29fff; */
+    /* RGB */
+    --sandy-brown: 252, 159, 91;
+    --light-coral: 237, 123, 132;
+    --vista-blue: 114, 161, 229;
+    --tropical-indigo: 152, 131, 229;
+    --tea-green: 196, 244, 199;
+    --chocolate-cosmos: 76, 33, 42;
+    --light-coral: 237, 123, 132;
+    --caribbean-current: 13, 92, 99;
+    --mint: 95, 187, 151;
+    --sunset: 242, 208, 164;
+    --ecru: 166, 150, 88;
+    --light-coral: 237, 123, 132;
+    --ecru-2: 217, 178, 111;
+    --jasmine: 250, 223, 127;
+    --vanilla: 242, 226, 159;
+    --lavendar: 126, 63, 143;
+    --black-olive: 55, 57, 46;
+    --ultra-violet: 78, 65, 135;
+    --raspberry-rose: 170, 68, 101;
+    --dark-green: 23, 48, 28;
+    /* --other-cc: rgb(40, 157, 168); */
+    --other-cc:40, 157, 168;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+    :root {
+        --foreground-rgb: 255, 255, 255;
+        --background-start-rgb: 0, 0, 0;
+        --background-end-rgb: 0, 0, 0;
+    }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(to bottom,
+            transparent,
+            rgb(var(--caribbean-current))) rgb(var(--other-cc));
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+    .text-balance {
+        text-wrap: balance;
+    }
 }
