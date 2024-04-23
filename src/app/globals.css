@@ -48,6 +48,7 @@
     --dark-green: 23, 48, 28;
     /* --other-cc: rgb(40, 157, 168); */
     --other-cc:40, 157, 168;
+    --dark-coral: 149, 61, 69;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -1,10 +1,13 @@
-import { useRef, type RefObject } from 'react'
+// use-enter-submit.ts
+import { useRef, type RefObject } from 'react';
 
-export function useEnterSubmit(): {
-  formRef: RefObject<HTMLFormElement>
-  onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void
+export function useEnterSubmit(
+  onSubmit: () => void
+): {
+  inputRef: RefObject<HTMLTextAreaElement>;
+  onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 } {
-  const formRef = useRef<HTMLFormElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleKeyDown = (
     event: React.KeyboardEvent<HTMLTextAreaElement>
@@ -14,10 +17,10 @@ export function useEnterSubmit(): {
       !event.shiftKey &&
       !event.nativeEvent.isComposing
     ) {
-      formRef.current?.requestSubmit()
-      event.preventDefault()
+      onSubmit();
+      event.preventDefault();
     }
-  }
+  };
 
-  return { formRef, onKeyDown: handleKeyDown }
+  return { inputRef, onKeyDown: handleKeyDown };
 }
