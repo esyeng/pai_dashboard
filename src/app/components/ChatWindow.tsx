@@ -50,7 +50,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ agentId }) => {
       <div className="flex flex-col mb-4 items-stretch justify-items-stretch  bg-gray-100 sm:w-full sm:flex-row">
         <textarea
           ref={inputRef}
-          className="flex-grow p-2 border border-gray-300 rounded-lg max-h-[420px] shadow-m bg-white text-light-coral border-slate-300 py-2 pl-9 pr-3  focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm resize-none hover:resize-y sm:w-full"
+          className="flex-grow p-2 border border-gray-300 rounded-lg max-h-[420px] shadow-m bg-white text-light-coral border-slate-300 py-2 pl-9 pr-3 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm resize-none hover:resize-y sm:w-full"
           placeholder="Type your message..."
           value={inputValue}
           onKeyDown={onKeyDown}
