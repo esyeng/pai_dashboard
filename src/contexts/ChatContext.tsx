@@ -7,6 +7,7 @@ export interface ChatContextType {
     currentConversationId: number;
     activeMessageQueue: any[];
     agentId: string;
+    model: string;
     setAgentId: (agentId: string) => void;
     sendChat: (message: string, model: string, agentId: string, maxTokens?: number, temperature?: number) => Promise<void>;
     switchConversation: (conversationId: number) => void;
@@ -36,6 +37,7 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: ChatProviderProps) => {
     const [agentId, setAgentId] = useState<string>('tutor');
+    const [model, setModel] = useState<string>("claude-3-opus-20240229");
     const [currentConversationId, setCurrentConversationId] = useState<number>(1);
     const [conversations, setConversations] = useState<Conversations>({});
     const [activeMessageQueue, setActiveMessageQueue] = useState<any>([]);
@@ -129,7 +131,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     }
 
     return <ChatContext.Provider value={{
-        conversations, currentConversationId, activeMessageQueue, agentId,
+        conversations, currentConversationId, activeMessageQueue, agentId, model,
         setAgentId, sendChat, switchConversation, createNewConversation, isLoading
     }}>{children}</ChatContext.Provider>;
 };
@@ -139,6 +141,7 @@ export const useChat = (): {
     currentConversationId: number;
     activeMessageQueue: any[];
     agentId: string;
+    model: string;
     setAgentId: (agentId: string) => void;
     sendChat: (message: string, model: string, agentId: string, maxTokens?: number, temperature?: number) => Promise<void>;
     switchConversation: (conversationId: number) => void;

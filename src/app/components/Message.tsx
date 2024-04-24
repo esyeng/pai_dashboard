@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useCopyToClipboard } from "../../lib/hooks/use-copy-to-clipboard";
 import { ClipboardIcon } from '@radix-ui/react-icons'
 import { CodeBlock } from "./ui/CodeBlock";
@@ -12,8 +12,9 @@ interface MessageProps {
     stream?: boolean;
     language?: string;
 }
-export const Message: React.FC<MessageProps> = ({ role, content }) => {
+export const Message: React.FC<MessageProps> = ({ role, content, stream=false }) => {
     const { isCopied, copyToClipboard } = useCopyToClipboard({});
+    // const [streamedText, setStreamedText] = useState<string>('');
 
     const isUserMessage = role === "user";
     const messageClass = isUserMessage
