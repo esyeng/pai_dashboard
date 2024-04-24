@@ -12,7 +12,7 @@ const Home: NextPage = () => {
 
     return (
         <div className="container mx-auto">
-            <main className="flex h-dvh flex-col items-center justify-between px-14 py-2 my-16">
+            <main className="flex h-full flex-col items-center justify-between px-14 py-2 my-16">
                 <div className=" w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
                     <div className="flex h-10 w-full items-end justify-center">
                         <div className="z-10 bg-ultra-violet text-white">
