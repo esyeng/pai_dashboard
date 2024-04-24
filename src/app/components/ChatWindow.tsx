@@ -6,17 +6,14 @@ import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
 import { useScrollAnchor } from "../../lib/hooks/use-scroll-anchor";
 import { useChat } from "@/contexts/ChatContext";
 
-interface ChatWindowProps {
-    agentId: string;
-}
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ agentId }) => {
+export const ChatWindow: React.FC = () => {
     const [messages, setMessages] = useState<{ role: string; content: string }[]>(
         []
     );
     const [inputValue, setInputValue] = useState("");
     const chatWindowRef = useRef<HTMLDivElement>(null);
-    const { conversations, currentConversationId, activeMessageQueue, sendChat, isLoading } = useChat();
+    const { agentId, conversations, currentConversationId, activeMessageQueue, sendChat, isLoading } = useChat();
 
     //   useScrollAnchor(chatWindowRef, messages);
 
@@ -28,7 +25,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ agentId }) => {
     }, [agentId]);
 
     const onSendMessage = (message: string) => {
-        alert('sending message to server...');
+        alert(`sending message to ${agentId}...`);
+
         // sendChat(message)
     };
 
@@ -46,6 +44,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ agentId }) => {
     return (
         <div className="flex flex-col h-full min-h-[400px] flex-grow">
             <div ref={chatWindowRef} className="flex-grow overflow-y-auto p-4">
+                <Message role="assistant" content="I'm smart lol"/>
                 {messages.map((message, index) => (
                     <Message key={index} role={message.role} content={message.content} />
                 ))}
@@ -53,7 +52,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ agentId }) => {
             <div className="flex flex-col mb-4 items-stretch justify-items-stretch  bg-gray-100 sm:w-full sm:flex-row">
                 <textarea
                     ref={inputRef}
-                    className="flex-grow p-2 border border-gray-300 rounded-lg max-h-[420px] shadow-m bg-white text-light-coral border-slate-300 py-2 pl-9 pr-3 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm resize-none hover:resize-y sm:w-full"
+                    className="flex-grow p-2 border border-gray-300 rounded-lg max-h-[420px] shadow-m bg-white text-black border-slate-300 py-2 pl-9 pr-3 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm resize-none hover:resize-y sm:w-full"
                     placeholder="Type your message..."
                     value={inputValue}
                     onKeyDown={onKeyDown}
