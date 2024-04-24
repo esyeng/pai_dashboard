@@ -6,13 +6,14 @@ export const metadata: Metadata = {
 };
 import Image from "next/image";
 import { ChatWindow } from "./components/ChatWindow";
-import { AgentDropdown } from "./components/AgentDropdown";
+import { Options } from "./components/OptionsPanel";
 
 const agents = [
-	{ id: "tutor", name: "Tutor" },
+	{ id: "jasmyn", name: "Jasmyn" },
+	{ id: "tutor", name: "AI Tutor" },
 	{ id: "coder", name: "Coder" },
 	{ id: "ada", name: "Ada" },
-	{ id: "fed", name: "FED" },
+	{ id: "fed", name: "F.E.D." },
 ];
 
 const models = [
@@ -34,33 +35,9 @@ const Home: NextPage = () => {
 						</div>
 					</div>
 				</div>
-				<div className="flex justify-center">
-					<div className="mb-4 flex flex-col items-center justify-center my-2 sm:flex-row p-2 rounded-3xl bg-[#4ce6ab2d]">
-						<div className="flex justify-center items-center px-2 my-1 mx-4">
-							<span className="text-caribbean-current text-sm py-2 pr-2 rounded leading-tight">
-								Model:{" "}
-							</span>
-							<span className="text-md text-caribbean-current my-4 mr-2">
-								|
-							</span>
-							<AgentDropdown agents={models} mode="model" />
-						</div>
-						<div className="flex justify-center items-center px-2 my-1 mx-4">
-							<span className="text-caribbean-current text-sm py-2 pr-2 rounded leading-tight">
-								Agent:{" "}
-							</span>
-							<span className="text-md text-caribbean-current my-4 mr-2">
-								|
-							</span>
-							<AgentDropdown agents={agents} mode="agent" />
-						</div>
-					</div>
-				</div>
-				<div className="container mx-auto px-4 py-4 h-full bg-mint rounded-lg shadow-2xl sm:w-3/4 lg:w-2/3 lg:h-4/5">
-					<div className="w-full mx-auto h-full">
-						<ChatWindow />
-					</div>
-				</div>
+				<Options agents={agents} models={models} />
+
+				<ChatWindow />
 
 				<div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left"></div>
 			</main>

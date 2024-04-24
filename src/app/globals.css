@@ -41,6 +41,7 @@
     /* --h-mint-lowop: #4ce6ab3b; */
     --h-sunset: #f2d0a4ff;
     --h-ecru: #a69658ff;
+    /* --blue-gray: #3e3f46; */
     --h-light-coral: #ed7b84ff;
     --h-ecru-2: #d9b26fff;
     --h-jasmine: #fadf7fff;
@@ -82,11 +83,17 @@
     }
 }
 
-body {
-    color: rgb(var(--text-color));
+html {
     background: linear-gradient(to bottom,
             transparent,
             rgb(var(--caribbean-current))) rgb(var(--other-cc));
+}
+
+body {
+    color: rgb(var(--text-color));
+    /* background: linear-gradient(to bottom,
+            transparent,
+            rgb(var(--caribbean-current))) rgb(var(--other-cc)); */
 }
 
 @layer utilities {
