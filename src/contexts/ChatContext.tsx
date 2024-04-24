@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { queryModel } from "../lib/api";
+import { formatDate } from "@/lib/utils";
 
 export interface ChatContextType {
 	conversations: Conversations;
@@ -23,7 +24,8 @@ export interface ChatContextType {
 
 export interface MessageProps {
 	id: number;
-	timestamp: number;
+	timestamp: string | number | Date;
+	agentId: string;
 	sender: string;
 	text: string;
 	stream?: boolean;
@@ -44,7 +46,7 @@ const _createID = () => {
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: ChatProviderProps) => {
-	const [agentId, setAgentId] = useState<string>("tutor");
+	const [agentId, setAgentId] = useState<string>("jasmyn");
 	const [modelId, setModelId] = useState<string>("claude-3-opus-20240229");
 	const [currentConversationId, setCurrentConversationId] =
 		useState<number>(1);
@@ -57,6 +59,9 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 
 	useEffect(() => {
 		if (responseMsg && responseMsg.text) {
+			console.log(
+				`responseMsg: ${responseMsg} & text ${responseMsg.text}`
+			);
 			setIsLoading(false);
 			activeMessageQueue.push(responseMsg);
 			setConversations((prev) => {
@@ -79,6 +84,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 		const newMsg: MessageProps = {
 			id: idx,
 			timestamp: Date.now(),
+			agentId: agentId,
 			sender: "user",
 			text: message,
 		};
@@ -91,8 +97,28 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 			[currentConversationId]: newSendUpdate,
 		}));
 		setIdx((prev) => prev + 1);
+		const firstMessage =
+			activeMessageQueue.length > 0
+				? activeMessageQueue[activeMessageQueue.length - 1]
+				: null;
 		const updatedQueue = [...activeMessageQueue, newMsg].slice(-7);
 		setActiveMessageQueue(updatedQueue);
+		const messagesToSend =
+			// firstMessage ?
+
+			// {
+			// 	role: firstMessage.sender,
+			// 	content: firstMessage.text,
+			// },
+			updatedQueue.map((msg) => ({
+				role: msg.sender,
+				content: msg.text,
+			}));
+
+		// : updatedQueue.map((msg) => ({
+		// 		role: msg.sender,
+		// 		content: msg.content,
+		// 	}));
 
 		try {
 			setIsLoading(true);
@@ -101,13 +127,16 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 				model: model ? model : "claude-3-opus-20240229",
 				temperature: temperature ? temperature : 0.3,
 				agent_id: agentId,
-				messages: updatedQueue,
+				messages: messagesToSend,
 			});
 			const receivedMsg: MessageProps = {
 				id: idy,
 				timestamp: Date.now(),
+				agentId: agentId,
 				sender: "assistant",
-				text: response.response,
+				text: response
+					? response.response
+					: "If you're reading this it means it deednt wuork. :(. Facuk.",
 				stream: true,
 			};
 			setIdy((prev) => prev + 1);
