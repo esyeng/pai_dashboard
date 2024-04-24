@@ -1,50 +1,55 @@
 import type { NextPage, Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "JasmynAI",
-  description: "Private personal AI dashboard",
+    title: "JasmynAI",
+    description: "Private personal AI dashboard",
 };
 import Image from "next/image";
 import { ChatWindow } from "./components/ChatWindow";
+import { AgentDropdown } from "./components/AgentDropdown";
 
 const Home: NextPage = () => {
-  return (
-    <div className="container mx-auto">
-      <main className="flex h-dvh flex-col items-center justify-between px-14 py-2 my-16">
-        <div className=" w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-          <div className=" flex h-10 w-full items-end justify-center lg:static lg:size-auto ">
-            <div className="z-10 bg-ultra-violet ">
-              <h1 className="flex place-items-center gap-2 p-8 lg:p-8 bg-ultra-violet ">
-                JasmynAI
-              </h1>
-            </div>
-          </div>
-        </div>
-        <div className="container mx-auto px-4 py-4 h-full bg-mint rounded-lg shadow-2xl shadow-inner">
-          <div className="w-full md:w-2/3 lg:w-1/2 mx-auto h-full">
-            <ChatWindow agentId="default-agent" />
-          </div>
-        </div>
 
-        <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left"></div>
-      </main>
-      <footer className="py-4 text-center">
-        <p>
-          &copy; {new Date().getFullYear()} Esmé Keats. All rights reserved.
-        </p>
-      </footer>
-    </div>
-  );
+    return (
+        <div className="container mx-auto">
+            <main className="flex h-dvh flex-col items-center justify-between px-14 py-2 my-16">
+                <div className=" w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
+                    <div className="flex h-10 w-full items-end justify-center">
+                        <div className="z-10 bg-ultra-violet ">
+                            <h1 className="flex place-items-center gap-2 p-8 bg-ultra-violet ">
+                                JasmynAI
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+                <div className="mb-4">
+                    <AgentDropdown />
+                </div>
+                <div className="container mx-auto px-4 py-4 h-full bg-mint rounded-lg shadow-2xl sm:w-3/4 lg:w-2/3 lg:h-4/5">
+                    <div className="w-full mx-auto h-full">
+                        <ChatWindow agentId="default-agent" />
+                    </div>
+                </div>
+
+                <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left"></div>
+            </main>
+            <footer className="py-4 text-center">
+                <p>
+                    &copy; {new Date().getFullYear()} Esmé Keats. All rights reserved.
+                </p>
+            </footer>
+        </div>
+    );
 };
 
 export default Home;
 
 {
-  /* <h1 className="text-4xl font-bold mb-8">Welcome to Your Personal AI Web App!</h1> */
+    /* <h1 className="text-4xl font-bold mb-8">Welcome to Your Personal AI Web App!</h1> */
 }
 
 {
-  /* Add your main content and components here */
+    /* Add your main content and components here */
 }
 //   <div className="mb-8">
 //     {/* AgentDropdown component */}
@@ -63,7 +68,7 @@ export default Home;
 //   </div>
 
 {
-  /* Auth component */
+    /* Auth component */
 }
 
 /**
