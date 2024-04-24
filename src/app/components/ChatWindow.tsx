@@ -48,9 +48,10 @@ export const ChatWindow: React.FC = () => {
 	};
 
 	const { inputRef, onKeyDown } = useEnterSubmit(handleSendMessage);
-
+	//
+	// bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b]
 	return (
-		<div className="container mx-auto px-4 py-4 h-full bg-mint rounded-lg shadow-2xl sm:w-3/4 lg:w-2/3 lg:h-4/5">
+		<div className="container mx-auto px-4 py-4 h-full  bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] rounded-lg shadow-xl sm:w-3/4 lg:w-2/3 lg:h-4/5">
 			<div className="w-full mx-auto h-full">
 				<div className="flex flex-col h-full min-h-[400px] flex-grow">
 					<div
@@ -66,10 +67,10 @@ export const ChatWindow: React.FC = () => {
 							/>
 						))}
 					</div>
-					<div className="flex flex-col mb-4 items-stretch justify-items-stretch  bg-gray-100 sm:w-full sm:flex-row">
+					<div className="flex flex-col mb-4 items-stretch justify-items-stretch  sm:w-full sm:flex-row">
 						<textarea
 							ref={inputRef}
-							className="flex-grow p-2 border border-gray-300 rounded-lg max-h-[420px] shadow-m bg-white text-black border-slate-300 py-2 pl-9 pr-3 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm resize-none hover:resize-y sm:w-full"
+							className="flex-grow p-2 border border-mint rounded-xl max-h-[420px] shadow-m bg-[#fff1c000] text-[#85d7de] border-slate-300 py-2 pl-9 pr-3 placeholder:text-[#85d7de] transition ease-in-out hover:bg-mint/20 focus:bg-mint/20 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 focus:ring-offset-1 focus:ring-offset-[#5bdde8] duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
 							placeholder="Type your message..."
 							value={inputValue}
 							onKeyDown={onKeyDown}
@@ -77,7 +78,7 @@ export const ChatWindow: React.FC = () => {
 						/>
 					</div>
 					<button
-						className="transition ease-in-out px-4 py-2 bg-light-coral text-white rounded hover:bg-chocolate-cosmos duration-300"
+						className="transition ease-in-out px-4 py-2 bg-light-coral/75 text-white rounded hover:bg-light-coral duration-300"
 						onClick={handleSendMessage}
 					>
 						Send

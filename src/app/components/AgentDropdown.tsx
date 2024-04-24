@@ -24,7 +24,7 @@ export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
 			<select
 				value={mode === "agent" ? agentId : modelId}
 				onChange={(e) => handleSelection(e.target.value)}
-				className="block appearance-none w-full font-mono bg-[#289DA8] border border-[#5fbb97] text-[#9de6ca] py-2 px-4 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+				className="block appearance-none w-full font-mono bg-[#289DA8] border border-[#5fbb97] text-[#9de6ca] py-2 px-4 pr-8 rounded shadow leading-tight hover:bg-caribbean-current focus:bg-caribbean-current focus:outline-none focus:shadow-outline "
 			>
 				{agents.map((agent) => (
 					<option

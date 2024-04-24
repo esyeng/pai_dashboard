@@ -29,7 +29,7 @@ const Home: NextPage = () => {
 				<div className=" w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
 					<div className="flex h-10 w-full items-end justify-center">
 						<div className="z-10 bg-ultra-violet text-white">
-							<h1 className="flex place-items-center gap-2 p-8 w-full text-[#9de6ca] text-xl py-2 pr-8 rounded leading-tight">
+							<h1 className="flex cursor-crosshair place-items-center gap-2 p-8 w-full text-[#9de6ca] text-xl py-2 pr-8 rounded leading-tight hover:scale-105">
 								JasmynAI
 							</h1>
 						</div>
