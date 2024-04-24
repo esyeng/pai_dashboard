@@ -88,9 +88,9 @@ export const getMessageFromCode = (resultCode: string) => {
     }
 };
 
-export const parseCodeBlocks = (text: string): { type: 'text' | 'code'; content: string; language?: string }[] => {
+export const parseCodeBlocks = (text: string): { type: 'text' | 'code'; content: string; language: string }[] => {
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-    const parts: { type: 'text' | 'code'; content: string; language?: string }[] = [];
+    const parts: { type: 'text' | 'code'; content: string; language: string }[] = [];
     let lastIndex = 0;
 
     let match;
@@ -99,7 +99,7 @@ export const parseCodeBlocks = (text: string): { type: 'text' | 'code'; content:
         const textBeforeCode = text.slice(lastIndex, match.index);
 
         if (textBeforeCode.trim() !== '') {
-            parts.push({ type: 'text', content: textBeforeCode });
+            parts.push({ type: 'text', content: textBeforeCode, language: ''});
         }
 
         parts.push({ type: 'code', content: code, language });
@@ -108,7 +108,7 @@ export const parseCodeBlocks = (text: string): { type: 'text' | 'code'; content:
 
     const textAfterCode = text.slice(lastIndex);
     if (textAfterCode.trim() !== '') {
-        parts.push({ type: 'text', content: textAfterCode });
+        parts.push({ type: 'text', content: textAfterCode, language: '' });
     }
 
     return parts;
