@@ -23,6 +23,7 @@ export const queryModel = async (params: ChatRequestParams): Promise<ModelRespon
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
             },
             body: JSON.stringify(params),
         });
