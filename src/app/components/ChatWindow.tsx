@@ -6,49 +6,56 @@ import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
 import { useScrollAnchor } from "../../lib/hooks/use-scroll-anchor";
 import { useChat } from "@/contexts/ChatContext";
 
-
 export const ChatWindow: React.FC = () => {
-    // const [messages, setMessages] = useState<{ role: string; content: string }[]>(
-    //     []
-    // ); // test with real shit now!
-    const [inputValue, setInputValue] = useState("");
-    const chatWindowRef = useRef<HTMLDivElement>(null);
-    const { agentId, model, conversations, currentConversationId, activeMessageQueue, sendChat, isLoading } = useChat();
-    const currentConversation = conversations[currentConversationId] || [];
+	// const [messages, setMessages] = useState<{ role: string; content: string }[]>(
+	//     []
+	// ); // test with real shit now!
+	const [inputValue, setInputValue] = useState("");
+	const chatWindowRef = useRef<HTMLDivElement>(null);
+	const {
+		agentId,
+		modelId,
+		conversations,
+		currentConversationId,
+		activeMessageQueue,
+		sendChat,
+		isLoading,
+	} = useChat();
+	const currentConversation = conversations[currentConversationId] || [];
 
-    //   useScrollAnchor(chatWindowRef, messages);
+	//   useScrollAnchor(chatWindowRef, messages);
 
-    useEffect(() => {
-        // Fetch chat history for the selected agent
-        // and update the messages state
-        // (Assuming you have an API endpoint for fetching chat history)
-        // fetchChatHistory(agentId).then((history) => setMessages(history));
-    }, [agentId]);
+	useEffect(() => {
+		// Fetch chat history for the selected agent
+		// and update the messages state
+		// (Assuming you have an API endpoint for fetching chat history)
+		// fetchChatHistory(agentId).then((history) => setMessages(history));
+	}, [agentId]);
 
-    const onSendMessage = async (message: string) => {
-        console.log(`sending message to ${agentId}... message: ${message}`);
-        await sendChat(message, model, agentId, 2000, 0.3);
-    };
+	const onSendMessage = async (message: string) => {
+		console.log(`sending message to ${agentId}... message: ${message}`);
+		await sendChat(message, modelId, agentId, 2000, 0.3);
+	};
 
-    const handleSendMessage = () => {
-        if (inputValue.trim()) {
-            const newMessage = { role: "user", content: inputValue.trim() };
-            // setMessages((prevMessages) => [...prevMessages, newMessage]);
-            onSendMessage(newMessage.content);
-            setInputValue("");
-        }
-    };
+	const handleSendMessage = () => {
+		if (inputValue.trim()) {
+			const newMessage = { role: "user", content: inputValue.trim() };
+			// setMessages((prevMessages) => [...prevMessages, newMessage]);
+			onSendMessage(newMessage.content);
+			setInputValue("");
+		}
+	};
 
-    const { inputRef, onKeyDown } = useEnterSubmit(handleSendMessage);
+	const { inputRef, onKeyDown } = useEnterSubmit(handleSendMessage);
 
-    return (
+	return (
 		<div className="flex flex-col h-full min-h-[400px] flex-grow">
 			<div ref={chatWindowRef} className="flex-grow overflow-y-auto p-4">
 				<Message
 					role="assistant"
 					content="*Claude*: Did you get it working yet, hun?"
 				/>
-				{currentConversation.map(message => (
+				{currentConversation.map((message) => (
 					<Message
 						key={message.id}
 						role={message.sender}
@@ -63,7 +70,7 @@ export const ChatWindow: React.FC = () => {
 					placeholder="Type your message..."
 					value={inputValue}
 					onKeyDown={onKeyDown}
-					onChange={e => setInputValue(e.target.value)}
+					onChange={(e) => setInputValue(e.target.value)}
 				/>
 			</div>
 			<button
@@ -76,6 +83,8 @@ export const ChatWindow: React.FC = () => {
 	);
 };
 
-{/* {messages.map((message, index) => (
+{
+	/* {messages.map((message, index) => (
                     <Message key={index} role={message.role} content={message.content} />
-                ))} */}
+                ))} */
+}
