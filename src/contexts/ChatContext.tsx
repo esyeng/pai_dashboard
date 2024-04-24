@@ -73,9 +73,22 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
             [currentConversationId]: newSendUpdate,
         }));
         setIdx((prev) => prev + 1);
-        const firstMessage = activeMessageQueue[activeMessageQueue.length - 1];
+        const firstMessage = activeMessageQueue.length > 0 ? activeMessageQueue[activeMessageQueue.length - 1] : null;
         const updatedQueue = [...activeMessageQueue, newMsg].slice(-7);
         setActiveMessageQueue(updatedQueue);
+        const messagesToSend = firstMessage ? [
+            {
+                role: firstMessage.sender,
+                content: firstMessage.text
+            },
+            ...updatedQueue.map(msg => ({
+                role: msg.sender,
+                content: msg.content,
+            })),
+        ] : updatedQueue.map(msg => ({
+            role: msg.sender,
+            content: msg.content,
+        }));
 
         try {
             setIsLoading(true);
@@ -84,16 +97,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
                 model: model ? model : "claude-3-opus-20240229",
                 temperature: temperature ? temperature : 0.3,
                 agent_id: agentId,
-                messages: [
-                    {
-                        role: firstMessage.sender,
-                        content: firstMessage.text
-                    },
-                    ...updatedQueue.map(msg => ({
-                        role: msg.sender,
-                        content: msg.content,
-                    })),
-                ],
+                messages: messagesToSend
             });
             const receivedMsg: MessageProps = {
                 id: idy,
