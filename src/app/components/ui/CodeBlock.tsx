@@ -10,7 +10,7 @@ import { Button } from './Button'
 
 interface Props {
     language: string
-    value?: string
+    value: string
 }
 
 interface languageMap {
