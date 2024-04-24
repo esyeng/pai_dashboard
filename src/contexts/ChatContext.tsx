@@ -7,7 +7,7 @@ export interface ChatContextType {
     activeMessageQueue: any[];
     agentId: string;
     setAgentId: (agentId: string) => void;
-    sendChat: (message: string, model: string, assistantId: string, maxTokens?: number, temperature?: number) => Promise<void>;
+    sendChat: (message: string, model: string, agentId: string, maxTokens?: number, temperature?: number) => Promise<void>;
     switchConversation: (conversationId: number) => void;
     createNewConversation: () => void;
     isLoading?: boolean;
@@ -57,7 +57,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
         }
     }, [responseMsg])
 
-    const sendChat = async (message: string, agentId: string, maxTokens: number) => {
+    const sendChat = async (message: string, model: string, agentId: string, maxTokens?: number, temperature?: number) => {
         const newMsg: MessageProps = {
             id: idx,
             timestamp: Date.now(),
@@ -76,8 +76,9 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
         try {
             setIsLoading(true);
             const response = await queryModel({
-                max_tokens: maxTokens,
-                temperature: 0.3,
+                max_tokens: maxTokens ? maxTokens : 2000,
+                model: model ? model : "claude-3-opus-20240229",
+                temperature: temperature ? temperature : 0.3,
                 agent_id: agentId,
                 messages: updatedQueue,
             });
@@ -124,7 +125,7 @@ export const useChat = (): {
     activeMessageQueue: any[];
     agentId: string;
     setAgentId: (agentId: string) => void;
-    sendChat: (message: string, model: string, assistantId: string, maxTokens?: number, temperature?: number) => Promise<void>;
+    sendChat: (message: string, model: string, agentId: string, maxTokens?: number, temperature?: number) => Promise<void>;
     switchConversation: (conversationId: number) => void;
     createNewConversation: () => void;
     isLoading?: boolean;

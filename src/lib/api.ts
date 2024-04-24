@@ -2,6 +2,7 @@ const API_URL = 'http://localhost:8000/api/chat';
 
 interface ChatRequestParams {
     max_tokens: number;
+    model: string;
     temperature: number;
     agent_id: string;
     messages: { role: string; content: string }[];
