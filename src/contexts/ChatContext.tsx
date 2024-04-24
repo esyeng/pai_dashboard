@@ -52,43 +52,45 @@ export const ChatProvider = ({ children }) => {
         }
     }, [responseMsg])
 
-    const sendChat = async (message: string, model: string, assistantId: string, maxTokens?: number, temperature?: number) => {
+    const sendChat = async (message: string, agentId: string, maxTokens: number) => {
         const newMsg: MessageProps = {
             id: idx,
             timestamp: Date.now(),
-            sender: "user",
+            sender: 'user',
             text: message,
-        }
-        const newSendUpdate = [
-            newMsg,
-            ...(conversations[currentConversationId] || []),
-        ];
-        setConversations(prev => ({
+        };
+        const newSendUpdate = [newMsg, ...(conversations[currentConversationId] || [])];
+        setConversations((prev) => ({
             ...prev,
-            [currentConversationId]: newSendUpdate
+            [currentConversationId]: newSendUpdate,
         }));
-        setIdx(prev => prev + 1);
+        setIdx((prev) => prev + 1);
         const updatedQueue = [...activeMessageQueue, newMsg].slice(-7);
         setActiveMessageQueue(updatedQueue);
+
         try {
-            setTimeout(() => {
-                setIsLoading(true);
-            }, 1000)
-            const response = await queryModel(updatedQueue, model, assistantId, maxTokens ? maxTokens : 2000, temperature ? temperature : 0.3);
+            setIsLoading(true);
+            const response = await queryModel({
+                max_tokens: maxTokens,
+                temperature: 0.3,
+                agent_id: agentId,
+                messages: updatedQueue,
+            });
             const receivedMsg: MessageProps = {
                 id: idy,
                 timestamp: Date.now(),
-                sender: "assistant",
-                text: response?.data?.response?.message,
+                sender: 'assistant',
+                text: response.response,
                 stream: true,
-            }
-            setIdy(prev => prev + 1);
+            };
+            setIdy((prev) => prev + 1);
             setResponseMsg(receivedMsg);
-
-        } catch (err) {
-            console.error("Error sending message :(", err);
+        } catch (error) {
+            console.error('Error sending chat:', error);
+        } finally {
+            setIsLoading(false);
         }
-    }
+    };
 
     const switchConversation = (conversationId: number) => {
         setCurrentConversationId(conversationId);
