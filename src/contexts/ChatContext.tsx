@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { queryModel } from '../lib/api';
+import { formatDate } from '@/lib/utils';
 
 export interface ChatContextType {
     conversations: Conversations;
@@ -15,7 +16,7 @@ export interface ChatContextType {
 
 export interface MessageProps {
     id: number;
-    timestamp: number;
+    timestamp: string | number | Date;
     sender: string;
     text: string;
     stream?: boolean;
@@ -60,7 +61,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     const sendChat = async (message: string, model: string, agentId: string, maxTokens?: number, temperature?: number) => {
         const newMsg: MessageProps = {
             id: idx,
-            timestamp: Date.now(),
+            timestamp: formatDate(Date.now()),
             sender: 'user',
             text: message,
         };
@@ -80,13 +81,17 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
                 model: model ? model : "claude-3-opus-20240229",
                 temperature: temperature ? temperature : 0.3,
                 agent_id: agentId,
-                messages: updatedQueue,
+                messages: updatedQueue.map((msg) => ({ role: msg.sender, content: msg.content })),
             });
             const receivedMsg: MessageProps = {
                 id: idy,
-                timestamp: Date.now(),
-                sender: 'assistant',
-                text: response.response,
+                timestamp: formatDate(Date.now()),
+                sender: "assistant",
+                text: response
+                    ? response.response
+                        ? response.response.text
+                        : response.text
+                    : "If you're reading this it means it deednt wuork. :(. Facuk.",
                 stream: true,
             };
             setIdy((prev) => prev + 1);
