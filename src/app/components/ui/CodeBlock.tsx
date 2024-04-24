@@ -9,7 +9,7 @@ import { IconCheck, IconCopy, IconDownload } from './Icons'
 import { Button } from './Button'
 
 interface Props {
-    language?: string
+    language: string
     value?: string
 }
 
