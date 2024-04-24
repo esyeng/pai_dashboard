@@ -20,6 +20,11 @@ export interface MessageProps {
     text: string;
     stream?: boolean;
 }
+
+interface ChatProviderProps {
+    children: any
+}
+
 export type Conversations = Record<string, MessageProps[]>;
 
 const _createID = () => {
@@ -28,7 +33,7 @@ const _createID = () => {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-export const ChatProvider = ({ children }) => {
+export const ChatProvider = ({ children }: ChatProviderProps) => {
     const [agentId, setAgentId] = useState<string>('tutor');
     const [currentConversationId, setCurrentConversationId] = useState<number>(1);
     const [conversations, setConversations] = useState<Conversations>({});
