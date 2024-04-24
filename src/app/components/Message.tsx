@@ -10,7 +10,7 @@ interface MessageProps {
     role: string;
     content: string;
     stream?: boolean;
-    language: string;
+    language?: string;
 }
 export const Message: React.FC<MessageProps> = ({ role, content }) => {
     const { isCopied, copyToClipboard } = useCopyToClipboard({});
