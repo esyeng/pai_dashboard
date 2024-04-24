@@ -12,12 +12,18 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en">
+		<html lang="en" className="h-screen">
 			<body className={`${inter.className}`}>
 				<ChatProvider>
 					<div className="container mx-auto">{children}</div>
 				</ChatProvider>
 			</body>
+			<footer className="py-4 text-center">
+				<p className="text-mint">
+					&copy; {new Date().getFullYear()} Esmé Keats. All rights
+					reserved.
+				</p>
+			</footer>
 		</html>
 	);
 }

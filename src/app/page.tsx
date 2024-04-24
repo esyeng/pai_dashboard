@@ -30,7 +30,7 @@ const Home: NextPage = () => {
 					<div className="flex h-10 w-full items-end justify-center">
 						<div className="z-10 bg-ultra-violet text-white">
 							<h1 className="flex cursor-crosshair place-items-center gap-2 p-8 w-full text-[#9de6ca] text-xl py-2 pr-8 rounded leading-tight hover:scale-105">
-								JasmynAI
+								{"<"} jasmyn.ai {"/>"}
 							</h1>
 						</div>
 					</div>
@@ -41,12 +41,6 @@ const Home: NextPage = () => {
 
 				<div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left"></div>
 			</main>
-			<footer className="py-4 text-center">
-				<p className="text-gray">
-					&copy; {new Date().getFullYear()} Esmé Keats. All rights
-					reserved.
-				</p>
-			</footer>
 		</div>
 	);
 };
