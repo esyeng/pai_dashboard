@@ -59,9 +59,6 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 
 	useEffect(() => {
 		if (responseMsg && responseMsg.text) {
-			console.log(
-				`responseMsg: ${responseMsg} & text ${responseMsg.text}`
-			);
 			setIsLoading(false);
 			activeMessageQueue.push(responseMsg);
 			setConversations((prev) => {
