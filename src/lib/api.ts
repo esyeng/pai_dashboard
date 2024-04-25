@@ -1,4 +1,4 @@
-const BASE = process.env.NODE_ENV === "production" ? process.env.API_URL : "https://jasmyn-cb3idkum5a-uc.a.run.app/"
+const BASE = process.env.NODE_ENV === "production" ? process.env.API_URL : "https://jasmyn-cb3idkum5a-uc.a.run.app"
 const API_URL = `${BASE}/claude`;
 console.log(process.env.NODE_ENV === "production");
 console.log(process.env.API_URL);
