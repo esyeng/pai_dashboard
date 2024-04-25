@@ -17,6 +17,8 @@ const agents: AgentDict = {
     ada: "Ada",
     fed: "F.E.D.",
     jasmyn: "Jasmyn",
+    sys_writer: "System Prompter",
+    sys_writer_plus: "System Prompter+"
 };
 
 interface MessageProps {
