@@ -12,7 +12,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en" className="h-screen">
+		<html lang="en">
 			<body className={`${inter.className}`}>
 				<ChatProvider>
 					<div className="container mx-auto">{children}</div>
