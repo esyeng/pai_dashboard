@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a personal AI chat server developed by Esme Keats @esyeng. All rights reserved. MIT License.
 
 ## Getting Started
 
@@ -14,23 +14,66 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# Frontend:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack:
+NextJS, Next-Auth, React (TypeScript), TailwindCSS, radix-ui
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Completed:
+- dropdown to select model (which will open proper channel with backend) (this lives in Options.tsx
+- a clean, responsive user / assistant chat window complete with input and send button. (think iMessage, chatgpt)
+- a design theme with tailwindcss
 
-## Learn More
+### Needed:
+- a user/pw authentication interface.
+- a menu with sliders to adjust temperature, max tokens (to add to Options.tsx)
+- a collabsible sidebar menu, open by default on desktop, or via hamburger on small viewports and/or mobile. within it:
+     - a place to store simple notes, persists across sessions
+     - a conversations / threads list component that allows for creating new threads, and saving them for the logged in user. active threads should persist across sessions.
+               - export thread button to save formatted conversation to file
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Repo structure:
+.
+├── package-lock.json
+├── package.json
+├── pnpm-lock.yaml
+├── postcss.config.mjs
+├── public
+│   ├── favicon.ico
+│   ├── next.svg
+│   └── vercel.svg
+├── src
+│   ├── app
+│   │   ├── api
+│   │   │   └── chat
+│   │   ├── chat
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── AgentDropdown.tsx
+│   │   │   ├── ChatWindow.tsx
+│   │   │   ├── LoginForm.tsx
+│   │   │   ├── Message.tsx
+│   │   │   ├── NotesPanel.tsx
+│   │   │   ├── OptionsPanel.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── SignupForm.tsx
+│   │   │   └── ui
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   └── pages
+│   ├── contexts
+│   │   └── ChatContext.tsx
+│   └── lib
+│       ├── api.ts
+│       ├── hooks
+│       │   ├── use-copy-to-clipboard.tsx
+│       │   ├── use-enter-submit.tsx
+│       │   ├── use-local-storage.ts
+│       │   ├── use-scroll-anchor.tsx
+│       │   ├── use-sidebar.tsx
+│       │   └── use-streamable-text.tsx
+│       ├── types.ts
+│       └── utils.ts
+├── tailwind.config.ts
+└── tsconfig.json

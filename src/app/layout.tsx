@@ -18,12 +18,6 @@ export default function RootLayout({
 					<div className="container mx-auto">{children}</div>
 				</ChatProvider>
 			</body>
-			<footer className="py-4 text-center">
-				<p className="text-mint">
-					&copy; {new Date().getFullYear()} Esmé Keats. All rights
-					reserved.
-				</p>
-			</footer>
 		</html>
 	);
 }

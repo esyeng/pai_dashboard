@@ -10,10 +10,10 @@ import { Options } from "./components/OptionsPanel";
 
 const agents = [
 	{ id: "jasmyn", name: "Jasmyn" },
-	{ id: "tutor", name: "AI Tutor" },
 	{ id: "coder", name: "Coder" },
-	{ id: "ada", name: "Ada" },
 	{ id: "fed", name: "F.E.D." },
+	{ id: "tutor", name: "AI Tutor" },
+	{ id: "ada", name: "Ada" },
 ];
 
 const models = [
@@ -41,6 +41,12 @@ const Home: NextPage = () => {
 
 				<div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left"></div>
 			</main>
+            <footer className="py-4 text-center">
+				<p className="text-mint">
+					&copy; {new Date().getFullYear()} Esmé Keats. All rights
+					reserved.
+				</p>
+			</footer>
 		</div>
 	);
 };
