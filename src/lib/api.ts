@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:5000/claude";
+const BASE = process.env.API_URL ? process.env.API_URL : "http://localhost:5000"
+const API_URL = `${BASE}/claude`;
 
 interface ChatRequestParams {
 	max_tokens: number;
