@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 import Image from "next/image";
 import { ChatWindow } from "./components/ChatWindow";
 import { Options } from "./components/OptionsPanel";
+import { Sidebar } from "./components/Sidebar";
 
 const agents = [
 	{ id: "jasmyn", name: "Jasmyn" },
@@ -40,6 +41,7 @@ const Home: NextPage = () => {
 						</div>
 					</div>
 				</div>
+				<Sidebar />
 				<Options agents={agents} models={models} />
 
 				<ChatWindow />

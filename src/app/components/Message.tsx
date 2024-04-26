@@ -7,6 +7,7 @@ import { useCopyToClipboard } from "../../lib/hooks/use-copy-to-clipboard";
 import { ClipboardIcon } from "@radix-ui/react-icons";
 import { CodeBlock } from "./ui/CodeBlock";
 import { parseCodeBlocks } from "../../lib/utils";
+import { useUser } from "@clerk/nextjs";
 
 interface AgentDict {
 	[key: string]: string;
@@ -32,6 +33,13 @@ interface MessageProps {
 }
 export const Message: React.FC<MessageProps> = ({ role, content, agentId }) => {
 	const { isCopied, copyToClipboard } = useCopyToClipboard({});
+	const { user, isLoaded, isSignedIn } = useUser();
+	if (!isLoaded) {
+		return null;
+	}
+	if (user && isSignedIn) {
+		console.log(`user is signed in: ${user.fullName}`);
+	}
 	// const [streamedText, setStreamedText] = useState<string>('');
 	const currentUserName: string = "Esmé";
 
