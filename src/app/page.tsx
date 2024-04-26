@@ -1,4 +1,5 @@
 import type { NextPage, Metadata } from "next";
+import { useAuth, useUser } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
 	title: "JasmynAI",
