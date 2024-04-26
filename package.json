@@ -18,6 +18,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@steeze-ui/heroicons": "2.3.0",
     "@steeze-ui/react-icon": "1.0.5",
+    "ai": "^3.0.33",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "nanoid": "5.0.7",
