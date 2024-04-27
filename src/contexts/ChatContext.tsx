@@ -1,208 +1,209 @@
+// contexts/ChatContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { queryModel } from "../lib/api";
+import { queryModel, fetchThreads, fetchUser, createThread } from "../lib/api";
 import { formatDate } from "@/lib/utils";
+import { Thread, Threads, User, MessageObject } from "@/lib/types";
+import { agents, models } from "@/lib/store"
 
 export interface ChatContextType {
-	conversations: Conversations;
-	currentConversationId: number;
-	activeMessageQueue: any[];
-	agentId: string;
-	modelId: string;
-	setModelId: (modelId: string) => void;
-	setAgentId: (agentId: string) => void;
-	sendChat: (
-		message: string,
-		model: string,
-		agentId: string,
-		maxTokens?: number,
-		temperature?: number
-	) => Promise<void>;
-	switchConversation: (conversationId: number) => void;
-	createNewConversation: () => void;
-	isLoading?: boolean;
-}
-
-export interface MessageProps {
-	id: number;
-	timestamp: string | number | Date;
-	agentId: string;
-	sender: string;
-	text: string;
-	stream?: boolean;
+    threads: Threads;
+    activeMessageQueue: MessageObject[];
+    user: User | null;
+    currentThreadId: string;
+    agentId: string;
+    modelId: string;
+    setUser: (user: User) => void;
+    setModelId: (modelId: string) => void;
+    setAgentId: (agentId: string) => void;
+    sendChat: (
+        message: string,
+        model: string,
+        agentId: string,
+        senderName: string,
+        maxTokens?: number,
+        temperature?: number
+    ) => Promise<void>;
+    switchThread: (threadId: string) => void;
+    createNewThread: () => void;
+    setThreads: (threads: Threads) => void;
+    isLoading?: boolean;
 }
 
 interface ChatProviderProps {
-	children: any;
+    children: React.ReactNode;
 }
 
-export type Conversations = Record<string, MessageProps[]>;
-
 const _createID = () => {
-	return parseInt(
-		Date.now().toString(36) + Math.random().toString(36).substring(2, 9)
-	);
+    return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
 };
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-export const ChatProvider = ({ children }: ChatProviderProps) => {
-	const [agentId, setAgentId] = useState<string>("jasmyn");
-	const [modelId, setModelId] = useState<string>("claude-3-opus-20240229");
-	const [currentConversationId, setCurrentConversationId] =
-		useState<number>(1);
-	const [conversations, setConversations] = useState<Conversations>({});
-	const [activeMessageQueue, setActiveMessageQueue] = useState<any>([]);
-	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [responseMsg, setResponseMsg] = useState<any>(null);
-	const [idx, setIdx] = useState<number>(0);
-	const [idy, setIdy] = useState<number>(10000);
+export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
+    const [agentId, setAgentId] = useState<string>("jasmyn");
+    const [modelId, setModelId] = useState<string>("claude-3-opus-20240229");
+    const [user, setUser] = useState<User | null>(null);
+    const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
+    const [currentThreadId, setCurrentThreadId] = useState<string>("1");
+    const [threads, setThreads] = useState<any>({});
+    const [activeMessageQueue, setActiveMessageQueue] = useState<MessageObject[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [responseMsg, setResponseMsg] = useState<MessageObject | null>(null);
+    const [idx, setIdx] = useState<number>(0);
+    const [idy, setIdy] = useState<number>(10000);
 
-	useEffect(() => {
-		if (responseMsg && responseMsg.text) {
-			setIsLoading(false);
-			activeMessageQueue.push(responseMsg);
-			setConversations((prev) => {
-				const currentMessages = prev[currentConversationId] || [];
-				return {
-					...prev,
-					[currentConversationId]: [responseMsg, ...currentMessages],
-				};
-			});
-		}
-	}, [responseMsg]);
+    useEffect(() => {
+        if (responseMsg) {
+            setIsLoading(false);
+            setActiveMessageQueue((prev) => [...prev, responseMsg]);
+            setThreads((prev: Threads) => ({
+                ...prev,
+                [currentThreadId]: [...(prev[currentThreadId]["messages"]), responseMsg] ,
+            }));
+        }
+    }, [responseMsg]);
 
-	const sendChat = async (
-		message: string,
-		model: string,
-		agentId: string,
-		maxTokens?: number,
-		temperature?: number
-	) => {
-		const newMsg: MessageProps = {
-			id: idx,
-			timestamp: Date.now(),
-			agentId: agentId,
-			sender: "user",
-			text: message,
-		};
-		const newSendUpdate = [
-			newMsg,
-			...(conversations[currentConversationId] || []),
-		];
-		setConversations((prev) => ({
-			...prev,
-			[currentConversationId]: newSendUpdate,
-		}));
-		setIdx((prev) => prev + 1);
-		const firstMessage =
-			activeMessageQueue.length > 0
-				? activeMessageQueue[activeMessageQueue.length - 1]
-				: null;
-		const updatedQueue = [...activeMessageQueue, newMsg].slice(-7);
-		setActiveMessageQueue(updatedQueue);
-		const messagesToSend =
-			// firstMessage ?
+    useEffect(() => {
+        const fetchData = async () => {
+            const authenticatedUserObject = await fetchUser();
+            if (authenticatedUserObject) {
+                setUser(authenticatedUserObject);
+            }
+        };
 
-			// {
-			// 	role: firstMessage.sender,
-			// 	content: firstMessage.text,
-			// },
-			updatedQueue.map((msg) => ({
-				role: msg.sender,
-				content: msg.text,
-			}));
+        fetchData();
 
-		// : updatedQueue.map((msg) => ({
-		// 		role: msg.sender,
-		// 		content: msg.content,
-		// 	}));
+        return () => {
+            console.log("cleaning up...");
+        };
+    }, []);
 
-		try {
-			setIsLoading(true);
-			const response = await queryModel({
-				max_tokens: maxTokens ? maxTokens : 2000,
-				model: model ? model : "claude-3-opus-20240229",
-				temperature: temperature ? temperature : 0.3,
-				agent_id: agentId,
-				messages: messagesToSend,
-			});
-			const receivedMsg: MessageProps = {
-				id: idy,
-				timestamp: Date.now(),
-				agentId: agentId,
-				sender: "assistant",
-				text: response
-					? response.response
-					: "If you're reading this it means it deednt wuork. :(. Facuk.",
-				stream: true,
-			};
-			setIdy((prev) => prev + 1);
-			setResponseMsg(receivedMsg);
-		} catch (error) {
-			console.error("Error sending chat:", error);
-		} finally {
-			setIsLoading(false);
-		}
-	};
+    useEffect(() => {
+        const fetchThreadsData = async () => {
+            const fetchedThreads = await fetchThreads();
+            setThreads(fetchedThreads ? fetchedThreads : {"test": {
+                id: "test",
+                title: "Test Thread",
+                createdAt: formatDate(new Date()),
+                userId: "1",
+                path: "/thread/test",
+                messages: [
+                    {
+                        id: 1,
+                        timestamp: formatDate(new Date()),
+                        agentId: "jasmyn",
+                        sender: "jasmyn",
+                        role: "assistant",
+                        content: "Hello, world!",
+                    },
+                ],
+            } });
+        };
 
-	const switchConversation = (conversationId: number) => {
-		setCurrentConversationId(conversationId);
-		setActiveMessageQueue([]);
-	};
+        fetchThreadsData();
+        return () => {
+            console.log("cleaning up...");
+            console.log("threads from context", threads);
+        }
+    } , []);
 
-	const createNewConversation = () => {
-		const newConversationId = _createID();
-		setCurrentConversationId(newConversationId);
-		setConversations({
-			...conversations,
-			[newConversationId]: [],
-		});
-		setActiveMessageQueue([]);
-	};
+    const sendChat = async (
+        message: string,
+        model: string,
+        agentId: string,
+        senderName: string,
+        maxTokens?: number,
+        temperature?: number
+    ) => {
+        const newMsg: MessageObject = {
+            id: idx,
+            timestamp: Date.now(),
+            agentId: agentId,
+            sender: senderName,
+            role: "user",
+            content: message,
+        };
+        setThreads((prev: Threads) => ({
+            ...prev,
+            [currentThreadId]: [...(prev[currentThreadId]["messages"]), newMsg],
+        }));
+        setIdx((prev) => prev + 1);
+        const updatedQueue = [...activeMessageQueue, newMsg].slice(-7);
+        setActiveMessageQueue(updatedQueue);
+        const messagesToSend = updatedQueue.map((msg) => ({
+            role: msg.sender,
+            content: msg.content,
+        }));
 
-	return (
-		<ChatContext.Provider
-			value={{
-				conversations,
-				currentConversationId,
-				activeMessageQueue,
-				agentId,
-				modelId,
-				setModelId,
-				setAgentId,
-				sendChat,
-				switchConversation,
-				createNewConversation,
-				isLoading,
-			}}
-		>
-			{children}
-		</ChatContext.Provider>
-	);
+        try {
+            setIsLoading(true);
+            const response = await queryModel({
+                max_tokens: maxTokens || 2000,
+                model: model || "claude-3-opus-20240229",
+                temperature: temperature || 0.3,
+                agent_id: agentId,
+                messages: messagesToSend,
+            });
+            const receivedMsg: MessageObject = {
+                id: idy,
+                timestamp: Date.now(),
+                agentId: agentId,
+                sender: agentId,
+                role: "assistant",
+                content: response?.response || "If you're reading this, it means it didn't work. :(",
+            };
+            setIdy((prev) => prev + 1);
+            setResponseMsg(receivedMsg);
+        } catch (error) {
+            console.error("Error sending chat:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const switchThread = (threadId: string) => {
+        setCurrentThreadId(threadId);
+        setActiveMessageQueue([]);
+    };
+
+    const createNewThread = () => {
+        const newThreadId = _createID();
+        setCurrentThreadId(newThreadId);
+        setThreads((prev: any) => ({
+            ...prev,
+            [newThreadId]: [],
+        }));
+        setActiveMessageQueue([]);
+    };
+
+    return (
+        <ChatContext.Provider
+            value={{
+                threads,
+                currentThreadId,
+                activeMessageQueue,
+                user,
+                agentId,
+                modelId,
+                setUser,
+                setModelId,
+                setAgentId,
+                sendChat,
+                switchThread,
+                createNewThread,
+                setThreads,
+                isLoading,
+            }}
+        >
+            {children}
+        </ChatContext.Provider>
+    );
 };
 
-export const useChat = (): {
-	conversations: Conversations;
-	currentConversationId: number;
-	activeMessageQueue: any[];
-	agentId: string;
-	modelId: string;
-	setModelId: (modelId: string) => void;
-	setAgentId: (agentId: string) => void;
-	sendChat: (
-		message: string,
-		model: string,
-		agentId: string,
-		maxTokens?: number,
-		temperature?: number
-	) => Promise<void>;
-	switchConversation: (conversationId: number) => void;
-	createNewConversation: () => void;
-	isLoading?: boolean;
-} => {
-	const context = useContext(ChatContext);
-	if (!context) {
-		throw new Error("useChat must be used within a ChatProvider");
-	}
-	return context;
+export const useChat = (): ChatContextType => {
+    const context = useContext(ChatContext);
+    if (!context) {
+        throw new Error("useChat must be used within a ChatProvider");
+    }
+    return context;
 };

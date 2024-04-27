@@ -1,4 +1,4 @@
-import { Thread } from "./types";
+import { Thread, Threads } from "./types";
 const BASE = "https://jasmyn-cb3idkum5a-uc.a.run.app";
 const API_URL = `${BASE}/claude`;
 // console.log(process.env.NODE_ENV === "production");
@@ -20,6 +20,19 @@ interface ModelResponse {
 				response?: string | JSON;
 		  };
 	text?: string;
+}
+
+export const fetchUser = async () => {
+    try {
+        const response = await fetch(`${BASE}/db/auth/user`);
+        if (!response.ok) {
+            throw new Error("Failed to fetch user with session ID");
+        }
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return null;
+    }
+
 }
 
 export const queryModel = async (
@@ -47,7 +60,7 @@ export const queryModel = async (
 };
 
 // check routing to ensure that the correct API URL is being used
-export const fetchThreads = async (): Promise<Thread[]> => {
+export const fetchThreads = async (): Promise<Threads> => {
 	try {
 		const response = await fetch(`${BASE}/db/threads`);
 		if (!response.ok) {
@@ -57,12 +70,12 @@ export const fetchThreads = async (): Promise<Thread[]> => {
 		return data.threads;
 	} catch (error) {
 		console.error("Error fetching threads:", error);
-		return [];
+		return {};
 	}
 };
 
 // check routing to ensure that the correct API URL is being used
-export const createThread = async (): Promise<Thread> => {
+export const createThread = async (): Promise<Thread | null> => {
 	try {
 		const response = await fetch(`${BASE}/db/threads`, {
 			method: "POST",
@@ -83,16 +96,40 @@ export const createThread = async (): Promise<Thread> => {
 };
 
 // check routing to ensure that the correct API URL is being used
-export const exportThread = async (threadId: string): Promise<void> => {
-	try {
-		const response = await fetch(`${BASE}/db/threads/${threadId}/export`, {
-			method: "POST",
-		});
-		if (!response.ok) {
-			throw new Error("Failed to export thread");
-		}
-		// Handle the exported thread data (e.g., save to file)
-	} catch (error) {
-		console.error("Error exporting thread:", error);
-	}
+// this function is not a backend call, it should take in a thread and export it to a downloadable file on the client
+export const exportThread = (thread: Thread): void => {
+    const markdownContent = convertToMarkdown(thread);
+    const file = new Blob([markdownContent], {
+        type: "text/markdown",
+    });
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${thread.title}.md`;
+    link.click();
 };
+
+const convertToMarkdown = (thread: Thread): string => {
+    let markdown = `# ${thread.title}\n\n`;
+    thread.messages.forEach((message) => {
+        markdown += `**${message.senderName}:** ${message.content}\n\n`;
+    });
+    return markdown;
+};
+
+export const updateThreadName = async ( threadId: string, title: string): Promise<void> => {
+    try {
+        const response = await fetch(`${BASE}/db/threads/${threadId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ title }),
+        });
+        if (!response.ok) {
+            throw new Error("Failed to update thread name");
+        }
+    } catch (error) {
+        console.error("Error updating thread name:", error);
+    }
+}

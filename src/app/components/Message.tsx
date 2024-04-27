@@ -8,6 +8,7 @@ import { ClipboardIcon } from "@radix-ui/react-icons";
 import { CodeBlock } from "./ui/CodeBlock";
 import { parseCodeBlocks } from "../../lib/utils";
 import { useUser } from "@clerk/nextjs";
+import { MessageProps } from "@/lib/types";
 
 interface AgentDict {
 	[key: string]: string;
@@ -24,13 +25,7 @@ const agents: AgentDict = {
 	player_helper: "D&D: Player Helper",
 };
 
-interface MessageProps {
-	role: string;
-	content: string;
-	agentId: string;
-	stream?: boolean;
-	language?: string;
-}
+
 export const Message: React.FC<MessageProps> = ({ role, content, agentId }) => {
 	const { isCopied, copyToClipboard } = useCopyToClipboard({});
 	const { user, isLoaded, isSignedIn } = useUser();

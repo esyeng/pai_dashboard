@@ -3,35 +3,42 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Message } from "./Message";
 import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
-import { useChat, MessageProps } from "@/contexts/ChatContext";
+import { useChat } from "@/contexts/ChatContext";
+import { MessageProps } from "@/lib/types";
+import {agents, models} from "@/lib/store";
+import { useAuth, useUser } from "@clerk/nextjs";
 
 export const ChatWindow: React.FC = () => {
 	const [inputValue, setInputValue] = useState("");
 	const inputRef = useRef<HTMLTextAreaElement>(null);
+    const {userId, isLoaded} = useAuth();
 	const chatWindowRef = useRef<HTMLDivElement>(null);
 	const {
 		agentId,
 		modelId,
-		conversations,
-		currentConversationId,
+		threads,
+        user,
+		currentThreadId,
 		sendChat,
 		isLoading,
 	} = useChat();
 	const currentConversation = useMemo(() => {
-		return conversations[currentConversationId] || [];
-	}, [conversations, currentConversationId]);
+        console.log(`currentThreadId: ${currentThreadId}`)
 
-	const sortedMessages = useMemo(() => {
+		return threads[currentThreadId] ? threads[currentThreadId]["messages"] : [ {id: "1", text: "Hello, world!", sender: "user", agentId: "jasmyn", createdAt: new Date()}];
+	}, [threads, currentThreadId]);
+
+	const sortedConversation = useMemo(() => {
 		return [...currentConversation].sort(
 			(a, b) =>
-				new Date(a.timestamp).getTime() -
-				new Date(b.timestamp).getTime()
+				new Date(a.createdAt).getTime() -
+				new Date(b.createdAt).getTime()
 		);
 	}, [currentConversation]);
 
 	const onSendMessage = async (message: string) => {
 		console.log(`sending message to ${agentId}... message: ${message}`);
-		await sendChat(message, modelId, agentId, 2000, 0.3);
+		await sendChat(message, modelId, agentId, user ? user.firstName : 'anonymousUser', 2000, 0.3);
 	};
 
 	const handleSendMessage = () => {
@@ -51,14 +58,14 @@ export const ChatWindow: React.FC = () => {
 				block: "end",
 			});
 		}
-	}, [sortedMessages.length]);
+	}, [sortedConversation?.length]);
 
 	return (
 		<div className="container mx-auto px-4 py-4 h-full bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] rounded-lg shadow-xl sm:w-3/4 lg:w-2/3 lg:h-4/5">
 			<div className="w-full mx-auto h-full">
 				<div className="flex flex-col h-full min-h-[400px] flex-grow">
 					<div className="flex-grow overflow-y-auto p-4">
-						{sortedMessages.map((message) => (
+						{sortedConversation.map((message) => (
 							<Message
 								key={message.id}
 								role={message.sender}
