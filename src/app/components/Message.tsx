@@ -26,7 +26,7 @@ const agents: AgentDict = {
 };
 
 
-export const Message: React.FC<MessageProps> = ({ role, content, agentId }) => {
+export const Message: React.FC<MessageProps> = ({ id, timestamp, sender, msg, agentId }) => {
 	const { isCopied, copyToClipboard } = useCopyToClipboard({});
 	const { user, isLoaded, isSignedIn } = useUser();
 	if (!isLoaded) {
@@ -38,12 +38,12 @@ export const Message: React.FC<MessageProps> = ({ role, content, agentId }) => {
 	// const [streamedText, setStreamedText] = useState<string>('');
 	const currentUserName: string = "Esmé";
 
-	const isUserMessage = role === "user";
+	const isUserMessage = msg.role === "user";
 	const messageClass = isUserMessage
 		? "bg-vista-blue text-gray"
 		: "bg-jasmine text-black";
 	const alignmentClass = isUserMessage ? "justify-end" : "justify-start";
-	const parsedContent = parseCodeBlocks(content);
+	const parsedContent = parseCodeBlocks(msg.content);
 
 	return (
 		<div className={`flex ${alignmentClass} mb-4`}>
@@ -56,7 +56,7 @@ export const Message: React.FC<MessageProps> = ({ role, content, agentId }) => {
 						{part.type === "text" ? (
 							<>
 								<span className="block text-chocolate-cosmos text-md">
-									{role === "user"
+									{msg.role === "user"
 										? currentUserName
 										: agents[agentId]}
 								</span>
@@ -76,7 +76,7 @@ export const Message: React.FC<MessageProps> = ({ role, content, agentId }) => {
 				))}
 				<button
 					className={`text-xs text-chocolate-cosmos hover:scale-1.1 focus:outline-none`}
-					onClick={() => copyToClipboard(content)}
+					onClick={() => copyToClipboard(msg.content)}
 				>
 					{isCopied ? "Copied!" : <ClipboardIcon />}
 				</button>

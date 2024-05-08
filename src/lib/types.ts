@@ -10,27 +10,32 @@ export type Threads = Record<string, Thread>;
 
 export interface Thread {
     id: string;
-    title: string;
+    title?: string;
     createdAt: Date;
-    userId: string;
-    path: string;
-    messages: Message[];
+    userId?: string;
+    path?: string;
+    messages: MessageProps[];
     sharePath?: string;
 }
 
 export interface MessageProps {
-    role: string;
-    content: string;
+    id: string | number;
+    timestamp: string | number | Date;
+    sender: string;
+    msg: {
+        role: string;
+        content: string;
+    }
     agentId: string;
     stream?: boolean;
     language?: string;
 }
 
-export interface MessageObject extends MessageProps {
-    id: number;
-    timestamp: string | number | Date;
-    sender: string;
-}
+// export interface MessageObject extends MessageProps {
+//     id: number;
+//     timestamp: string | number | Date;
+//     sender: string;
+// }
 
 export interface Chat extends Record<string, any> {
     id: string;
@@ -38,7 +43,7 @@ export interface Chat extends Record<string, any> {
     createdAt: Date;
     userId: string;
     path: string;
-    messages: Message[];
+    messages: MessageProps[];
     sharePath?: string;
 }
 

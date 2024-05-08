@@ -2,12 +2,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { queryModel, fetchThreads, fetchUser, createThread } from "../lib/api";
 import { formatDate } from "@/lib/utils";
-import { Thread, Threads, User, MessageObject } from "@/lib/types";
+import { Thread, Threads, User, MessageProps } from "@/lib/types";
 import { agents, models } from "@/lib/store"
 
 export interface ChatContextType {
     threads: Threads;
-    activeMessageQueue: MessageObject[];
+    activeMessageQueue: MessageProps[];
     user: User | null;
     currentThreadId: string;
     agentId: string;
@@ -44,11 +44,31 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [modelId, setModelId] = useState<string>("claude-3-opus-20240229");
     const [user, setUser] = useState<User | null>(null);
     const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
-    const [currentThreadId, setCurrentThreadId] = useState<string>("1");
-    const [threads, setThreads] = useState<any>({});
-    const [activeMessageQueue, setActiveMessageQueue] = useState<MessageObject[]>([]);
+    const [currentThreadId, setCurrentThreadId] = useState<string | number>(1);
+    const [threads, setThreads] = useState<any>({
+        [currentThreadId]: {
+            id: currentThreadId,
+            title: "Test Thread",
+            createdAt: formatDate(new Date()),
+            userId: "1",
+            path: "/thread/1",
+            messages: [
+                {
+                    id: 1,
+                    timestamp: formatDate(new Date()),
+                    agentId: "jasmyn",
+                    sender: "Jasmyn",
+                    msg: {
+                        role: "assistant",
+                        content: "Hello!",
+                    }
+                },
+            ],
+        }
+    });
+    const [activeMessageQueue, setActiveMessageQueue] = useState<MessageProps[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [responseMsg, setResponseMsg] = useState<MessageObject | null>(null);
+    const [responseMsg, setResponseMsg] = useState<MessageProps | null>(null);
     const [idx, setIdx] = useState<number>(0);
     const [idy, setIdy] = useState<number>(10000);
 
@@ -58,7 +78,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             setActiveMessageQueue((prev) => [...prev, responseMsg]);
             setThreads((prev: Threads) => ({
                 ...prev,
-                [currentThreadId]: [...(prev[currentThreadId]["messages"]), responseMsg] ,
+                [currentThreadId]: {
+                    ...prev[currentThreadId],
+                    messages: [...(prev[currentThreadId]["messages"]), responseMsg],
+                }
             }));
         }
     }, [responseMsg]);
@@ -81,23 +104,25 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     useEffect(() => {
         const fetchThreadsData = async () => {
             const fetchedThreads = await fetchThreads();
-            setThreads(fetchedThreads ? fetchedThreads : {"test": {
-                id: "test",
-                title: "Test Thread",
-                createdAt: formatDate(new Date()),
-                userId: "1",
-                path: "/thread/test",
-                messages: [
-                    {
-                        id: 1,
-                        timestamp: formatDate(new Date()),
-                        agentId: "jasmyn",
-                        sender: "jasmyn",
-                        role: "assistant",
-                        content: "Hello, world!",
-                    },
-                ],
-            } });
+            setThreads(fetchedThreads ? fetchedThreads : {
+                "test": {
+                    id: "test",
+                    title: "Test Thread",
+                    createdAt: formatDate(new Date()),
+                    userId: "1",
+                    path: "/thread/test",
+                    messages: [
+                        {
+                            id: 1,
+                            timestamp: formatDate(new Date()),
+                            agentId: "jasmyn",
+                            sender: "jasmyn",
+                            role: "assistant",
+                            content: "Hello, world!",
+                        },
+                    ],
+                }
+            });
         };
 
         fetchThreadsData();
@@ -105,7 +130,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             console.log("cleaning up...");
             console.log("threads from context", threads);
         }
-    } , []);
+    }, []);
 
     const sendChat = async (
         message: string,
@@ -115,24 +140,48 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         maxTokens?: number,
         temperature?: number
     ) => {
-        const newMsg: MessageObject = {
+        const newMsg: MessageProps = {
             id: idx,
             timestamp: Date.now(),
             agentId: agentId,
             sender: senderName,
-            role: "user",
-            content: message,
+            msg: {
+                role: "user",
+                content: message,
+            }
         };
-        setThreads((prev: Threads) => ({
-            ...prev,
-            [currentThreadId]: [...(prev[currentThreadId]["messages"]), newMsg],
-        }));
+        console.log("currentThreadId", currentThreadId);
+        console.log("currentThread", threads[currentThreadId])
+        setThreads((prev: Threads) => {
+
+            if (!prev[currentThreadId]) {
+                return {
+                    ...prev,
+                    [currentThreadId]: {
+                        id: currentThreadId,
+                        title: "New Thread",
+                        createdAt: formatDate(new Date()),
+                        messages: [newMsg],
+                    }
+                }
+            }
+            else {
+                return {
+                    ...prev,
+                    [currentThreadId]: {
+                        ...prev[currentThreadId],
+                        messages: [...(prev[currentThreadId]["messages"]), newMsg]
+                    }
+                }
+            }
+        }
+        );
         setIdx((prev) => prev + 1);
         const updatedQueue = [...activeMessageQueue, newMsg].slice(-7);
         setActiveMessageQueue(updatedQueue);
         const messagesToSend = updatedQueue.map((msg) => ({
             role: msg.sender,
-            content: msg.content,
+            content: msg.msg.content,
         }));
 
         try {
@@ -144,13 +193,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 agent_id: agentId,
                 messages: messagesToSend,
             });
-            const receivedMsg: MessageObject = {
+            const receivedMsg: MessageProps = {
                 id: idy,
                 timestamp: Date.now(),
                 agentId: agentId,
                 sender: agentId,
-                role: "assistant",
-                content: response?.response || "If you're reading this, it means it didn't work. :(",
+                msg: {
+                    role: "assistant",
+                    content: response?.response || "If you're reading this, it means it didn't work. :(",
+                }
             };
             setIdy((prev) => prev + 1);
             setResponseMsg(receivedMsg);
