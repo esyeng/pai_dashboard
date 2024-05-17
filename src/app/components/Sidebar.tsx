@@ -1,28 +1,14 @@
 "use client";
 
 import * as ScrollArea from "@radix-ui/react-scroll-area";
-import React, { useState } from "react";
+import React from "react";
 import NotesPanel from "./NotesPanel";
 import ThreadList from "./ThreadList";
 
 export const Sidebar: React.FC = () => {
-	const [isOpen, setIsOpen] = useState(true);
-
-	const toggleSidebar = () => {
-		setIsOpen(!isOpen);
-	};
-
 	return (
-		<div
-			className={`fixed top-0 left-0 h-screen bg-gray-200 transition-all duration-300 ${isOpen ? "w-64" : "w-16"}`}
-		>
-			<button
-				className="absolute top-4 right-4 p-2 bg-gray-300 rounded-md focus:outline-none"
-				onClick={toggleSidebar}
-			>
-				{isOpen ? "×" : "☰"}
-			</button>
-			<div className={`p-4 ${isOpen ? "block" : "hidden"}`}>
+		<div className="h-screen bg-gray-200 transition-all duration-300 w-96 mt-8 sm:mt-2 lg:w-96">
+			<div className="h-full flex flex-1 w-full flex-col items-center justify-center mt-6 px-2 py-4">
 				<NotesPanel />
 				<ThreadList />
 			</div>
