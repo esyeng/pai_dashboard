@@ -84,16 +84,16 @@
 }
 
 html {
-    background: linear-gradient(to bottom,
+    /* background: linear-gradient(to bottom,
             transparent,
-            rgb(var(--caribbean-current))) rgb(var(--other-cc));
+            rgb(var(--caribbean-current))) rgb(var(--other-cc)); */
 }
 
 body {
     color: rgb(var(--text-color));
-    /* background: linear-gradient(to bottom,
+    background: linear-gradient(to bottom,
             transparent,
-            rgb(var(--caribbean-current))) rgb(var(--other-cc)); */
+            rgb(var(--caribbean-current))) rgb(var(--other-cc));
 }
 
 @layer utilities {
