@@ -1,14 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { ChatWindow } from "./ChatWindow";
 import { Options } from "./OptionsPanel";
 import { Sidebar } from "./Sidebar";
+import { useChat } from "@/contexts/ChatContext";
 
 import { agents, models } from "../../lib/store";
+import { useAuth } from "@clerk/nextjs";
 
 export const MainContent: React.FC = () => {
 	const [sideOnBottom, setSideOnBottom] = useState(false);
+	const { isLoaded, userId, sessionId, getToken } = useAuth();
+	const { threads, user, setToken, agentId, modelId } = useChat();
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -21,6 +25,15 @@ export const MainContent: React.FC = () => {
 			window.removeEventListener("resize", handleResize);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (isLoaded) {
+			setToken(getToken());
+		}
+		console.log(
+			`data present in MainContent after isLoaded is evaluated: first, is it?: ${isLoaded}. Soo the userId is: ${userId} and the sessionId is: ${sessionId} and the token is: ${getToken()}. user?: ${user} and agentId?: ${agentId} and modelId?: ${modelId} and threads?: ${threads} and agents?: ${agents} and models?: ${models} and sideOnBottom?: ${sideOnBottom} and setSideOnBottom?: ${setSideOnBottom}`
+		);
+	}, [isLoaded]);
 
 	return (
 		<div className="flex justify-between w-full max-sm:flex-col">

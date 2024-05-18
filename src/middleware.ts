@@ -8,8 +8,16 @@ const shouldRedirectIfAuthenticated = createRouteMatcher([
 ]); // Assuming '/signin' and '/signup' should redirect if authenticated
 
 export default clerkMiddleware((auth, req) => {
-	const { sessionId, userId } = auth();
-	console.log(`sessionId: ${sessionId}, userId: ${userId}`);
+	const { sessionId, userId, getToken } = auth();
+	console.log(
+		`sessionId: ${sessionId}, userId: ${userId}, token: ${getToken()}`
+	);
+	// if (userId && !localStorage.getItem("userId")) {
+	// 	localStorage.setItem("userId", userId);
+	// }
+	// if (sessionId && !localStorage.getItem("sessionId")) {
+	// 	localStorage.setItem("sessionId", sessionId);
+	// }
 
 	if (isProtectedRoute(req)) {
 		auth().protect();

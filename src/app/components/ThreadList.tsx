@@ -23,9 +23,10 @@ const threadsDummyData: Thread[] = [
 		messages: [
 			{
 				id: "1",
-				content: "Hello, world!",
-				createdAt: new Date(),
-				userId: "1",
+				msg: { role: "user", content: "Hello, world!" },
+				timestamp: new Date(),
+				sender: "test-user",
+				agentId: "jasmyn",
 			},
 		],
 	},
@@ -38,9 +39,10 @@ const threadsDummyData: Thread[] = [
 		messages: [
 			{
 				id: "1",
-				content: "Hello, world!",
-				createdAt: new Date(),
-				userId: "1",
+				msg: { role: "assistant", content: "Um. Hi!" },
+				timestamp: new Date(),
+				sender: "jasmyn",
+				agentId: "jasmyn",
 			},
 		],
 	},
@@ -50,10 +52,10 @@ const ThreadList: React.FC = () => {
 	const { setThreads, switchThread } = useChat();
 
 	useEffect(() => {
-		const getThreads = async () => {
-			const fetchedThreads = await fetchThreads();
-			setThreads(fetchedThreads);
-		};
+		// const getThreads = async () => {
+		// 	const fetchedThreads = await fetchThreads();
+		// 	setThreads(fetchedThreads);
+		// };
 		// getThreads();
 		("call to backend: get threads");
 	}, []);
@@ -110,11 +112,11 @@ const ThreadList: React.FC = () => {
 						>
 							<span
 								className="text-caribbean-current font-bold bg-mint self-stretch p-2 hover:transition-colors cursor-pointer duration-300 hover:bg-mint/20 rounded-l-lg"
-								contentEditable="true"
-								onInput={handleThreadNameInput}
-								onKeyDown={(event) =>
-									handleThreadNameKeyDown(event, thread)
-								}
+								// contentEditable="true"
+								// onInput={handleThreadNameInput}
+								// onKeyDown={(event) =>
+								// 	handleThreadNameKeyDown(event, thread)
+								// }
 							>
 								{thread.title}
 							</span>

@@ -25,8 +25,13 @@ const agents: AgentDict = {
 	player_helper: "D&D: Player Helper",
 };
 
-
-export const Message: React.FC<MessageProps> = ({ id, timestamp, sender, msg, agentId }) => {
+export const Message: React.FC<MessageProps> = ({
+	id,
+	timestamp,
+	sender,
+	msg,
+	agentId,
+}) => {
 	const { isCopied, copyToClipboard } = useCopyToClipboard({});
 	const { user, isLoaded, isSignedIn } = useUser();
 	if (!isLoaded) {
@@ -34,6 +39,7 @@ export const Message: React.FC<MessageProps> = ({ id, timestamp, sender, msg, ag
 	}
 	if (user && isSignedIn) {
 		console.log(`user is signed in: ${user.fullName}`);
+		// console.log(`user object: ${JSON.stringify(user)}`);
 	}
 	// const [streamedText, setStreamedText] = useState<string>('');
 	const currentUserName: string = "Esmé";

@@ -1,5 +1,9 @@
 import { Thread, Threads } from "./types";
-const BASE = "https://jasmyn-cb3idkum5a-uc.a.run.app";
+import { useAuth } from "@clerk/nextjs";
+// const BASE = "https://jasmyn-cb3idkum5a-uc.a.run.app";
+const BASE = "http://localhost:8000";
+
+// const API_URL = `${BASE}/claude`;
 const API_URL = `${BASE}/claude`;
 // console.log(process.env.NODE_ENV === "production");
 // console.log(process.env.API_URL);
@@ -10,6 +14,7 @@ interface ChatRequestParams {
 	temperature: number;
 	agent_id: string;
 	messages: { role: string; content: string }[];
+	currentThreadId: string;
 }
 
 interface ModelResponse {
@@ -22,27 +27,38 @@ interface ModelResponse {
 	text?: string;
 }
 
-export const fetchUser = async () => {
-    try {
-        const response = await fetch(`${BASE}/db/auth/user`);
-        if (!response.ok) {
-            throw new Error("Failed to fetch user with session ID");
-        }
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        return null;
-    }
-
-}
-
-export const queryModel = async (
-	params: ChatRequestParams
-): Promise<ModelResponse> => {
+export const fetchUser = async (token: any) => {
 	try {
-		const response = await fetch(API_URL, {
+		console.log("token from fetchUser", token);
+		const response = await fetch(`${BASE}/auth/user`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+			},
+			body: JSON.stringify(token),
+		});
+		if (!response.ok) {
+			throw new Error("Failed to fetch user with session ID");
+		}
+		return response.json();
+	} catch (error) {
+		console.error("Error fetching user:", error);
+		return null;
+	}
+};
+
+export const queryModel = async (
+	params: ChatRequestParams,
+	token: string
+): Promise<ModelResponse> => {
+	try {
+		const response = await fetch(`${BASE}/db/tables/threads`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
 			},
 			body: JSON.stringify(params),
 		});
@@ -62,7 +78,7 @@ export const queryModel = async (
 // check routing to ensure that the correct API URL is being used
 export const fetchThreads = async (): Promise<Threads> => {
 	try {
-		const response = await fetch(`${BASE}/db/threads`);
+		const response = await fetch(`${BASE}/db/tables/threads`);
 		if (!response.ok) {
 			throw new Error("Failed to fetch threads");
 		}
@@ -98,38 +114,41 @@ export const createThread = async (): Promise<Thread | null> => {
 // check routing to ensure that the correct API URL is being used
 // this function is not a backend call, it should take in a thread and export it to a downloadable file on the client
 export const exportThread = (thread: Thread): void => {
-    const markdownContent = convertToMarkdown(thread);
-    const file = new Blob([markdownContent], {
-        type: "text/markdown",
-    });
-    const url = URL.createObjectURL(file);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${thread.title}.md`;
-    link.click();
+	const markdownContent = convertToMarkdown(thread);
+	const file = new Blob([markdownContent], {
+		type: "text/markdown",
+	});
+	const url = URL.createObjectURL(file);
+	const link = document.createElement("a");
+	link.href = url;
+	link.download = `${thread.title}.md`;
+	link.click();
 };
 
 const convertToMarkdown = (thread: Thread): string => {
-    let markdown = `# ${thread.title}\n\n`;
-    thread.messages.forEach((message) => {
-        markdown += `**${message.senderName}:** ${message.content}\n\n`;
-    });
-    return markdown;
+	let markdown = `# ${thread.title}\n\n`;
+	thread.messages.forEach((message) => {
+		markdown += `**${message.senderName}:** ${message.content}\n\n`;
+	});
+	return markdown;
 };
 
-export const updateThreadName = async ( threadId: string, title: string): Promise<void> => {
-    try {
-        const response = await fetch(`${BASE}/db/threads/${threadId}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ title }),
-        });
-        if (!response.ok) {
-            throw new Error("Failed to update thread name");
-        }
-    } catch (error) {
-        console.error("Error updating thread name:", error);
-    }
-}
+export const updateThreadName = async (
+	threadId: string,
+	title: string
+): Promise<void> => {
+	try {
+		const response = await fetch(`${BASE}/db/threads/${threadId}`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ title }),
+		});
+		if (!response.ok) {
+			throw new Error("Failed to update thread name");
+		}
+	} catch (error) {
+		console.error("Error updating thread name:", error);
+	}
+};
