@@ -19,9 +19,9 @@ import { Thread, Threads, User, MessageProps } from "@/lib/types";
 import { agents, models } from "@/lib/store";
 import { useAuth } from "@clerk/nextjs";
 
-const _convertToMarkdown = (thread: Thread): string => {
+const _convertToMarkdown = (thread: Thread | any): string => {
 	let markdown = `# ${thread.title}\n\n`;
-	thread.messages.forEach((message) => {
+	thread.messages.forEach((message: any) => {
 		markdown += `**${message.sender}:** ${message.msg.content}\n\n`;
 	});
 	return markdown;
@@ -35,7 +35,7 @@ export interface ChatContextType {
 	agentId: string;
 	modelId: string;
 	loadComplete: boolean;
-	setToken: (token: string | Promise<string>) => void;
+	setToken: (token: string | Promise<string> | any) => void;
 	setUser: (user: User) => void;
 	setModelId: (modelId: string) => void;
 	setAgentId: (agentId: string) => void;
@@ -72,7 +72,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 	const [modelId, setModelId] = useState<string>("claude-3-opus-20240229");
 	const [user, setUser] = useState<User | null>(null);
 	const [currentThreadId, setCurrentThreadId] = useState<string | number>(1);
-	const [threads, setThreads] = useState<Threads>({});
+	const [threads, setThreads] = useState<Threads | any>({});
 	const [messagesInActiveThread, setMessagesInActiveThread] = useState<
 		MessageProps[]
 	>([]);
@@ -131,7 +131,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 		if (responseMsg) {
 			setIsLoading(false);
 			setMessagesInActiveThread((prev) => [...prev, responseMsg]);
-			setThreads((prev: Threads) => ({
+			setThreads((prev: Threads | any) => ({
 				...prev,
 				[currentThreadId]: {
 					...prev[currentThreadId],
@@ -196,7 +196,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 	): Promise<Thread[]> => {
 		console.log("fetching threads...");
 		try {
-			const fetchedThreads: Thread[] = await fetchThreads(token);
+			const fetchedThreads: Thread[] | any[] = await fetchThreads(token);
 			console.log("about to setThreads to fetchedThreads");
 			setThreads(
 				fetchedThreads.reduce((acc, thread) => {
@@ -262,7 +262,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 		};
 		console.log("currentThreadId", currentThreadId);
 		// console.log("currentThread", threads[currentThreadId]);
-		setThreads((prev: Threads) => {
+		setThreads((prev: Threads | any) => {
 			{
 				console.log("previous thread ye", prev[currentThreadId]);
 				return {
@@ -358,7 +358,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 				id: newThreadId,
 				title: "New Thread",
 				createdAt: formatDate(new Date()),
-				messages: [] as MessageProps,
+				messages: [] as unknown[],
 			},
 		}));
 		setActiveMessageQueue([]);

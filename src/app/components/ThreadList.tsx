@@ -13,41 +13,6 @@ export interface Message {
 	userId: string;
 }
 
-const threadsDummyData: Thread[] = [
-	{
-		id: "1",
-		title: "Thread 1",
-		createdAt: new Date(),
-		userId: "1",
-		path: "/thread/1",
-		messages: [
-			{
-				id: "1",
-				msg: { role: "user", content: "Hello, world!" },
-				timestamp: new Date(),
-				sender: "test-user",
-				agentId: "jasmyn",
-			},
-		],
-	},
-	{
-		id: "2",
-		title: "Thread 2",
-		createdAt: new Date(),
-		userId: "1",
-		path: "/thread/2",
-		messages: [
-			{
-				id: "1",
-				msg: { role: "assistant", content: "Um. Hi!" },
-				timestamp: new Date(),
-				sender: "jasmyn",
-				agentId: "jasmyn",
-			},
-		],
-	},
-];
-
 const ThreadList: React.FC = () => {
 	const {
 		setThreads,
@@ -70,7 +35,7 @@ const ThreadList: React.FC = () => {
 
 	const handleThreadNameKeyDown = async (
 		event: React.KeyboardEvent<HTMLSpanElement>,
-		thread: Thread
+		thread: Thread | any
 	) => {
 		if (event.key === "Enter") {
 			event.preventDefault();
@@ -93,7 +58,7 @@ const ThreadList: React.FC = () => {
 			<div className="flex flex-col items-center justify-between">
 				<ul className="space-y-2 flex-1 w-full">
 					{loadComplete && threadsArray.length > 0 ? (
-						threadsArray.map((threadItem) => {
+						threadsArray.map((threadItem: any) => {
 							console.log("thread from threadsArray", threadItem);
 							return (
 								<li

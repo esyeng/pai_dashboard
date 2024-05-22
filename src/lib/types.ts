@@ -12,7 +12,7 @@ export interface Thread {
 		createdAt: Date;
 		userId?: string;
 		path?: string;
-		messages: MessageProps[];
+		messages: MessageProps[] | any;
 		sharePath?: string;
 	};
 }
