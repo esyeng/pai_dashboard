@@ -1,16 +1,16 @@
-import { Thread, Threads } from "./types";
+import { Thread, Threads, MessageProps } from "./types";
 import { createClerkSupabaseClient } from "@/app/supabase/page";
 
 import { useAuth } from "@clerk/nextjs";
 // const BASE = "https://jasmyn-cb3idkum5a-uc.a.run.app";
 const BASE = "http://localhost:8080";
 
-// const API_URL = `${BASE}/claude`;
-const API_URL = `${BASE}/model/claude/chat`;
+// const CLAUDE_CHAT = `${BASE}/claude`;
+const CLAUDE_CHAT = `${BASE}/model/claude/chat`;
 // console.log(process.env.NODE_ENV === "production");
-// console.log(process.env.API_URL);
+// console.log(process.env.CLAUDE_CHAT);
 
-interface ChatRequestParams {
+interface ClaudeChatRequestParams {
 	max_tokens: number;
 	model: string;
 	temperature: number;
@@ -28,6 +28,73 @@ interface ModelResponse {
 		  };
 	text?: string;
 }
+
+export function parseMessageString(messageString: string): MessageProps {
+	let parsedMessage = JSON.parse(messageString);
+	console.log(
+		"FUCKING INPUT TO FUCKING PARSE STRING FUCKTION",
+		messageString
+	);
+
+	if (typeof parsedMessage === "string") {
+		parsedMessage = JSON.parse(parsedMessage);
+	}
+
+	if (typeof parsedMessage === "string") {
+		parsedMessage = JSON.parse(parsedMessage);
+	}
+
+	if (typeof parsedMessage === "string") {
+		parsedMessage = JSON.parse(parsedMessage);
+	}
+
+	console.log("FUCKING PARSED STRING FUCK YOU", parsedMessage);
+	console.log(
+		"FUCKING TYPE OF THE PARSED STRING FUCK YOU",
+		typeof parsedMessage
+	);
+	const message: MessageProps = {
+		id: parsedMessage.id,
+		timestamp: parsedMessage.timestamp,
+		sender: parsedMessage.sender,
+		msg: {
+			role: parsedMessage.msg.role,
+			content: parsedMessage.msg.content,
+		},
+		agentId: parsedMessage.agent_id,
+		stream: parsedMessage.stream ? true : false,
+		language: parsedMessage.language ? parsedMessage.language : "en",
+	};
+
+	return message;
+}
+
+export const queryModel = async (
+	params: ClaudeChatRequestParams,
+	token: string
+): Promise<ModelResponse> => {
+	try {
+		const response = await fetch(`${CLAUDE_CHAT}`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
+			},
+			body: JSON.stringify(params),
+		});
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error sending chat request:", error);
+		throw error;
+	}
+};
 
 export const fetchUser = async (token: any) => {
 	try {
@@ -50,131 +117,85 @@ export const fetchUser = async (token: any) => {
 	}
 };
 
-export const queryModel = async (
-	params: ChatRequestParams,
-	token: string
-): Promise<ModelResponse> => {
-	try {
-		const response = await fetch(`${API_URL}`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": "*",
-				Authorization: "Bearer " + token,
-			},
-			body: JSON.stringify(params),
-		});
-
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
-		}
-
-		const data = await response.json();
-		return data;
-	} catch (error) {
-		console.error("Error sending chat request:", error);
-		throw error;
-	}
-};
-
-export const fetchThreads = async (token: string | Promise<string>) => {
-	const client = await createClerkSupabaseClient();
+export const fetchThreads = async (
+	token: string | Promise<string>
+): Promise<Thread[]> => {
+	const client = createClerkSupabaseClient();
 	try {
 		const { data, error } = await client.from("threads").select("*");
 		if (error) {
 			throw new Error("Failed to fetch threads");
 		}
-		console.log("data AGSDGADGVFDUSYGSAYFDVSA", data);
-		return data;
+		return data as Thread[];
 	} catch (error) {
 		console.error("Error fetching threads:", error);
-		return error
+		throw error;
 	}
 };
 
-// check routing to ensure that the correct API URL is being used
-// export const fetchThreads = async (
-// 	token: string | Promise<string>
-// ): Promise<Threads> => {
-// 	try {
-// 		const response = await fetch(`${BASE}/db/tables/threads`, {
-// 			method: "GET",
-// 			headers: {
-// 				"Content-Type": "application/json",
-// 				Authorization: "Bearer " + token,
-// 			},
-// 		});
-// 		console.log("response", JSON.stringify(response));
-// 		if (!response.ok) {
-// 			throw new Error("Failed to fetch threads");
-// 		}
-// 		const data = await response.json();
-// 		return data.threads;
-// 	} catch (error) {
-// 		console.error("Error fetching threads:", error);
-// 		return {};
-// 	}
-// };
-
-// check routing to ensure that the correct API URL is being used
-export const createThread = async (): Promise<Thread | null> => {
+export const saveNewThread = async (
+	thread_id: string,
+	title: string,
+	userId: string,
+	messages: string[]
+) => {
+	const client = createClerkSupabaseClient();
+	console.log("saving new thread", thread_id, title, userId, messages);
 	try {
-		const response = await fetch(`${BASE}/db/threads`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
+		const { data, error } = await client.from("threads").insert([
+			{
+				title: title,
+				thread_id: thread_id,
+				user_id: userId,
+				messages: messages,
 			},
-			body: JSON.stringify({ title: "New Thread" }), // Adjust the request body as needed
-		});
-		if (!response.ok) {
+		]);
+		if (error) {
 			throw new Error("Failed to create thread");
 		}
-		const data = await response.json();
-		return data.thread;
+		return data;
 	} catch (error) {
 		console.error("Error creating thread:", error);
-		return null;
+		return error;
 	}
 };
 
-// check routing to ensure that the correct API URL is being used
-// this function is not a backend call, it should take in a thread and export it to a downloadable file on the client
-export const exportThread = (thread: Thread): void => {
-	const markdownContent = convertToMarkdown(thread);
-	const file = new Blob([markdownContent], {
-		type: "text/markdown",
-	});
-	const url = URL.createObjectURL(file);
-	const link = document.createElement("a");
-	link.href = url;
-	link.download = `${thread.title}.md`;
-	link.click();
-};
-
-const convertToMarkdown = (thread: Thread): string => {
-	let markdown = `# ${thread.title}\n\n`;
-	thread.messages.forEach((message) => {
-		markdown += `**${message.senderName}:** ${message.content}\n\n`;
-	});
-	return markdown;
-};
-
-export const updateThreadName = async (
-	threadId: string,
-	title: string
-): Promise<void> => {
+export const updateThreadName = async (threadId: string, title: string) => {
+	const client = createClerkSupabaseClient();
 	try {
-		const response = await fetch(`${BASE}/db/threads/${threadId}`, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ title }),
-		});
-		if (!response.ok) {
+		const { data, error } = await client
+			.from("threads")
+			.update({ title: title })
+			.match({ thread_id: threadId });
+		if (error) {
 			throw new Error("Failed to update thread name");
 		}
+		return data;
 	} catch (error) {
 		console.error("Error updating thread name:", error);
+		return error;
+	}
+};
+
+export const updateThreadMessages = async (
+	threadId: string | number,
+	messages: any[]
+) => {
+	const client = createClerkSupabaseClient();
+	console.log("updating thread messages", threadId, messages);
+	try {
+		const { data, error } = await client
+			.from("threads")
+			.update({ messages: messages.map((msg) => JSON.stringify(msg)) })
+			.match({ thread_id: threadId });
+		if (error) {
+			console.log("error from thing", error);
+			throw new Error("Failed to update thread messages");
+		}
+		if (data) console.log("updated thread messages!", data);
+		return data;
+	} catch (error) {
+		console.error("Error updating thread messages:", error);
+		return error;
 	}
 };

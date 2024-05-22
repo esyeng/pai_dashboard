@@ -10,6 +10,7 @@ import { useAuth, useUser } from "@clerk/nextjs";
 
 export const ChatWindow: React.FC = () => {
 	const [inputValue, setInputValue] = useState("");
+	const [previousId, setPreviousId] = useState<string | number>("");
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const { userId, isLoaded } = useAuth();
 	const chatWindowRef = useRef<HTMLDivElement>(null);
@@ -22,7 +23,8 @@ export const ChatWindow: React.FC = () => {
 		sendChat,
 		isLoading,
 	} = useChat();
-	const currentConversation = useMemo(() => {
+
+	const repopulateConversation = () => {
 		console.log(`threads? {
             ${threads}
             `);
@@ -45,15 +47,20 @@ export const ChatWindow: React.FC = () => {
 						},
 					},
 				];
+	};
+
+	const currentConversation = useMemo(() => {
+		setPreviousId(currentThreadId);
+		return repopulateConversation();
 	}, [threads, currentThreadId]);
 
 	const sortedConversation = useMemo(() => {
 		return [...currentConversation]
 			.map((msg) => {
-				console.log('msg type?', typeof msg)
-				console.log('msg:', msg)
-				return typeof msg === 'string' ? JSON.parse(msg) : msg;
-			} )
+				console.log("msg type?", typeof msg);
+				console.log("msg:", msg);
+				return typeof msg === "string" ? JSON.parse(msg) : msg;
+			})
 			.sort(
 				(a, b) =>
 					new Date(a.timestamp).getTime() -
@@ -62,14 +69,17 @@ export const ChatWindow: React.FC = () => {
 	}, [currentConversation]);
 
 	const onSendMessage = async (message: string) => {
-		console.log(`sending message to ${agentId}... message: ${message}`);
+		console.log(
+			`sending message to ${agentId}... message: ${message} in thread ${currentThreadId}`
+		);
+
 		await sendChat(
 			message,
 			modelId,
 			agentId,
-			user ? user.firstName : "anonymousUser",
+			currentThreadId
 			// 2000,
-			// 0.3,
+			// 0.3
 		);
 	};
 
@@ -93,6 +103,12 @@ export const ChatWindow: React.FC = () => {
 		}
 	}, [sortedConversation?.length]);
 
+	useMemo(() => {
+		if (currentThreadId !== previousId) {
+			return repopulateConversation();
+		}
+	}, [currentThreadId]);
+
 	if (sortedConversation)
 		console.log(
 			`sortedConversation: ${JSON.stringify(sortedConversation)}`
@@ -105,26 +121,33 @@ export const ChatWindow: React.FC = () => {
 					<div className="flex-grow overflow-y-auto p-4">
 						{sortedConversation.map((message, i) => {
 							console.log(`typeof message: ${typeof message}`);
+							let msg =
+								typeof message === "string"
+									? JSON.parse(message)
+									: message;
 
+							if (typeof msg === "string") {
+								msg = JSON.parse(msg);
+							}
 							console.log(`msg: {
-                                id: ${message.id},
+                                id: ${msg.id},
                                 msg: {
-                                    role: ${message.msg.role},
-                                    content: ${message.msg.content}
+                                    role: ${msg.msg.role},
+                                    content: ${msg.msg.content}
                                 }
                             }`);
-							if (message.msg) {
+							if (msg.msg) {
 								return (
 									<Message
-										key={message.id}
-										id={message.id}
+										key={msg.id}
+										id={msg.id}
 										msg={{
-											role: message.msg.role,
-											content: message.msg.content,
+											role: msg.msg.role,
+											content: msg.msg.content,
 										}}
-										timestamp={message.timestamp}
-										sender={message.sender}
-										agentId={message.agentId}
+										timestamp={msg.timestamp}
+										sender={msg.sender}
+										agentId={msg.agentId}
 									/>
 								);
 							}

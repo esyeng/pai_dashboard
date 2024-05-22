@@ -6,13 +6,15 @@ export type ServerActionResult<Result> = Promise<Result | { error: string }>;
 export type Threads = Record<string, Thread>;
 
 export interface Thread {
-	id: string;
-	title?: string;
-	createdAt: Date;
-	userId?: string;
-	path?: string;
-	messages: MessageProps[];
-	sharePath?: string;
+	[id: string | number]: {
+		id: string | number;
+		title?: string;
+		createdAt: Date;
+		userId?: string;
+		path?: string;
+		messages: MessageProps[];
+		sharePath?: string;
+	};
 }
 
 export interface MessageProps {
