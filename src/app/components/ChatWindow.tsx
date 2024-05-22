@@ -34,7 +34,11 @@ export const ChatWindow: React.FC = () => {
 		);
 
 		return threads[currentThreadId]
-			? threads[currentThreadId]["messages"]
+			? Array.isArray(threads[currentThreadId].messages)
+				? threads[currentThreadId].messages
+				: Array.isArray(threads[currentThreadId].messages.messages)
+					? threads[currentThreadId].messages.messages
+					: []
 			: [
 					{
 						id: "1",
@@ -126,6 +130,30 @@ export const ChatWindow: React.FC = () => {
 									? JSON.parse(message)
 									: message;
 
+							if (typeof msg === "string") {
+								msg = JSON.parse(msg);
+							}
+							if (typeof msg === "string") {
+								msg = JSON.parse(msg);
+							}
+							if (typeof msg === "string") {
+								msg = JSON.parse(msg);
+							}
+							if (typeof msg === "string") {
+								msg = JSON.parse(msg);
+							}
+							if (typeof msg === "string") {
+								msg = JSON.parse(msg);
+							}
+							if (typeof msg === "string") {
+								msg = JSON.parse(msg);
+							}
+							if (typeof msg === "string") {
+								msg = JSON.parse(msg);
+							}
+							if (typeof msg === "string") {
+								msg = JSON.parse(msg);
+							}
 							if (typeof msg === "string") {
 								msg = JSON.parse(msg);
 							}

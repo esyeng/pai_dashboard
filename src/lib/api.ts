@@ -186,7 +186,11 @@ export const updateThreadMessages = async (
 	try {
 		const { data, error } = await client
 			.from("threads")
-			.update({ messages: messages.map((msg) => JSON.stringify(msg)) })
+			.update({
+				messages: messages.map((msg) =>
+					typeof msg === "string" ? msg : JSON.stringify(msg)
+				),
+			})
 			.match({ thread_id: threadId });
 		if (error) {
 			console.log("error from thing", error);
