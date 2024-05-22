@@ -41,7 +41,7 @@ export const createClerkSupabaseClient = () => {
 // import { auth } from "@clerk/nextjs/server";
 // import { CookieOptions, createServerClient } from "@supabase/ssr";
 // import { cookies } from "next/headers";
-import { SUPABASE_PUB } from "@env";
+// import { SUPABASE_PUB } from "@env";
 
 // export async function createClerkSupabaseClient() {
 // 	const cookieStore = cookies();
