@@ -68,7 +68,9 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 	const [agentId, setAgentId] = useState<string>("jasmyn");
-	const [token, setToken] = useState<Promise<string> | string | undefined>();
+	const [token, setToken] = useState<
+		any | Promise<string> | string | undefined
+	>();
 	const [modelId, setModelId] = useState<string>("claude-3-opus-20240229");
 	const [user, setUser] = useState<User | null>(null);
 	const [currentThreadId, setCurrentThreadId] = useState<string | number>(1);
@@ -379,7 +381,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 		console.log("call to backend: delete thread");
 	};
 
-	const exportThread = (threadId: string | number): void => {
+	const exportThread = (threadId: string | number | any): void => {
 		const markdownContent = _convertToMarkdown(threads[threadId]);
 		const file = new Blob([markdownContent], {
 			type: "text/markdown",
@@ -387,7 +389,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 		const url = URL.createObjectURL(file);
 		const link = document.createElement("a");
 		link.href = url;
-		link.download = `${thread.title}.md`;
+		link.download = `${threads[threadId].title}.md`;
 		link.click();
 	};
 
