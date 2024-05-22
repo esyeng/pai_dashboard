@@ -1,10 +1,12 @@
 import { Thread, Threads } from "./types";
+import { createClerkSupabaseClient } from "@/app/supabase/page";
+
 import { useAuth } from "@clerk/nextjs";
 // const BASE = "https://jasmyn-cb3idkum5a-uc.a.run.app";
-const BASE = "http://localhost:8000";
+const BASE = "http://localhost:8080";
 
 // const API_URL = `${BASE}/claude`;
-const API_URL = `${BASE}/claude`;
+const API_URL = `${BASE}/model/claude/chat`;
 // console.log(process.env.NODE_ENV === "production");
 // console.log(process.env.API_URL);
 
@@ -53,7 +55,7 @@ export const queryModel = async (
 	token: string
 ): Promise<ModelResponse> => {
 	try {
-		const response = await fetch(`${BASE}/db/tables/threads`, {
+		const response = await fetch(`${API_URL}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -75,20 +77,44 @@ export const queryModel = async (
 	}
 };
 
-// check routing to ensure that the correct API URL is being used
-export const fetchThreads = async (): Promise<Threads> => {
+export const fetchThreads = async (token: string | Promise<string>) => {
+	const client = await createClerkSupabaseClient();
 	try {
-		const response = await fetch(`${BASE}/db/tables/threads`);
-		if (!response.ok) {
+		const { data, error } = await client.from("threads").select("*");
+		if (error) {
 			throw new Error("Failed to fetch threads");
 		}
-		const data = await response.json();
-		return data.threads;
+		console.log("data AGSDGADGVFDUSYGSAYFDVSA", data);
+		return data;
 	} catch (error) {
 		console.error("Error fetching threads:", error);
 		return {};
 	}
 };
+
+// check routing to ensure that the correct API URL is being used
+// export const fetchThreads = async (
+// 	token: string | Promise<string>
+// ): Promise<Threads> => {
+// 	try {
+// 		const response = await fetch(`${BASE}/db/tables/threads`, {
+// 			method: "GET",
+// 			headers: {
+// 				"Content-Type": "application/json",
+// 				Authorization: "Bearer " + token,
+// 			},
+// 		});
+// 		console.log("response", JSON.stringify(response));
+// 		if (!response.ok) {
+// 			throw new Error("Failed to fetch threads");
+// 		}
+// 		const data = await response.json();
+// 		return data.threads;
+// 	} catch (error) {
+// 		console.error("Error fetching threads:", error);
+// 		return {};
+// 	}
+// };
 
 // check routing to ensure that the correct API URL is being used
 export const createThread = async (): Promise<Thread | null> => {

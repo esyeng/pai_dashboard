@@ -43,11 +43,11 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 	const [agentId, setAgentId] = useState<string>("jasmyn");
-	const [token, setToken] = useState<Promise<string>>();
+	const [token, setToken] = useState<Promise<string> | string | undefined>();
 	const [modelId, setModelId] = useState<string>("claude-3-opus-20240229");
 	const [user, setUser] = useState<User | null>(null);
 	const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
-	const [currentThreadId, setCurrentThreadId] = useState<string | number>(1);
+	const [currentThreadId, setCurrentThreadId] = useState<string | number>(0);
 	const [threads, setThreads] = useState<any>({
 		[currentThreadId]: {
 			id: currentThreadId,
@@ -77,6 +77,37 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 	const [idx, setIdx] = useState<number>(0);
 	const [idy, setIdy] = useState<number>(10000);
 
+	const fetchThreadsData = async (token: string | Promise<string>) => {
+		console.log("fetching threads...");
+		const fetchedThreads = await fetchThreads(token);
+		console.log("about to setThreads to fetchedThreads");
+		setThreads(
+			fetchedThreads
+				? fetchedThreads
+				: {
+						test: {
+							id: "test",
+							title: "Test Thread",
+							createdAt: formatDate(new Date()),
+							userId: "1",
+							path: "/thread/test",
+							messages: [
+								{
+									id: 1,
+									timestamp: formatDate(new Date()),
+									agentId: "jasmyn",
+									sender: "jasmyn",
+									role: "assistant",
+									content: "Hello, world!",
+								},
+							],
+						},
+					}
+		);
+		console.log("fetchedThreads", fetchedThreads);
+		return fetchedThreads;
+	};
+
 	useEffect(() => {
 		if (responseMsg) {
 			setIsLoading(false);
@@ -102,6 +133,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 				console.log("authenticatedUserObject", authenticatedUserObject);
 				if (authenticatedUserObject) {
 					setUser(authenticatedUserObject);
+					setToken(t);
 				} else {
 					throw new Error("Failed to fetch user");
 				}
@@ -114,6 +146,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 			console.log("fetching user...");
 			console.log("token", token);
 			fetchData();
+			console.log("fetching threads...");
+			fetchThreadsData(token);
 		}
 
 		return () => {
@@ -121,43 +155,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 		};
 	}, [token]);
 
-	useEffect(() => {
-		const fetchThreadsData = async () => {
-			if (user) {
-				console.log("fetching threads...");
-				const fetchedThreads = await fetchThreads();
-				setThreads(
-					fetchedThreads
-						? fetchedThreads
-						: {
-								test: {
-									id: "test",
-									title: "Test Thread",
-									createdAt: formatDate(new Date()),
-									userId: "1",
-									path: "/thread/test",
-									messages: [
-										{
-											id: 1,
-											timestamp: formatDate(new Date()),
-											agentId: "jasmyn",
-											sender: "jasmyn",
-											role: "assistant",
-											content: "Hello, world!",
-										},
-									],
-								},
-							}
-				);
-			}
-		};
+	// useEffect(() => {
 
-		fetchThreadsData();
-		return () => {
-			console.log("cleaning up...");
-			console.log("threads from context", threads);
-		};
-	}, []);
+	// 	if (token && user) {
+
+	// 	}
+	// 	return () => {
+	// 		console.log("cleaning up...");
+	// 		console.log("threads from context", threads);
+	// 	};
+	// }, []);
 
 	const sendChat = async (
 		message: string,

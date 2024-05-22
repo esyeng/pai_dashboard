@@ -23,6 +23,9 @@ export const ChatWindow: React.FC = () => {
 		isLoading,
 	} = useChat();
 	const currentConversation = useMemo(() => {
+		console.log(`threads? {
+            ${threads}
+            `);
 		console.log(`currentThreadId: ${currentThreadId}`);
 		console.log(
 			`current thread: ${JSON.stringify(threads[currentThreadId])}`
@@ -43,14 +46,15 @@ export const ChatWindow: React.FC = () => {
 					},
 				];
 	}, [threads, currentThreadId]);
-	console.log(`currentConversation: ${JSON.stringify(currentConversation)}`);
 
 	const sortedConversation = useMemo(() => {
-		return [...currentConversation].sort(
-			(a, b) =>
-				new Date(a.timestamp).getTime() -
-				new Date(b.timestamp).getTime()
-		);
+		return [...currentConversation]
+			.map((msg) => JSON.parse(msg))
+			.sort(
+				(a, b) =>
+					new Date(a.timestamp).getTime() -
+					new Date(b.timestamp).getTime()
+			);
 	}, [currentConversation]);
 
 	const onSendMessage = async (message: string) => {
@@ -76,6 +80,7 @@ export const ChatWindow: React.FC = () => {
 	const { onKeyDown } = useEnterSubmit(handleSendMessage);
 
 	useEffect(() => {
+		// console.log(`sortedConversation: ${sortedConversation}`);
 		if (chatWindowRef.current) {
 			chatWindowRef.current.scrollIntoView({
 				behavior: "smooth",
@@ -84,24 +89,42 @@ export const ChatWindow: React.FC = () => {
 		}
 	}, [sortedConversation?.length]);
 
+	if (sortedConversation)
+		console.log(
+			`sortedConversation: ${JSON.stringify(sortedConversation)}`
+		);
+
 	return (
 		<div className="container mx-auto px-4 py-4 h-full bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] rounded-lg shadow-xl">
 			<div className="w-full mx-auto h-full">
 				<div className="flex flex-col h-full min-h-[400px] flex-grow">
 					<div className="flex-grow overflow-y-auto p-4">
-						{sortedConversation.map((message) => (
-							<Message
-								key={message.id}
-								id={message.id}
-								msg={{
-									role: message.msg.role,
-									content: message.msg.content,
-								}}
-								timestamp={message.timestamp}
-								sender={message.sender}
-								agentId={message.agentId}
-							/>
-						))}
+						{sortedConversation.map((message, i) => {
+							// console.log(`typeof message: ${typeof message}`);
+
+							console.log(`msg: {
+                                id: ${message.id},
+                                msg: {
+                                    role: ${message.msg.role},
+                                    content: ${message.msg.content}
+                                }
+                            }`);
+							if (message.msg) {
+								return (
+									<Message
+										key={message.id}
+										id={message.id}
+										msg={{
+											role: message.msg.role,
+											content: message.msg.content,
+										}}
+										timestamp={message.timestamp}
+										sender={message.sender}
+										agentId={message.agentId}
+									/>
+								);
+							}
+						})}
 						{isLoading ? (
 							<div className="h-12">
 								<div className="flex items-center justify-center bg-gray-200 rounded-lg p-4">
