@@ -191,9 +191,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 	 * @param token: string | Promise<string>
 	 * @returns fetchedThreads: Thread[]
 	 */
-	const fetchThreadsData = async (
-		token: string | Promise<string>
-	): Promise<Thread[]> => {
+	const fetchThreadsData = async (token: any): Promise<Thread[] | any> => {
 		console.log("fetching threads...");
 		try {
 			const fetchedThreads: Thread[] | any[] = await fetchThreads(token);
