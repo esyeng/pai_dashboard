@@ -34,15 +34,17 @@ export const Message: React.FC<MessageProps> = ({
 }) => {
 	const { isCopied, copyToClipboard } = useCopyToClipboard({});
 	const { user, isLoaded, isSignedIn } = useUser();
+	let name: any = ''
 	if (!isLoaded) {
 		return null;
 	}
 	if (user && isSignedIn) {
 		console.log(`user is signed in: ${user.fullName}`);
+		name = user.firstName
 		// console.log(`user object: ${JSON.stringify(user)}`);
 	}
 	// const [streamedText, setStreamedText] = useState<string>('');
-	const currentUserName: string = "Esmé";
+	const currentUserName: string = name && name.length ? name : "AnonymousUser";
 
 	const isUserMessage = msg.role === "user";
 	const messageClass = isUserMessage

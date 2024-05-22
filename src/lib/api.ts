@@ -16,7 +16,7 @@ interface ChatRequestParams {
 	temperature: number;
 	agent_id: string;
 	messages: { role: string; content: string }[];
-	currentThreadId: string;
+	currentThreadId: string | number;
 }
 
 interface ModelResponse {
@@ -88,7 +88,7 @@ export const fetchThreads = async (token: string | Promise<string>) => {
 		return data;
 	} catch (error) {
 		console.error("Error fetching threads:", error);
-		return {};
+		return error
 	}
 };
 

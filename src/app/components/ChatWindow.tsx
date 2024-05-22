@@ -49,7 +49,11 @@ export const ChatWindow: React.FC = () => {
 
 	const sortedConversation = useMemo(() => {
 		return [...currentConversation]
-			.map((msg) => JSON.parse(msg))
+			.map((msg) => {
+				console.log('msg type?', typeof msg)
+				console.log('msg:', msg)
+				return typeof msg === 'string' ? JSON.parse(msg) : msg;
+			} )
 			.sort(
 				(a, b) =>
 					new Date(a.timestamp).getTime() -
@@ -64,8 +68,8 @@ export const ChatWindow: React.FC = () => {
 			modelId,
 			agentId,
 			user ? user.firstName : "anonymousUser",
-			2000,
-			0.3
+			// 2000,
+			// 0.3,
 		);
 	};
 
@@ -100,7 +104,7 @@ export const ChatWindow: React.FC = () => {
 				<div className="flex flex-col h-full min-h-[400px] flex-grow">
 					<div className="flex-grow overflow-y-auto p-4">
 						{sortedConversation.map((message, i) => {
-							// console.log(`typeof message: ${typeof message}`);
+							console.log(`typeof message: ${typeof message}`);
 
 							console.log(`msg: {
                                 id: ${message.id},
