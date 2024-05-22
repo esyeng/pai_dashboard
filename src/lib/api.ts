@@ -1,5 +1,5 @@
 import { Thread, Threads, MessageProps } from "./types";
-import { createClerkSupabaseClient } from "@/app/supabase/page";
+import { createClerkSupabaseClient } from "../app/supabase/client";
 
 import { useAuth } from "@clerk/nextjs";
 // const BASE = "https://jasmyn-cb3idkum5a-uc.a.run.app";
