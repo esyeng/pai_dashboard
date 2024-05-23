@@ -1,11 +1,10 @@
 import { Thread, Threads, MessageProps } from "./types";
 import { createClerkSupabaseClient } from "../app/supabase/client";
+import dotenv from "dotenv";
+dotenv.config();
 
-import { useAuth } from "@clerk/nextjs";
-// const BASE = "https://jasmyn-cb3idkum5a-uc.a.run.app";
-const BASE = "http://localhost:8080";
+const BASE = process.env.BASE_URL? process.env.BASE_URL : "http://localhost:8080";
 
-// const CLAUDE_CHAT = `${BASE}/claude`;
 const CLAUDE_CHAT = `${BASE}/model/claude/chat`;
 // console.log(process.env.NODE_ENV === "production");
 // console.log(process.env.CLAUDE_CHAT);
