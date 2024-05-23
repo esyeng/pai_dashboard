@@ -3,8 +3,8 @@ import "../../globals.css";
 
 export default function Page() {
 	return (
-		<div className="flex flex-col items-center justify-center h-screen">
-			<SignUp
+    <div className="flex flex-col items-center justify-center h-screen">
+      {/* <SignUp
 				appearance={{
 					variables: {
 						colorPrimary: "#000000",
@@ -13,7 +13,10 @@ export default function Page() {
 					},
 				}}
 				path="/sign-up"
-			/>
-		</div>
-	);
+			/> */}
+      <div className="flex items-center justify center p-4">
+        <h1 className="text-2xl">Sign Up currently unavaliable, sorry!</h1>
+      </div>
+    </div>
+  );
 }
