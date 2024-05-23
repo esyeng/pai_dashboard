@@ -1,13 +1,14 @@
 export const agents = [
-	{ id: "jasmyn", name: "Jasmyn" },
-	{ id: "coder", name: "Coder" },
-	{ id: "fed", name: "F.E.D." },
-	{ id: "tutor", name: "AI Tutor" },
-	{ id: "ada", name: "Ada" },
-	{ id: "sys_writer", name: "System Prompter" },
-	{ id: "sys_writer_plus", name: "System Prompter+" },
-	{ id: "dm_helper", name: "D&D: DM Helper" },
-	{ id: "player_helper", name: "D&D: Player Helper" },
+  { id: "jasmyn", name: "Jasmyn" },
+  { id: "wwc_advisor", name: "WWC Advisor" },
+  { id: "coder", name: "Coder" },
+  { id: "fed", name: "Front End Dev" },
+  { id: "tutor", name: "AI Tutor" },
+  { id: "ada", name: "Ada" },
+  { id: "sys_writer", name: "System Prompter" },
+  { id: "sys_writer_plus", name: "System Prompter+" },
+  { id: "dm_helper", name: "D&D: DM Helper" },
+  { id: "player_helper", name: "D&D: Player Helper" },
 ];
 
 export const models = [
