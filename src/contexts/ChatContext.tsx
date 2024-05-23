@@ -21,8 +21,15 @@ import { useAuth } from "@clerk/nextjs";
 
 const _convertToMarkdown = (thread: Thread | any): string => {
 	let markdown = `# ${thread.title}\n\n`;
-	thread.messages.forEach((message: any) => {
-		markdown += `**${message.sender}:** ${message.msg.content}\n\n`;
+	thread.messages?.forEach((message: any) => {
+		let msg = typeof message === "string" ? parseMessageString(message) : message;
+		if (typeof msg === "string") {
+			msg = parseMessageString(msg);
+		}
+		if (typeof msg === "string") {
+			msg = parseMessageString(msg);
+		}
+		markdown += `**${msg.sender}:** ${msg.msg.content}\n\n`;
 	});
 	return markdown;
 };
@@ -384,12 +391,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 	const exportThread = (threadId: string | number | any): void => {
 		const markdownContent = _convertToMarkdown(threads[threadId]);
 		const file = new Blob([markdownContent], {
-			type: "text/markdown",
+			type: "text/plain",
 		});
 		const url = URL.createObjectURL(file);
 		const link = document.createElement("a");
 		link.href = url;
-		link.download = `${threads[threadId].title}.md`;
+		link.download = `${threads[threadId].title}.txt`;
 		link.click();
 	};
 
