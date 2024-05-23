@@ -3,7 +3,9 @@ import { createClerkSupabaseClient } from "../app/supabase/client";
 import dotenv from "dotenv";
 dotenv.config();
 
-const BASE = process.env.BASE_URL? process.env.BASE_URL : "http://localhost:8080";
+const BASE = process.env.BASE_URL
+  ? process.env.BASE_URL
+  : "https://jasmyn-app-cb3idkum5a-uc.a.run.app";
 
 const CLAUDE_CHAT = `${BASE}/model/claude/chat`;
 // console.log(process.env.NODE_ENV === "production");
@@ -30,10 +32,10 @@ interface ModelResponse {
 
 export function parseMessageString(messageString: string): MessageProps {
 	let parsedMessage = JSON.parse(messageString);
-	console.log(
-		"FUCKING INPUT TO FUCKING PARSE STRING FUCKTION",
-		messageString
-	);
+	// console.log(
+	// 	"FUCKING INPUT TO FUCKING PARSE STRING FUCKTION",
+	// 	messageString
+	// );
 
 	if (typeof parsedMessage === "string") {
 		parsedMessage = JSON.parse(parsedMessage);
@@ -47,11 +49,11 @@ export function parseMessageString(messageString: string): MessageProps {
 		parsedMessage = JSON.parse(parsedMessage);
 	}
 
-	console.log("FUCKING PARSED STRING FUCK YOU", parsedMessage);
-	console.log(
-		"FUCKING TYPE OF THE PARSED STRING FUCK YOU",
-		typeof parsedMessage
-	);
+	// console.log("FUCKING PARSED STRING FUCK YOU", parsedMessage);
+	// console.log(
+		// "FUCKING TYPE OF THE PARSED STRING FUCK YOU",
+		// typeof parsedMessage
+	// );
 	const message: MessageProps = {
 		id: parsedMessage.id,
 		timestamp: parsedMessage.timestamp,
@@ -97,7 +99,7 @@ export const queryModel = async (
 
 export const fetchUser = async (token: any) => {
 	try {
-		console.log("token from fetchUser", token);
+		// console.log("token from fetchUser", token);
 		const response = await fetch(`${BASE}/auth/user`, {
 			method: "POST",
 			headers: {

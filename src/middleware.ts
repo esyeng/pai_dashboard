@@ -9,9 +9,9 @@ const shouldRedirectIfAuthenticated = createRouteMatcher([
 
 export default clerkMiddleware((auth, req) => {
 	const { sessionId, userId, getToken } = auth();
-	console.log(
-		`sessionId: ${sessionId}, userId: ${userId}, token: ${getToken()}`
-	);
+	// console.log(
+	// 	`sessionId: ${sessionId}, userId: ${userId}, token: ${getToken()}`
+	// );
 	// if (userId && !localStorage.getItem("userId")) {
 	// 	localStorage.setItem("userId", userId);
 	// }

@@ -114,10 +114,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 			let msgs = threads[currentThreadId].messages;
 			console.log("MSGS????", msgs);
 			msgs = msgs.map((msg: any) => {
-				console.log("MSGS in map", msg);
+				// console.log("MSGS in map", msg);
 				return typeof msg === "string" ? parseMessageString(msg) : msg;
 			});
-			console.log("MSGS AT ZERO", msgs[0]);
+			// console.log("MSGS AT ZERO", msgs[0]);
 			setMessagesInActiveThread([...threads[currentThreadId].messages]);
 			setActiveMessageQueue(
 				[...threads[currentThreadId].messages].slice(-7)
@@ -362,7 +362,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 			},
 		}));
 		setActiveMessageQueue([]);
-		console.log("user", user);
+		// console.log("user", user);
 		if (user) {
 			console.log("now saving new thread");
 			return await saveNewThread(

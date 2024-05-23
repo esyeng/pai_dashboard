@@ -25,13 +25,13 @@ export const ChatWindow: React.FC = () => {
 	} = useChat();
 
 	const repopulateConversation = () => {
-		console.log(`threads? {
-            ${threads}
-            `);
+		// console.log(`threads? {
+        //     ${threads}
+        //     `);
 		console.log(`currentThreadId: ${currentThreadId}`);
-		console.log(
-			`current thread: ${JSON.stringify(threads[currentThreadId])}`
-		);
+		// console.log(
+		// 	`current thread: ${JSON.stringify(threads[currentThreadId])}`
+		// );
 
 		return threads[currentThreadId]
 			? Array.isArray(threads[currentThreadId].messages)
@@ -61,8 +61,8 @@ export const ChatWindow: React.FC = () => {
 	const sortedConversation = useMemo(() => {
 		return [...currentConversation]
 			.map((msg) => {
-				console.log("msg type?", typeof msg);
-				console.log("msg:", msg);
+				// console.log("msg type?", typeof msg);
+				// console.log("msg:", msg);
 				return typeof msg === "string" ? JSON.parse(msg) : msg;
 			})
 			.sort(
@@ -114,9 +114,9 @@ export const ChatWindow: React.FC = () => {
 	}, [currentThreadId]);
 
 	if (sortedConversation)
-		console.log(
-			`sortedConversation: ${JSON.stringify(sortedConversation)}`
-		);
+		// console.log(
+		// 	`sortedConversation: ${JSON.stringify(sortedConversation)}`
+		// );
 
 	return (
 		<div className="container mx-auto px-4 py-4 h-full bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] rounded-lg shadow-xl">
@@ -157,13 +157,13 @@ export const ChatWindow: React.FC = () => {
 							if (typeof msg === "string") {
 								msg = JSON.parse(msg);
 							}
-							console.log(`msg: {
-                                id: ${msg.id},
-                                msg: {
-                                    role: ${msg.msg.role},
-                                    content: ${msg.msg.content}
-                                }
-                            }`);
+							// console.log(`msg: {
+                            //     id: ${msg.id},
+                            //     msg: {
+                            //         role: ${msg.msg.role},
+                            //         content: ${msg.msg.content}
+                            //     }
+                            // }`);
 							if (msg.msg) {
 								return (
 									<Message
