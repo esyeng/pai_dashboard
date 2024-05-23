@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const BASE = process.env.BASE_URL
-  ? process.env.BASE_URL
-  : "https://jasmyn-app-cb3idkum5a-uc.a.run.app";
+	? process.env.BASE_URL
+	: "http://localhost:8000";
 
 const CLAUDE_CHAT = `${BASE}/model/claude/chat`;
 // console.log(process.env.NODE_ENV === "production");

@@ -4,7 +4,6 @@ export const agents = [
   { id: "coder", name: "Coder" },
   { id: "fed", name: "Front End Dev" },
   { id: "tutor", name: "AI Tutor" },
-  { id: "ada", name: "Ada" },
   { id: "sys_writer", name: "System Prompter" },
   { id: "sys_writer_plus", name: "System Prompter+" },
   { id: "dm_helper", name: "D&D: DM Helper" },
