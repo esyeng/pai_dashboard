@@ -1,10 +1,37 @@
-import { Thread, Threads, MessageProps } from "./types";
+import {
+	Thread,
+	Threads,
+	MessageProps,
+	OpenAIAssistant,
+	OpenAIMessage,
+	OpenAIRun,
+	OpenAIThread,
+	AssistantResponse,
+	AssistantsResponse,
+	CreateAndRunParams,
+	CreateAndRunResponse,
+	CreateImageParams,
+	CreateImageResponse,
+	CreateMessageParams,
+	CreateMessageResponse,
+	CreateRunParams,
+	CreateRunResponse,
+	CreateSpeechParams,
+	CreateSpeechResponse,
+	CreateThreadResponse,
+	CreateTranscriptionParams,
+	CreateTranscriptionResponse,
+	GetMessagesResponse,
+	GetRunResponse,
+	GetThreadResponse,
+	ListRunsResponse,
+} from "./types";
 import { createClerkSupabaseClient } from "../app/supabase/client";
 
 import { useAuth } from "@clerk/nextjs";
 // const BASE = "https://jasmyn-cb3idkum5a-uc.a.run.app";
 const BASE = "http://localhost:8080";
-
+const GPT_BASE = `${BASE}/model/gpt`;
 // const CLAUDE_CHAT = `${BASE}/claude`;
 const CLAUDE_CHAT = `${BASE}/model/claude/chat`;
 // console.log(process.env.NODE_ENV === "production");
@@ -201,5 +228,367 @@ export const updateThreadMessages = async (
 	} catch (error) {
 		console.error("Error updating thread messages:", error);
 		return error;
+	}
+};
+
+// OPENAI METHODS:
+// api.ts
+
+// Functions to interact with FastAPI endpoints
+
+export const getAssistant = async (
+	assistant_id: string,
+	token: string
+): Promise<AssistantResponse> => {
+	try {
+		const response = await fetch(`${GPT_BASE}/assistant/${assistant_id}`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
+			},
+		});
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error fetching assistant:", error);
+		throw error;
+	}
+};
+
+export const getAllAssistants = async (
+	token: string
+): Promise<AssistantsResponse> => {
+	try {
+		const response = await fetch(`${GPT_BASE}/assistants`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
+			},
+		});
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error fetching assistants:", error);
+		throw error;
+	}
+};
+
+export const createThread = async (
+	token: string
+): Promise<CreateThreadResponse> => {
+	try {
+		const response = await fetch(`${GPT_BASE}/thread`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
+			},
+		});
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error creating thread:", error);
+		throw error;
+	}
+};
+
+export const getThread = async (
+	thread_id: string,
+	token: string
+): Promise<GetThreadResponse> => {
+	try {
+		const response = await fetch(`${GPT_BASE}/thread/${thread_id}`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
+			},
+		});
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error fetching thread:", error);
+		throw error;
+	}
+};
+
+export const createMessage = async (
+	params: CreateMessageParams,
+	token: string
+): Promise<CreateMessageResponse> => {
+	try {
+		const response = await fetch(
+			`${GPT_BASE}/thread/${params.thread_id}/message`,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": "*",
+					Authorization: "Bearer " + token,
+				},
+				body: JSON.stringify(params),
+			}
+		);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error creating message:", error);
+		throw error;
+	}
+};
+
+export const getMessages = async (
+	thread_id: string,
+	token: string
+): Promise<GetMessagesResponse> => {
+	try {
+		const response = await fetch(
+			`${GPT_BASE}/thread/${thread_id}/messages`,
+			{
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": "*",
+					Authorization: "Bearer " + token,
+				},
+			}
+		);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error fetching messages:", error);
+		throw error;
+	}
+};
+
+export const getMessage = async (
+	thread_id: string,
+	message_id: string,
+	token: string
+): Promise<GetMessagesResponse> => {
+	try {
+		const response = await fetch(
+			`${GPT_BASE}/thread/${thread_id}/message/${message_id}`,
+			{
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": "*",
+					Authorization: "Bearer " + token,
+				},
+			}
+		);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error fetching message:", error);
+		throw error;
+	}
+};
+
+export const createRun = async (
+	params: CreateRunParams,
+	token: string
+): Promise<CreateRunResponse> => {
+	try {
+		const response = await fetch(
+			`${GPT_BASE}/thread/${params.thread_id}/run`,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": "*",
+					Authorization: "Bearer " + token,
+				},
+				body: JSON.stringify(params),
+			}
+		);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error creating run:", error);
+		throw error;
+	}
+};
+
+export const createAndRun = async (
+	params: CreateAndRunParams,
+	token: string
+): Promise<CreateAndRunResponse> => {
+	try {
+		const response = await fetch(`${GPT_BASE}/run`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
+			},
+			body: JSON.stringify(params),
+		});
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error creating and running:", error);
+		throw error;
+	}
+};
+
+export const listRuns = async (
+	thread_id: string,
+	token: string
+): Promise<ListRunsResponse> => {
+	try {
+		const response = await fetch(`${GPT_BASE}/thread/${thread_id}/runs`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
+			},
+		});
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error listing runs:", error);
+		throw error;
+	}
+};
+
+export const getRun = async (
+	thread_id: string,
+	run_id: string,
+	token: string
+): Promise<GetRunResponse> => {
+	try {
+		const response = await fetch(
+			`${GPT_BASE}/thread/${thread_id}/run/${run_id}`,
+			{
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": "*",
+					Authorization: "Bearer " + token,
+				},
+			}
+		);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error fetching run:", error);
+		throw error;
+	}
+};
+
+export const createSpeech = async (
+	params: CreateSpeechParams,
+	token: string
+): Promise<CreateSpeechResponse> => {
+	try {
+		const response = await fetch(`${GPT_BASE}/speech`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
+			},
+			body: JSON.stringify(params),
+		});
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error creating speech:", error);
+		throw error;
+	}
+};
+
+export const createTranscription = async (
+	params: CreateTranscriptionParams,
+	token: string
+): Promise<CreateTranscriptionResponse> => {
+	try {
+		const response = await fetch(`${GPT_BASE}/transcription`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
+			},
+			body: JSON.stringify(params),
+		});
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error creating transcription:", error);
+		throw error;
+	}
+};
+
+export const createImage = async (
+	params: CreateImageParams,
+	token: string
+): Promise<CreateImageResponse> => {
+	try {
+		const response = await fetch(`${GPT_BASE}/image`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				Authorization: "Bearer " + token,
+			},
+			body: JSON.stringify(params),
+		});
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error creating image:", error);
+		throw error;
 	}
 };
