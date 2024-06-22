@@ -56,7 +56,7 @@ export const Message: React.FC<MessageProps> = ({
 	return (
 		<div className={`flex ${alignmentClass} mb-4`}>
 			<div
-				className={`px-4 py-2 rounded-lg ${messageClass} shadow-md`}
+				className={`px-4 py-2 rounded-lg overflow-x-auto ${messageClass} shadow-md`}
 				style={{ maxWidth: "80%" }}
 			>
 				{parsedContent.map((part, index) => (
@@ -68,7 +68,7 @@ export const Message: React.FC<MessageProps> = ({
 										? currentUserName
 										: agents[agentId]}
 								</span>
-								<div className="block text-xs">
+								<div className="block text-sm">
 									<ReactMarkdown remarkPlugins={[remarkGfm]}>
 										{part.content}
 									</ReactMarkdown>
