@@ -51,12 +51,12 @@ const ThreadList: React.FC = () => {
 	};
 
 	return (
-		<div className=" rounded-xl shadow-xl flex-1 w-full h-full">
+		<div className=" rounded-xl shadow-xl flex-1 w-full h-screen">
 			<h2 className="text-lg text-caribbean-current font-bold mb-2 bg-mint bg-opacity-85 rounded-tl-lg rounded-tr-lg p-4">
 				Threads
 			</h2>
-			<div className="flex flex-col items-center justify-between">
-				<ul className="space-y-2 overflow-y-auto flex-1 w-full">
+			<div className="flex flex-col overflow-y-auto items-center justify-between">
+				<ul className="space-y-2  flex-1 w-full">
 					{loadComplete && threadsArray.length > 0 ? (
 						threadsArray.map((threadItem: any) => {
 							console.log("thread from threadsArray", threadItem);
