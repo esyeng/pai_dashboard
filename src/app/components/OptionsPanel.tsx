@@ -11,8 +11,8 @@ interface OptionsProps {
 
 export const Options: React.FC<OptionsProps> = ({ agents, models }) => {
 	return (
-		<div className="flex  justify-center w-full">
-			<div className="mb-4 flex flex-1 flex-col items-center justify-center my-2 sm:flex-row p-2 rounded-3xl bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] shadow-xl">
+		<div className="flex  justify-center w-full sm:flex-col">
+			<div className="mb-4 flex flex-1 flex-col items-center justify-center my-2 lg:flex-row p-2 rounded-3xl bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] shadow-xl">
 				<div className="flex justify-center items-center px-2 my-1 mx-4">
 					<span className="text-caribbean-current text-sm py-2 pr-2 rounded leading-tight">
 						Model:{" "}

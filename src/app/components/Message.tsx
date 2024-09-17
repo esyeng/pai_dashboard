@@ -36,7 +36,7 @@ export const Message: React.FC<MessageProps> = ({
 	const { user, isLoaded, isSignedIn } = useUser();
 	let name: any = ''
 	if (!isLoaded) {
-		return null;
+        return null;
 	}
 	if (user && isSignedIn) {
 		console.log(`user is signed in: ${user.fullName}`);

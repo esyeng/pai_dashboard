@@ -51,19 +51,19 @@ const ThreadList: React.FC = () => {
 	};
 
 	return (
-		<div className=" rounded-xl shadow-xl flex-1 w-full h-screen">
+		<div className=" rounded-xl shadow-xl flex-1 w-full">
 			<h2 className="text-lg text-caribbean-current font-bold mb-2 bg-mint bg-opacity-85 rounded-tl-lg rounded-tr-lg p-4">
 				Threads
 			</h2>
 			<div className="flex flex-col overflow-y-auto items-center justify-between">
-				<ul className="space-y-2  flex-1 w-full">
+				<ul className="grid grid-cols-1 gap-2 h-screen overflow-y-auto p-4 ">
 					{loadComplete && threadsArray.length > 0 ? (
 						threadsArray.map((threadItem: any) => {
 							console.log("thread from threadsArray", threadItem);
 							return (
 								<li
 									key={threadItem.id}
-									className="flex items-center justify-between bg-gray-200 rounded-lg border-2 border-mint"
+									className="flex min-h-16 items-center justify-between  bg-gray-200 rounded-lg border-2 border-mint"
 								>
 									<span
 										className="text-caribbean-current font-bold bg-mint self-stretch p-2 hover:transition-colors cursor-pointer duration-300 hover:bg-mint/20 rounded-l-lg"
@@ -152,6 +152,7 @@ const ThreadList: React.FC = () => {
                 </div> */}
 					{/* Tab Content */}
 				</div>
+			</div>
 				<div className="flex w-full justify-center self-end">
 					<button
 						className={`mt-4 w-full px-4 py-2 bg-blue-500 text-white rounded-md focus:outline-none  transition-colors duration-300 border-2 border-mint hover:bg-mint hover:border-transparent hover:text-caribbean-current ${user?.id ? "" : "disabled"}`}
@@ -160,7 +161,6 @@ const ThreadList: React.FC = () => {
 						+ New Thread
 					</button>
 				</div>
-			</div>
 		</div>
 	);
 };

@@ -16,7 +16,7 @@ export const MainContent: React.FC = () => {
 
 	useEffect(() => {
 		const handleResize = () => {
-			setSideOnBottom(window.innerWidth < 640);
+			setSideOnBottom(window.innerWidth < 768);
 		};
 
 		window.addEventListener("resize", handleResize);
@@ -36,9 +36,9 @@ export const MainContent: React.FC = () => {
 	}, [isLoaded]);
 
 	return (
-		<div className="flex justify-between w-full max-sm:flex-col">
+		<div className="flex justify-between w-full max-md:flex-col">
 			{!sideOnBottom ? <Sidebar /> : null}
-			<div className="flex flex-col flex-1 px-4 items-center justify-between ">
+			<div className="flex flex-col flex-1 px-4 items-center justify-between max-w-full overflow-x-auto">
 				<div className=" w-full items-center justify-between font-mono text-sm lg:flex">
 					<div className="flex h-10 w-full items-end justify-center">
 						<div className="z-10 bg-ultra-violet text-white">
@@ -58,7 +58,7 @@ export const MainContent: React.FC = () => {
 
 /**
  * const [sideOnBottom, setSideOnBottom] = useState(false);
- * 
+ *
  * div className="flex justify-between w-full max-sm:flex-col">
 					{!sideOnBottom ? (
 						<Sidebar setSideOnBottom={setSideOnBottom} />
