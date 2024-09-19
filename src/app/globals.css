@@ -84,9 +84,7 @@
 }
 
 html {
-    background: linear-gradient(to bottom,
-            transparent,
-            rgb(var(--caribbean-current))) rgb(var(--other-cc));
+    background: rgb(var(--caribbean-current));
 }
 
 body {
@@ -202,3 +200,9 @@ body {
         animation: custom-spin 1s linear infinite;
     }
 }
+
+/**
+linear-gradient(to bottom,
+            transparent,
+            rgb(var(--caribbean-current))) rgb(var(--other-cc));
+            */
