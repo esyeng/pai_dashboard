@@ -55,8 +55,8 @@ const ThreadList: React.FC = () => {
 			<h2 className="text-lg text-caribbean-current font-bold mb-2 bg-mint bg-opacity-85 rounded-tl-lg rounded-tr-lg p-4">
 				Threads
 			</h2>
-			<div className="flex flex-col overflow-y-auto items-center justify-between">
-				<ul className="grid grid-cols-1 gap-2 h-screen overflow-y-auto p-4 ">
+			<div className="max-h-96  flex flex-col overflow-y-auto items-center justify-between">
+				<ul className="grid grid-cols-1 gap-2 overflow-y-auto p-4 ">
 					{loadComplete && threadsArray.length > 0 ? (
 						threadsArray.map((threadItem: any) => {
 							console.log("thread from threadsArray", threadItem);
