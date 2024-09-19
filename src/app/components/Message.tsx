@@ -48,27 +48,28 @@ export const Message: React.FC<MessageProps> = ({
 
 	const isUserMessage = msg.role === "user";
 	const messageClass = isUserMessage
-		? "bg-vista-blue text-gray"
-		: "bg-jasmine text-black";
+		? "bg-[#fafcff66] text-black font-normal border border-gray-200"
+		: "bg-[#000000bd] text-white font-light";
 	const alignmentClass = isUserMessage ? "justify-end" : "justify-start";
 	const parsedContent = parseCodeBlocks(msg.content);
 
 	return (
 		<div className={`flex ${alignmentClass} mb-4`}>
 			<div
-				className={`px-4 py-2 rounded-lg overflow-x-auto ${messageClass} shadow-md`}
+				className={`px-4 py-2 rounded-lg overflow-x-auto ${messageClass} `}
 				style={{ maxWidth: "80%" }}
 			>
 				{parsedContent.map((part, index) => (
 					<React.Fragment key={index}>
 						{part.type === "text" ? (
 							<>
-								<span className="block text-chocolate-cosmos text-md">
+								<span className={`block ${isUserMessage
+		? 'text-caribbean-current' : 'text-light-coral' } text-2xl`}>
 									{msg.role === "user"
 										? currentUserName
 										: agents[agentId]}
 								</span>
-								<div className="block text-sm">
+								<div className="block text-lg">
 									<ReactMarkdown remarkPlugins={[remarkGfm]}>
 										{part.content}
 									</ReactMarkdown>
@@ -92,3 +93,8 @@ export const Message: React.FC<MessageProps> = ({
 		</div>
 	);
 };
+
+/**
+ * ? "bg-vista-blue text-gray"
+		: "bg-jasmine text-black";
+ */
