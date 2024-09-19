@@ -62,7 +62,6 @@ interface ModelResponse {
 export function parseMessageString(messageString: string): MessageProps {
 	let parsedMessage = JSON.parse(messageString);
 	// console.log(
-	// 	"FUCKING INPUT TO FUCKING PARSE STRING FUCKTION",
 	// 	messageString
 	// );
 
@@ -77,10 +76,7 @@ export function parseMessageString(messageString: string): MessageProps {
 	if (typeof parsedMessage === "string") {
 		parsedMessage = JSON.parse(parsedMessage);
 	}
-
-	// console.log("FUCKING PARSED STRING FUCK YOU", parsedMessage);
 	// console.log(
-		// "FUCKING TYPE OF THE PARSED STRING FUCK YOU",
 		// typeof parsedMessage
 	// );
 	const message: MessageProps = {
