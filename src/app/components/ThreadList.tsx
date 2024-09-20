@@ -56,10 +56,22 @@ const ThreadList: React.FC = () => {
 				Threads
 			</h2>
 			<div className="max-h-96  flex flex-col overflow-y-auto items-center justify-between">
+            <div className="flex w-full justify-center self-end">
+					<button
+						className={`mt-4 w-full px-4 py-2 bg-blue-500 text-white rounded-md focus:outline-none  transition-colors duration-300 border-2 border-mint hover:bg-mint hover:border-transparent hover:text-caribbean-current ${user?.id ? "" : "disabled"}`}
+						onClick={() => createNewThread()}
+					>
+						+ New Thread
+					</button>
+				</div>
 				<ul className="grid grid-cols-1 gap-2 overflow-y-auto p-4 ">
 					{loadComplete && threadsArray.length > 0 ? (
-						threadsArray.map((threadItem: any) => {
-							console.log("thread from threadsArray", threadItem);
+						[...threadsArray].reverse().map((threadItem: any) => {
+							// console.log("thread from threadsArray", threadItem);
+                            if (threadItem.title !== "New Thread" && threadItem.messages?.length == 0) {
+                                // deleteThread(threadItem.id);
+                                return null;
+                            }
 							return (
 								<li
 									key={threadItem.id}
@@ -80,7 +92,7 @@ const ThreadList: React.FC = () => {
 											switchThread(threadItem.id);
 										}}
 									>
-										{threadItem.title}
+										{threadItem.title !== "New Thread" ? threadItem.title.substring(0, threadItem.title.length - 2) : threadItem.title}
 									</span>
 									<button className="opacity-0 transition-opacity duration-200 ease-in-out hover:opacity-100 bg-transparent border-none rounded-full p-1 flex items-center justify-center">
 										<svg
@@ -153,14 +165,7 @@ const ThreadList: React.FC = () => {
 					{/* Tab Content */}
 				</div>
 			</div>
-				<div className="flex w-full justify-center self-end">
-					<button
-						className={`mt-4 w-full px-4 py-2 bg-blue-500 text-white rounded-md focus:outline-none  transition-colors duration-300 border-2 border-mint hover:bg-mint hover:border-transparent hover:text-caribbean-current ${user?.id ? "" : "disabled"}`}
-						onClick={() => createNewThread()}
-					>
-						+ New Thread
-					</button>
-				</div>
+
 		</div>
 	);
 };

@@ -39,18 +39,7 @@ export const ChatWindow: React.FC = () => {
 				: Array.isArray(threads[currentThreadId].messages.messages)
 					? threads[currentThreadId].messages.messages
 					: []
-			: [
-					{
-						id: "1",
-						sender: "user",
-						agentId: "jasmyn",
-						timestamp: new Date().getTime(),
-						msg: {
-							role: "user",
-							content: "Hello, I'm here to chat with you!",
-						},
-					},
-				];
+			: [];
 	};
 
 	const currentConversation = useMemo(() => {

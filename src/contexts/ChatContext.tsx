@@ -82,7 +82,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 	>();
 	const [modelId, setModelId] = useState<string>("claude-3-opus-20240229");
 	const [user, setUser] = useState<User | null>(null);
-	const [currentThreadId, setCurrentThreadId] = useState<string | number | null>(null);
+	const [currentThreadId, setCurrentThreadId] = useState<string | number>(1);
 	const [threads, setThreads] = useState<Threads | any>({});
 	const [messagesInActiveThread, setMessagesInActiveThread] = useState<
 		MessageProps[]
