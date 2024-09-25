@@ -9,6 +9,11 @@ import { useChat } from "@/contexts/ChatContext";
 import { agents, models } from "../../lib/store";
 import { useAuth } from "@clerk/nextjs";
 
+const getAgents = () => {
+    console.log("get agents called");
+
+}
+
 export const MainContent: React.FC = () => {
 	const [sideOnBottom, setSideOnBottom] = useState(false);
 	const { isLoaded, userId, sessionId, getToken } = useAuth();
@@ -39,6 +44,12 @@ export const MainContent: React.FC = () => {
 		<div className="flex justify-between w-full max-md:flex-col">
 			{!sideOnBottom ? <Sidebar /> : null}
 			<div className="flex flex-col flex-1 px-4 items-center justify-between max-w-full overflow-x-auto">
+            <button
+            onClick={getAgents}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out"
+        >
+            Get Agents
+        </button>
 				<div className=" w-full items-center justify-between font-mono text-sm lg:flex">
 					<div className="flex h-10 w-full items-end justify-center">
 						<div className="z-10 bg-ultra-violet text-white">

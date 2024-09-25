@@ -5,8 +5,8 @@
 import { AgentDropdown } from "./AgentDropdown";
 
 interface OptionsProps {
-	agents: { id: string; name: string }[];
-	models: { id: string; name: string }[];
+	agents: { assistant_id: string; name: string }[];
+	models: { model_id: string; name: string }[];
 }
 
 export const Options: React.FC<OptionsProps> = ({ agents, models }) => {
