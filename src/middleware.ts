@@ -25,7 +25,9 @@ export default clerkMiddleware((auth, req) => {
 
 	// Redirect users who are already authenticated
 	if (userId && shouldRedirectIfAuthenticated(req)) {
-		return NextResponse.redirect("/");
+        const url = req.nextUrl?.clone();
+        url.pathname = "/";
+		return NextResponse.rewrite(url);
 	}
 });
 

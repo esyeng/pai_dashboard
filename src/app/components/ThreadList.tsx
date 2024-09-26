@@ -29,7 +29,7 @@ const ThreadList: React.FC = () => {
 	const threadsArray = Object.values(threads);
 
 	if (Object.entries(threads).length > 0) {
-		console.log("threads raw object", threads);
+		// console.log("threads raw object", threads);
 		console.log("threadsArray", threadsArray);
 	}
 
