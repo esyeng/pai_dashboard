@@ -9,21 +9,20 @@ import { CodeBlock } from "./ui/CodeBlock";
 import { parseCodeBlocks } from "../../lib/utils";
 import { useUser } from "@clerk/nextjs";
 import { MessageProps } from "@/lib/types";
+import { useChat } from "../../contexts/ChatContext";
 
-interface AgentDict {
-	[key: string]: string;
-}
-const agents: AgentDict = {
-	tutor: "AI Tutor",
-	coder: "Coder",
-	ada: "Ada",
-	fed: "F.E.D.",
-	jasmyn: "Jasmyn",
-	sys_writer: "System Prompter",
-	sys_writer_plus: "System Prompter+",
-	dm_helper: "D&D: DM Helper",
-	player_helper: "D&D: Player Helper",
-};
+
+// const agents: AgentDict = {
+// 	tutor: "AI Tutor",
+// 	coder: "Coder",
+// 	ada: "Ada",
+// 	fed: "F.E.D.",
+// 	jasmyn: "Jasmyn",
+// 	sys_writer: "System Prompter",
+// 	sys_writer_plus: "System Prompter+",
+// 	dm_helper: "D&D: DM Helper",
+// 	player_helper: "D&D: Player Helper",
+// };
 
 export const Message: React.FC<MessageProps> = ({
 	id,
@@ -34,6 +33,7 @@ export const Message: React.FC<MessageProps> = ({
 }) => {
 	const { isCopied, copyToClipboard } = useCopyToClipboard({});
 	const { user, isLoaded, isSignedIn } = useUser();
+    const { agents } = useChat();
 	let name: any = ''
 	if (!isLoaded) {
         return null;

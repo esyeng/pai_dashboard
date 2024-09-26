@@ -159,6 +159,34 @@ export const fetchThreads = async (
 	}
 };
 
+export const fetchAssistants = async (): Promise<any> => {
+    const client = createClerkSupabaseClient();
+    try {
+        const { data, error } = await client.from("assistants").select("*");
+        if (error) {
+            throw new Error("Failed to fetch assistants");
+        }
+        return data;
+    } catch (error) {
+        console.error("Error fetching assistants:", error);
+        throw error;
+    }
+}
+
+export const fetchModels = async (): Promise<any> => {
+    const client = createClerkSupabaseClient();
+    try {
+        const { data, error } = await client.from("models").select("*");
+        if (error) {
+            throw new Error("Failed to fetch models");
+        }
+        return data;
+    } catch (error) {
+        console.error("Error fetching models:", error);
+        throw error;
+    }
+}
+
 export const saveNewThread = async (
 	thread_id: string,
 	title: string,

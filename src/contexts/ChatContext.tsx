@@ -9,6 +9,8 @@ import React, {
 import {
 	queryModel,
 	fetchThreads,
+    fetchAssistants,
+    fetchModels,
 	fetchUser,
 	saveNewThread,
 	updateThreadMessages,
@@ -16,9 +18,13 @@ import {
 } from "../lib/api";
 import { formatDate } from "@/lib/utils";
 import { Thread, Threads, User, MessageProps } from "@/lib/types";
-import { agents, models } from "@/lib/store";
+// import { agents, models } from "@/lib/store";
 import { useAuth } from "@clerk/nextjs";
 import { v4 as uuidv4 } from 'uuid';
+
+// interface AgentDict {
+// 	[key: string]: string;
+// }
 
 const _convertToMarkdown = (thread: Thread | any): string => {
 	let markdown = `# ${thread.title}\n\n`;
@@ -37,6 +43,8 @@ const _convertToMarkdown = (thread: Thread | any): string => {
 
 export interface ChatContextType {
 	threads: Threads;
+    agents: any;
+    models: any;
 	activeMessageQueue: MessageProps[];
 	user: User | null;
 	currentThreadId: string | number;
@@ -84,6 +92,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 	const [user, setUser] = useState<User | null>(null);
 	const [currentThreadId, setCurrentThreadId] = useState<string | number>(1);
 	const [threads, setThreads] = useState<Threads | any>({});
+    const [agents, setAgents] = useState<any>([]);
+    const [models, setModels] = useState<any>([]);
 	const [messagesInActiveThread, setMessagesInActiveThread] = useState<
 		MessageProps[]
 	>([]);
@@ -106,6 +116,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 			console.error("Error updating thread messages:", error);
 		}
 	};
+
+    const getAgents = async (user: any) => {
+        console.log("get agents called");
+        const agents = await fetchAssistants();
+        const models = await fetchModels();
+        if (agents) {
+            console.log("user object in getAgents", user)
+            setAgents(agents);
+        }
+        if (models) {
+            setModels(models);
+            console.log("models", JSON.stringify(models));
+        }
+    }
 
 	// effects
 
@@ -222,6 +246,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 			// console.log("authenticatedUserObject", authenticatedUserObject);
 			if (authenticatedUserObject) {
 				setUser(authenticatedUserObject);
+                console.log("authenticated user object", authenticatedUserObject);
+                clearNoteStorage(authenticatedUserObject);
+                getAgents(authenticatedUserObject);
 				setToken(t);
 			} else {
 				throw new Error("Failed to fetch user");
@@ -230,6 +257,18 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 			console.error("Error fetching user:", error);
 		}
 	};
+
+    const clearNoteStorage = (user: any) => {
+        const noteId = localStorage.getItem("note user id");
+        if (noteId !== "") {
+            if (noteId !== user.id) {
+                localStorage.setItem("notes", "");
+                localStorage.setItem("note user id", user.id);
+            }
+        } else {
+            localStorage.setItem("note user id", user.id);
+        }
+    }
 
 	/**
 	 * @method sendChat
@@ -307,6 +346,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 						agent_id: agentId,
 						messages: messagesToSend,
 						currentThreadId: currentThreadId,
+                        // session_id: user.
 					},
 					token
 				);
@@ -394,6 +434,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 		<ChatContext.Provider
 			value={{
 				threads,
+                agents,
+                models,
 				currentThreadId,
 				activeMessageQueue,
 				user,
