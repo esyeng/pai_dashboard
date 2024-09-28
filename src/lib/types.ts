@@ -75,9 +75,9 @@ export interface AuthResult {
 }
 
 export interface User extends Record<string, any> {
-    id: string;
-    email: string;
-    firstName: string;
+    id?: string;
+    email?: string;
+    firstName?: string;
     lastName?: string;
     gender?: string;
     pronouns?: string;
