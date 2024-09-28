@@ -33,7 +33,8 @@ dotenv.config();
 
 const BASE = process.env.BASE_URL
   ? process.env.BASE_URL
-  : "https://jasmyn-app-cb3idkum5a-uc.a.run.app";
+  : "https://jasmyn-418676732313.us-central1.run.app";
+
 
 // const BASE = 'http://localhost:8000';
 
