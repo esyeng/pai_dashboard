@@ -5,8 +5,8 @@ import { Message } from "./Message";
 import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
 import { useChat } from "@/contexts/ChatContext";
 import { MessageProps } from "@/lib/types";
-import { agents, models } from "@/lib/store";
 import { useAuth, useUser } from "@clerk/nextjs";
+import { safeJSONParse } from "@/lib/utils";
 
 export const ChatWindow: React.FC = () => {
 	const [inputValue, setInputValue] = useState("");
@@ -25,13 +25,7 @@ export const ChatWindow: React.FC = () => {
 	} = useChat();
 
 	const repopulateConversation = () => {
-		// console.log(`threads? {
-        //     ${threads}
-        //     `);
 		console.log(`currentThreadId: ${currentThreadId}`);
-		// console.log(
-		// 	`current thread: ${JSON.stringify(threads[currentThreadId])}`
-		// );
 
 		return threads[currentThreadId]
 			? Array.isArray(threads[currentThreadId].messages)
@@ -50,8 +44,6 @@ export const ChatWindow: React.FC = () => {
 	const sortedConversation = useMemo(() => {
 		return [...currentConversation]
 			.map((msg) => {
-				// console.log("msg type?", typeof msg);
-				// console.log("msg:", msg);
 				return typeof msg === "string" ? JSON.parse(msg) : msg;
 			})
 			.sort(
@@ -70,7 +62,10 @@ export const ChatWindow: React.FC = () => {
 			message,
 			modelId,
 			agentId,
-			currentThreadId
+			currentThreadId,
+            undefined,
+            undefined,
+            user?.firstName
 			// 2000,
 			// 0.3
 		);
@@ -87,7 +82,6 @@ export const ChatWindow: React.FC = () => {
 	const { onKeyDown } = useEnterSubmit(handleSendMessage);
 
 	useEffect(() => {
-		// console.log(`sortedConversation: ${sortedConversation}`);
 		if (chatWindowRef.current) {
 			chatWindowRef.current.scrollIntoView({
 				behavior: "smooth",
@@ -103,9 +97,6 @@ export const ChatWindow: React.FC = () => {
 	}, [currentThreadId]);
 
 	if (sortedConversation)
-		// console.log(
-		// 	`sortedConversation: ${JSON.stringify(sortedConversation)}`
-		// );
 
 	return (
 		<div className="container mx-auto px-4 py-4 h-full bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] rounded-lg shadow-xl">
@@ -114,49 +105,12 @@ export const ChatWindow: React.FC = () => {
 					<div className="flex-grow overflow-y-auto p-4">
 						{sortedConversation.map((message, i) => {
 							console.log(`typeof message: ${typeof message}`);
-							let msg =
-								typeof message === "string"
-									? JSON.parse(message)
-									: message;
+							let msg: MessageProps = safeJSONParse<MessageProps>(message);
 
-							if (typeof msg === "string") {
-								msg = JSON.parse(msg);
-							}
-							if (typeof msg === "string") {
-								msg = JSON.parse(msg);
-							}
-							if (typeof msg === "string") {
-								msg = JSON.parse(msg);
-							}
-							if (typeof msg === "string") {
-								msg = JSON.parse(msg);
-							}
-							if (typeof msg === "string") {
-								msg = JSON.parse(msg);
-							}
-							if (typeof msg === "string") {
-								msg = JSON.parse(msg);
-							}
-							if (typeof msg === "string") {
-								msg = JSON.parse(msg);
-							}
-							if (typeof msg === "string") {
-								msg = JSON.parse(msg);
-							}
-							if (typeof msg === "string") {
-								msg = JSON.parse(msg);
-							}
-							// console.log(`msg: {
-                            //     id: ${msg.id},
-                            //     msg: {
-                            //         role: ${msg.msg.role},
-                            //         content: ${msg.msg.content}
-                            //     }
-                            // }`);
 							if (msg.msg) {
 								return (
 									<Message
-										key={msg.id}
+										key={msg.id || i}
 										id={msg.id}
 										msg={{
 											role: msg.msg.role,

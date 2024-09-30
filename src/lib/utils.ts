@@ -99,7 +99,7 @@ export const parseCodeBlocks = (text: string): { type: 'text' | 'code'; content:
         const textBeforeCode = text.slice(lastIndex, match.index);
 
         if (textBeforeCode.trim() !== '') {
-            parts.push({ type: 'text', content: textBeforeCode, language: ''});
+            parts.push({ type: 'text', content: textBeforeCode, language: '' });
         }
 
         parts.push({ type: 'code', content: code, language });
@@ -113,3 +113,20 @@ export const parseCodeBlocks = (text: string): { type: 'text' | 'code'; content:
 
     return parts;
 };
+
+export function safeJSONParse<T>(input: string | object): T  {
+    if (typeof input === "object") {
+        return input as T
+    }
+
+    try {
+        let parsed = JSON.parse(input);
+        while (typeof parsed === "string") {
+            parsed = JSON.parse(parsed);
+        }
+        return parsed as T;
+    } catch (error) {
+        console.error('Error parsing JSON:', error);
+        return {} as T;
+    }
+}
