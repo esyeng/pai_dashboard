@@ -29,7 +29,6 @@ const ThreadList: React.FC = () => {
 	const threadsArray = Object.values(threads);
 
 	if (Object.entries(threads).length > 0) {
-		// console.log("threads raw object", threads);
 		console.log("threadsArray", threadsArray);
 	}
 
@@ -147,22 +146,6 @@ const ThreadList: React.FC = () => {
 					)}
 				</ul>
 				<div className="bg-orange-100 rounded-b-lg rounded-tr-lg">
-					{/* <div className="rounded-tl-md rounded-tr-md ">
-                    <ul className="flex  items-stretch justify-stretch">
-                        <li className="flex-1 rounded-tl-md rounded-tr-md transition-colors duration-300 hover:bg-mint  ">
-                            <button className="flex-1 w-full active py-2 px-4 ">
-                                Tab 1
-                                <span className=" bottom-0 left-0 w-full h-px bg-light-coral"></span>
-                            </button>
-                        </li>
-                        <li className=" w-100 flex-1 rounded-tl-md rounded-tr-md transition-colors duration-300 hover:bg-mint border-mint border-b-1 border-l-1">
-                            <button className="py-2 px-4 border-mint border-b-1">
-                                Tab 2
-                            </button>
-                        </li>
-                    </ul>
-                </div> */}
-					{/* Tab Content */}
 				</div>
 			</div>
 
