@@ -70,7 +70,10 @@ export const ChatWindow: React.FC = () => {
 			message,
 			modelId,
 			agentId,
-			currentThreadId
+			currentThreadId,
+            undefined,
+            undefined,
+            user?.firstName
 			// 2000,
 			// 0.3
 		);

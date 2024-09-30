@@ -61,7 +61,8 @@ export interface ChatContextType {
         agentId: string,
         currentThreadId: string | number,
         maxTokens?: number,
-        temperature?: number
+        temperature?: number,
+        nameGiven?: string
     ) => Promise<void>;
     switchThread: (threadId: string) => void;
     createNewThread: () => Promise<any>;
@@ -313,13 +314,19 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         agentId: string,
         currentThreadId: string | number,
         maxTokens?: number,
-        temperature?: number
+        temperature?: number,
+        nameGiven?: string
     ) => {
+        let name: string = user?.firstName
+            ? user.firstName
+            : nameGiven
+                ? nameGiven
+                : "anonymousUser";
         const newMsg: MessageProps = {
             id: uuidv4(),
             timestamp: Date.now(),
             agentId: agentId,
-            sender: user?.firstName || "anonymousUser",
+            sender: name,
             msg: {
                 role: "user",
                 content: message,
