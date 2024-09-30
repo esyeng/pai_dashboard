@@ -268,7 +268,7 @@ export const updateThreadMessages = async (
                     typeof msg === "string" ? msg : JSON.stringify(msg)
                 ),
             })
-            .eq('id', threadId)
+            .eq('thread_id', threadId)
             .select();
         if (error) {
             console.log("error from thing", error);
