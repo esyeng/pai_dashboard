@@ -60,8 +60,9 @@ export interface ChatContextType {
         model: string,
         agentId: string,
         currentThreadId: string | number,
-        maxTokens?: number,
-        temperature?: number
+        maxTokens: number | null,
+        temperature: number | null,
+        nameGiven?: string
     ) => Promise<void>;
     switchThread: (threadId: string) => void;
     createNewThread: () => Promise<any>;
@@ -108,7 +109,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [token, setToken] = useState<
         any | Promise<string> | string | undefined
     >();
-    const [modelId, setModelId] = useState<string>("claude-3-opus-20240229");
+    const [modelId, setModelId] = useState<string>("claude-3-5-sonnet-20240620");
     const [user, setUser] = useState<User | null>(null);
     const [currentThreadId, setCurrentThreadId] = useState<string | number>(1);
     const [threads, setThreads] = useState<Threads | any>({});
@@ -312,14 +313,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         model: string,
         agentId: string,
         currentThreadId: string | number,
-        maxTokens?: number,
-        temperature?: number
+        maxTokens: number | null,
+        temperature: number | null,
+        nameGiven?: string
     ) => {
+        let name: string = user?.firstName
+            ? user.firstName
+            : nameGiven
+                ? nameGiven
+                : "anonymousUser";
         const newMsg: MessageProps = {
             id: uuidv4(),
             timestamp: Date.now(),
             agentId: agentId,
-            sender: user?.firstName || "anonymousUser",
+            sender: name,
             msg: {
                 role: "user",
                 content: message,
@@ -369,7 +376,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 const response = await queryModel(
                     {
                         max_tokens: 3000,
-                        model: model || "claude-3-opus-20240229",
+                        model: model || "claude-3-5-sonnet-20240620",
                         temperature: temperature || 0.6,
                         agent_id: agentId,
                         system_prompt: personalizePrompt(prompts[agentId], user.profile[0]),
