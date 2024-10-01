@@ -214,7 +214,7 @@ export const fetchModels = async (): Promise<any> => {
 }
 
 export const saveNewThread = async (
-    thread_id: string,
+    thread_id: number | string,
     title: string,
     userId: string,
     messages: string[]

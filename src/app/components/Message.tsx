@@ -33,7 +33,7 @@ export const Message: React.FC<MessageProps> = ({
     console.log(`agentId: ${agentId}`);
     // const [streamedText, setStreamedText] = useState<string>('');
     const currentUserName: string = name && name.length ? name : "AnonymousUser";
-    const currentAgentName: string = agents && agents.length ? agents.filter((a: AgentProps) => a.assistant_id == agentId)[0].name : "";
+    const currentAgentName: string = agents && agents.length ? agents.filter((a: AgentProps) => a.assistant_id == agentId)[0]?.name : "";
     // const currentAgentName: string = "Test";
     console.log('currentAgentName?', currentAgentName);
 
