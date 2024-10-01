@@ -42,7 +42,7 @@ const ThreadList: React.FC = () => {
 				event.target as HTMLSpanElement
 			).textContent?.trim();
 			if (newName !== "") {
-				switchThread(thread ? thread.id : "");
+				switchThread(thread.id);
 				// await updateThreadName(thread.id, newName);
 				console.log("call to backend: update thread name");
 			}
@@ -154,3 +154,13 @@ const ThreadList: React.FC = () => {
 };
 
 export default ThreadList;
+
+{/* <h2 className="text-lg text-caribbean-current font-bold ">
+					{loadComplete && threadsArray.length > 0
+						? `Total: ${[...threadsArray].filter(
+								thread =>
+									Array.isArray(thread.messages) &&
+									thread.messages.length !== 0
+							).length}`
+						: ""}
+				</h2> */}
