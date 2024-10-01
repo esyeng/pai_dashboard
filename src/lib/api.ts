@@ -29,6 +29,7 @@ import {
 } from "./types";
 import { createClerkSupabaseClient } from "../app/supabase/client";
 import dotenv from "dotenv";
+import { safeJSONParse } from "./utils";
 dotenv.config();
 
 const BASE = process.env.BASE_URL
@@ -51,6 +52,7 @@ interface ClaudeChatRequestParams {
     system_prompt: string;
     messages: { role: string; content: string }[];
     currentThreadId: string | number;
+    user_id: string | 0;
 }
 
 interface ModelResponse {
@@ -260,22 +262,22 @@ export const updateThreadMessages = async (
     messages: any[]
 ) => {
     const client = createClerkSupabaseClient();
-    console.log("updating thread messages", threadId, messages);
+    // console.log("in api.ts --> updating thread messages", threadId, messages.length);
     try {
         const { data, error } = await client
             .from("threads")
             .update({
-                messages: messages.map((msg) =>
-                    typeof msg === "string" ? msg : JSON.stringify(msg)
-                ),
+                messages: messages.map((msg) => safeJSONParse<MessageProps>(msg)),
             })
-            .eq('thread_id', threadId)
+            .eq('id', threadId)
             .select();
         if (error) {
             console.log("error from thing", error);
             throw new Error("Failed to update thread messages");
         }
-        if (data) console.log("updated thread messages!", data);
+        // console.log("checking if data received from updating thread messages");
+        if (data) console.log("success updated thread messages!", data);
+            // console.log("data from updated thread messages but empty?", data);
         return data;
     } catch (error) {
         console.error("Error updating thread messages:", error);

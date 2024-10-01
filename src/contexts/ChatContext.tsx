@@ -18,8 +18,6 @@ import {
 } from "../lib/api";
 import { formatDate } from "@/lib/utils";
 import { Thread, Threads, User, MessageProps, AgentProps, UserInfo } from "@/lib/types";
-// import { agents, models } from "@/lib/store";
-import { useAuth } from "@clerk/nextjs";
 import { v4 as uuidv4 } from 'uuid';
 
 interface PromptMap {
@@ -79,7 +77,11 @@ interface ChatProviderProps {
 
 const _createID = () => {
     const date = new Date()
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()} ${(Math.random() * 100).toPrecision(2)}`;
+    return `${date.toLocaleDateString(undefined, {
+        dateStyle:"medium"
+    })} ${date.toLocaleTimeString(undefined, {
+        timeStyle: "short"
+    })} ${(Math.random() * 1000).toPrecision(3)}`;
 };
 
 const personalizePrompt = (prompt: string, userProfile: User): string => {
@@ -132,7 +134,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         messages: any[]
     ) => {
         try {
-            console.log("updating thread messages...");
+            // console.log("updating thread messages from updateThreadMessagesAsync call");
             await updateThreadMessages(threadId, messages);
         } catch (error) {
             console.error("Error updating thread messages:", error);
@@ -194,12 +196,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             messagesInActiveThread.length % 2 === 0
             && currentThreadId
         ) {
-            console.log("even number of messages in active thread");
 
-            updateThreadMessagesAsync(currentThreadId, [
+            const currentThread = threads[currentThreadId];
+            updateThreadMessagesAsync(currentThread.id, [
                 ...messagesInActiveThread,
             ]);
-
             // update db after a response is received
         }
     }, [messagesInActiveThread]);
@@ -358,7 +359,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         setActiveMessageQueue(updatedQueue);
         console.log("active queue???:", activeMessageQueue);
         const messagesToSend = updatedQueue.map((msg) => {
-            console.log("MSG TO SEND LINE 272!!!", msg);
+            // console.log("MSG TO SEND LINE 272!!!", msg);
             console.log("TYPE OF MSG TO SEND LINE 272!!!", typeof msg);
             const messageToSend =
                 typeof msg === "string" ? parseMessageString(msg) : msg;
@@ -373,6 +374,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setIsLoading(true);
             if (token && user) {
+                console.log("user from before query model", user)
                 const response = await queryModel(
                     {
                         max_tokens: 3000,
@@ -382,6 +384,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                         system_prompt: personalizePrompt(prompts[agentId], user.profile[0]),
                         messages: messagesToSend,
                         currentThreadId: currentThreadId,
+                        user_id: user && user.user_id ? user.user_id : 0
                         // session_id: user.
                     },
                     token
@@ -416,6 +419,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         setCurrentThreadId(threadId);
         setActiveMessageQueue([...threads[threadId].messages.slice(-7)]);
         setMessagesInActiveThread([...threads[threadId].messages]);
+        console.log("SWITCH THREAD switching thread to", threadId);
     };
 
     /**
@@ -424,12 +428,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
      */
     const createNewThread = async () => {
         const newThreadId = _createID();
-        setCurrentThreadId(newThreadId);
+        setCurrentThreadId(threads.length + 1);
         setThreads((prev: Threads) => ({
             ...prev,
             [newThreadId]: {
-                id: newThreadId,
-                title: "New Thread",
+                id: threads.length + 1,
+                title: newThreadId,
                 createdAt: formatDate(new Date()),
                 messages: [] as unknown[],
             },
