@@ -87,7 +87,7 @@ const ThreadList: React.FC = () => {
 										// 	)
 										// }
 										onClick={() => {
-											console.log("switching thread");
+											console.log("switching thread", threadItem.id);
 											switchThread(threadItem.id);
 										}}
 									>
