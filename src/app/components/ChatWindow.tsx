@@ -110,7 +110,7 @@ export const ChatWindow: React.FC = () => {
 							if (msg.msg) {
 								return (
 									<Message
-										key={msg.id || i}
+										key={msg.id && !(msg.id === 10000 || msg.id === "10000") ? msg.id : i}
 										id={msg.id}
 										msg={{
 											role: msg.msg.role,
