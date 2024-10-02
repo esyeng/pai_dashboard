@@ -201,7 +201,7 @@ export class UniqueIdGenerator {
     }
 
     private encodeNumber(num: number, length: number): string {
-        const encoded = num.toString(this.chars.length).padStart(length, '0');
+        const encoded = num.toString(this.chars.length > 36 ? this.chars.length % 36 : this.chars.length).padStart(length, '0');
         return encoded.split('').map(char => this.chars[parseInt(char, this.chars.length)]).join('');
     }
 }
