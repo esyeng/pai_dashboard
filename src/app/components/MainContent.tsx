@@ -42,7 +42,7 @@ export const MainContent: React.FC = () => {
 	return (
 		<div className="flex justify-between w-full max-md:flex-col">
 			{!sideOnBottom ? <Sidebar /> : null}
-			<div className="flex flex-col flex-1 px-4 items-center justify-between max-w-full overflow-x-auto">
+			<div className="flex flex-col flex-1 px-4 items-center justify-between max-w-full md:overflow-x-auto">
 				<SignInOrOut />
 				{/* <button
                     onClick={getAgents}
