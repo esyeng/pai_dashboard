@@ -71,7 +71,7 @@ interface PromptMap {
 const idGenerator = UniqueIdGenerator.getInstance();
 
 const _createTitle = () => {
-    const date = new Date();
+    const date = new Date(Date.now());
     return `${date.toLocaleDateString(undefined, {
         dateStyle: "medium",
     })} ${date.toLocaleTimeString(undefined, {
@@ -485,8 +485,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         setThreads((prev: Threads) => ({
             ...prev,
             [newThreadId]: {
-                id: threadsArray.length + 1,
-                title: newThreadId,
+                id: newThreadId,
+                title: newThreadTitle,
                 createdAt: formatDate(new Date()),
                 messages: [] as unknown[],
             },

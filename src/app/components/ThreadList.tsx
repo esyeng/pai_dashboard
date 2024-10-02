@@ -73,7 +73,7 @@ const ThreadList: React.FC = () => {
                             }
 							return (
 								<li
-									key={threadItem.id}
+									key={threadItem.id ? threadItem.id : threadItem.thread_id}
 									className="flex min-h-16 items-center justify-between  bg-gray-200 rounded-lg border-2 border-mint"
 								>
 									<span
@@ -87,11 +87,11 @@ const ThreadList: React.FC = () => {
 										// 	)
 										// }
 										onClick={() => {
-											console.log("switching thread", threadItem.id);
-											switchThread(threadItem.id);
+											console.log("switching thread", threadItem.thread_id);
+											switchThread(threadItem.thread_id);
 										}}
 									>
-										{threadItem.title !== "New Thread" ? threadItem.title.substring(0, threadItem.title.length - 2) : threadItem.title}
+										{threadItem.title !== "New Thread" ? threadItem.title.substring(0, threadItem.title.length) : threadItem.title}
 									</span>
 									<button className="opacity-0 transition-opacity duration-200 ease-in-out hover:opacity-100 bg-transparent border-none rounded-full p-1 flex items-center justify-center">
 										<svg
