@@ -29,7 +29,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export interface ChatContextType {
     threads: Threads;
-    // threadCache: Threads;
+    threadCache: Threads;
     agents: any;
     models: any;
     activeMessageQueue: MessageProps[];
@@ -132,10 +132,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [currentThreadId, setCurrentThreadId] = useState<string>(() => {
         return lastThreadId ? lastThreadId : "";
     });
-    // const [threadCache, setThreadCache] = useState<Threads | any>(() => {
-    //     const cachedThreads = global?.localStorage?.getItem("cachedThreads");
-    //     return cachedThreads ? JSON.parse(cachedThreads) : {};
-    // });
+    const [threadCache, setThreadCache] = useState<Threads | any>(() => {
+        const cachedThreads = global?.localStorage?.getItem("cachedThreads");
+        return cachedThreads ? JSON.parse(cachedThreads) : {};
+    });
     const [threads, setThreads] = useState<Threads | any>({});
     const [agents, setAgents] = useState<AgentProps[]>([]);
     const [models, setModels] = useState<any>([]);
@@ -255,13 +255,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             const fetchedThreads: Thread[] | any[] = await fetchThreads(token);
             console.log("about to setThreads to fetchedThreads");
             const threadsObject = fetchedThreads.reduce((acc, thread) => {
-                acc[thread.id] = thread;
+                acc[thread.thread_id] = thread;
                 return acc;
             }, {} as Threads);
             setThreads(threadsObject);
-            // setThreadCache(threadsObject);
-            // localStorage.setItem("cachedThreads", JSON.stringify(threadsObject));
+            setThreadCache(threadsObject);
+            localStorage.setItem("cachedThreads", JSON.stringify(threadsObject));
             console.log("fetchedThreads", fetchedThreads);
+            console.log("threadsObject", threadsObject);
 
             // Set the most recent thread as the current thread
             if (localStorage.getItem("lastThreadId")) {
@@ -519,7 +520,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         <ChatContext.Provider
             value={{
                 threads,
-                // threadCache,
+                threadCache,
                 agents,
                 models,
                 currentThreadId,
