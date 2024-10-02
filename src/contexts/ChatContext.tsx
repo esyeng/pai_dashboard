@@ -87,10 +87,6 @@ const _convertToMarkdown = (thread: Thread | any): string => {
 };
 
 
-const containsNumber = (value: any): boolean => {
-    return value && typeof parseInt(value) === "number" && isFinite(value);
-}
-
 const personalizePrompt = (prompt: string, userProfile: User): string => {
     const detailsToPull: string[] = [
         'first_name',
@@ -453,7 +449,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         // await threads
         console.log('threads length', threadsArray.length);
         setCurrentThreadId(newThreadId);
-        localStorage.setItem("lastThreadId", (threadsArray.length + 1).toString());
+        localStorage.setItem("lastThreadId", newThreadId);
 
         setThreads((prev: Threads) => ({
             ...prev,
