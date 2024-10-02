@@ -99,9 +99,9 @@ export const ChatWindow: React.FC = () => {
 	if (sortedConversation)
 
 	return (
-		<div className="container mx-auto px-4 py-4 h-full max-h-[800px] bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] rounded-lg shadow-xl">
+		<div className="container mx-auto px-4 py-4 h-full bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] rounded-lg shadow-xl">
 			<div className="w-full mx-auto h-full">
-				<div className="flex flex-col h-full min-h-[400px] flex-grow">
+				<div className="flex flex-col h-full min-h-[400px] max-h-[800px] flex-grow">
 					<div className="flex-grow overflow-y-auto p-4">
 						{sortedConversation.map((message, i) => {
 							console.log(`typeof message: ${typeof message}`);
