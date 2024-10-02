@@ -17,11 +17,19 @@ import {
     parseMessageString,
 } from "../lib/api";
 import { formatDate, UniqueIdGenerator } from "@/lib/utils";
-import { Thread, Threads, User, MessageProps, AgentProps, UserInfo } from "@/lib/types";
-import { v4 as uuidv4 } from 'uuid';
+import {
+    Thread,
+    Threads,
+    User,
+    MessageProps,
+    AgentProps,
+    UserInfo,
+} from "@/lib/types";
+import { v4 as uuidv4 } from "uuid";
 
 export interface ChatContextType {
     threads: Threads;
+    threadCache: Threads;
     agents: any;
     models: any;
     activeMessageQueue: MessageProps[];
@@ -63,18 +71,19 @@ interface PromptMap {
 const idGenerator = UniqueIdGenerator.getInstance();
 
 const _createTitle = () => {
-    const date = new Date()
+    const date = new Date();
     return `${date.toLocaleDateString(undefined, {
-        dateStyle: "medium"
+        dateStyle: "medium",
     })} ${date.toLocaleTimeString(undefined, {
-        timeStyle: "short"
+        timeStyle: "short",
     })} ${(Math.random() * 1000).toPrecision(3)}`;
 };
 
 const _convertToMarkdown = (thread: Thread | any): string => {
     let markdown = `# ${thread.title}\n\n`;
     thread.messages?.forEach((message: any) => {
-        let msg = typeof message === "string" ? parseMessageString(message) : message;
+        let msg =
+            typeof message === "string" ? parseMessageString(message) : message;
         if (typeof msg === "string") {
             msg = parseMessageString(msg);
         }
@@ -86,59 +95,67 @@ const _convertToMarkdown = (thread: Thread | any): string => {
     return markdown;
 };
 
-
 const personalizePrompt = (prompt: string, userProfile: User): string => {
     const detailsToPull: string[] = [
-        'first_name',
-        'age',
-        'gender',
-        'pronouns',
-        'nickname'
+        "first_name",
+        "age",
+        "gender",
+        "pronouns",
+        "nickname",
     ];
-    let details: { [key: string]: string; } = {};
+    let details: { [key: string]: string } = {};
     for (const info in userProfile) {
-        const item = userProfile[info]
-        if (item && item !== '' && detailsToPull.includes(info)) {
-            details[info] = item
+        const item = userProfile[info];
+        if (item && item !== "" && detailsToPull.includes(info)) {
+            details[info] = item;
         }
     }
-    const personalizedSystemPrompt: string = prompt + ' ' + JSON.stringify(details);
+    const personalizedSystemPrompt: string =
+        prompt + " " + JSON.stringify(details);
     // console.log('personalized system prompt!', personalizedSystemPrompt)
     return personalizedSystemPrompt;
-}
+};
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
+    const lastThreadId = global?.localStorage?.getItem("lastThreadId");
+
     const [agentId, setAgentId] = useState<string>("jasmyn");
     const [token, setToken] = useState<
         any | Promise<string> | string | undefined
     >();
-    const [modelId, setModelId] = useState<string>("claude-3-5-sonnet-20240620");
+    const [modelId, setModelId] = useState<string>(
+        "claude-3-5-sonnet-20240620"
+    );
     const [user, setUser] = useState<User | null>(null);
     const [currentThreadId, setCurrentThreadId] = useState<string>(() => {
-        const lastThreadId = global?.localStorage?.getItem("lastThreadId");
         return lastThreadId ? lastThreadId : "";
+    });
+    const [threadCache, setThreadCache] = useState<Threads | any>(() => {
+        const cachedThreads = global?.localStorage?.getItem("cachedThreads");
+        return cachedThreads ? JSON.parse(cachedThreads) : {};
     });
     const [threads, setThreads] = useState<Threads | any>({});
     const [agents, setAgents] = useState<AgentProps[]>([]);
     const [models, setModels] = useState<any>([]);
     const [prompts, setPrompts] = useState<PromptMap>({});
-    const [messagesInActiveThread, setMessagesInActiveThread] = useState<
-        MessageProps[]
-    >([]);
-    const [activeMessageQueue, setActiveMessageQueue] = useState<
-        MessageProps[]
-    >([]);
+    const [messagesInActiveThread, setMessagesInActiveThread] = useState<MessageProps[]>((): [] =>
+        lastThreadId && threadCache[lastThreadId]
+            ? threadCache[lastThreadId].messages
+            : []
+    );
+    const [activeMessageQueue, setActiveMessageQueue] = useState<MessageProps[]>((): [] =>
+        lastThreadId && threadCache[lastThreadId]
+            ? threadCache[lastThreadId].messages.slice(-7)
+            : []
+    );
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [responseMsg, setResponseMsg] = useState<MessageProps | null>(null);
     const [loadComplete, setLoadComplete] = useState<boolean>(false);
     const [threadsLoaded, setThreadsLoaded] = useState<boolean>(false);
 
-    const updateThreadMessagesAsync = async (
-        id: number,
-        messages: any[]
-    ) => {
+    const updateThreadMessagesAsync = async (id: number, messages: any[]) => {
         try {
             // console.log("updating thread messages from updateThreadMessagesAsync call");
             await updateThreadMessages(id, messages); // id from db thread obj
@@ -151,21 +168,21 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         console.log("get agents called");
         const agents = await fetchAssistants(user.profile[0].assistant_ids);
         const models = await fetchModels();
-        const promptMap: PromptMap = {}
+        const promptMap: PromptMap = {};
         if (agents) {
-            console.log("user object in getAgents", user)
+            console.log("user object in getAgents", user);
             setAgents(agents);
             console.log("Agents!", agents);
             agents.forEach((agent: AgentProps) => {
-                promptMap[agent.assistant_id] = agent.system_prompt
-            })
+                promptMap[agent.assistant_id] = agent.system_prompt;
+            });
             setPrompts(promptMap);
         }
         if (models) {
             setModels(models);
             console.log("models", JSON.stringify(models));
         }
-    }
+    };
 
     // effects
 
@@ -180,7 +197,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     useEffect(() => {
         if (responseMsg && currentThreadId) {
             setIsLoading(false);
-            setMessagesInActiveThread((prev) => [...prev, responseMsg]);
+            setMessagesInActiveThread(prev => [...prev, responseMsg]);
             setThreads((prev: Threads | any) => ({
                 ...prev,
                 [currentThreadId]: {
@@ -199,10 +216,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         if (
             messagesInActiveThread &&
             messagesInActiveThread.length >= 2 &&
-            messagesInActiveThread.length % 2 === 0
-            && currentThreadId
+            messagesInActiveThread.length % 2 === 0 &&
+            currentThreadId
         ) {
-
             const currentThread = threads[currentThreadId];
             updateThreadMessagesAsync(currentThread.id, [
                 ...messagesInActiveThread,
@@ -251,6 +267,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 return acc;
             }, {} as Threads);
             setThreads(threadsObject);
+            setThreadCache(threadsObject);
+            localStorage.setItem("cachedThreads", JSON.stringify(threadsObject));
             console.log("fetchedThreads", fetchedThreads);
 
             // Set the most recent thread as the current thread
@@ -259,8 +277,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 if (lastThreadId) {
                     setCurrentThreadId(lastThreadId);
                     if (threads[lastThreadId]) {
-                        setMessagesInActiveThread(threads[lastThreadId].messages);
-                        setActiveMessageQueue(threads[lastThreadId].messages.slice(-7));
+                        setMessagesInActiveThread(
+                            threads[lastThreadId].messages
+                        );
+                        setActiveMessageQueue(
+                            threads[lastThreadId].messages.slice(-7)
+                        );
                     }
                 }
             } else if (fetchedThreads.length > 0) {
@@ -278,7 +300,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
-
     /**
      * @method fetchData
      * @returns authenticatedUserObject: any
@@ -290,7 +311,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             // console.log("authenticatedUserObject", authenticatedUserObject);
             if (authenticatedUserObject) {
                 setUser(authenticatedUserObject);
-                console.log("authenticated user object", authenticatedUserObject);
+                console.log(
+                    "authenticated user object",
+                    authenticatedUserObject
+                );
                 clearNoteStorage(authenticatedUserObject);
                 getAgents(authenticatedUserObject);
                 setToken(t);
@@ -312,7 +336,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         } else {
             localStorage.setItem("note user id", user.id);
         }
-    }
+    };
 
     /**
      * @method sendChat
@@ -373,7 +397,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         const updatedQueue = [...activeMessageQueue, newMsg].slice(-7);
         setActiveMessageQueue(updatedQueue);
         console.log("active queue???:", activeMessageQueue);
-        const messagesToSend = updatedQueue.map((msg) => {
+        const messagesToSend = updatedQueue.map(msg => {
             // console.log("MSG TO SEND LINE 272!!!", msg);
             console.log("TYPE OF MSG TO SEND LINE 272!!!", typeof msg);
             const messageToSend =
@@ -389,17 +413,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setIsLoading(true);
             if (token && user) {
-                console.log("user from before query model", user)
+                console.log("user from before query model", user);
                 const response = await queryModel(
                     {
                         max_tokens: 3000,
                         model: model || "claude-3-5-sonnet-20240620",
                         temperature: temperature || 0.6,
                         agent_id: agentId,
-                        system_prompt: personalizePrompt(prompts[agentId], user.profile[0]),
+                        system_prompt: personalizePrompt(
+                            prompts[agentId],
+                            user.profile[0]
+                        ),
                         messages: messagesToSend,
                         currentThreadId: currentThreadId,
-                        user_id: user && user.user_id ? user.user_id : 0
+                        user_id: user && user.user_id ? user.user_id : 0,
                         // session_id: user.
                     },
                     token
@@ -444,10 +471,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
      */
     const createNewThread = async () => {
         const newThreadTitle: string = _createTitle();
-        const newThreadId: string = idGenerator.generate({timeComponent: 8, randomComponent: 10, addCounter: true});
+        const newThreadId: string = idGenerator.generate({
+            timeComponent: 8,
+            randomComponent: 10,
+            addCounter: true,
+        });
         const threadsArray = Object.values(threads);
         // await threads
-        console.log('threads length', threadsArray.length);
+        console.log("threads length", threadsArray.length);
         setCurrentThreadId(newThreadId);
         localStorage.setItem("lastThreadId", newThreadId);
 
@@ -531,7 +562,6 @@ export const useChat = (): ChatContextType => {
     return context;
 };
 
-
 // export const useLogout = ():ChatContextType => {
 //     const context = useContext(ChatContext);
 //     if (!context) {
@@ -539,7 +569,6 @@ export const useChat = (): ChatContextType => {
 //     }
 //     return context.logout;
 //   };
-
 
 //     // function to clear all cached data
 //     const clearAllCachedData = useCallback(() => {
@@ -553,7 +582,6 @@ export const useChat = (): ChatContextType => {
 //         setModelsCache([]);
 //         setThreadCache({});
 //     }, []);
-
 
 //     // logout function
 //     const logout = useCallback(() => {
