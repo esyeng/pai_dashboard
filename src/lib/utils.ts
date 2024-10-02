@@ -114,7 +114,7 @@ export const parseCodeBlocks = (text: string): { type: 'text' | 'code'; content:
     return parts;
 };
 
-export function safeJSONParse<T>(input: string | object): T  {
+export function safeJSONParse<T>(input: string | object): T {
     if (typeof input === "object") {
         return input as T
     }
@@ -128,5 +128,80 @@ export function safeJSONParse<T>(input: string | object): T  {
     } catch (error) {
         console.error('Error parsing JSON:', error);
         return {} as T;
+    }
+}
+
+
+export class UniqueIdGenerator {
+    private static instance: UniqueIdGenerator;
+    private counter: number = 0;
+    private lastTimestamp: number = 0;
+    private readonly chars: string = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+    private constructor() { }
+
+    public static getInstance(): UniqueIdGenerator {
+        if (!UniqueIdGenerator.instance) {
+            UniqueIdGenerator.instance = new UniqueIdGenerator();
+        }
+        return UniqueIdGenerator.instance;
+    }
+
+    /**
+     * Generates a unique ID.
+     * @param {Object} options - Configuration options for ID generation.
+     * @param {number} [options.timeComponent=6] - Length of the time component.
+     * @param {number} [options.randomComponent=8] - Length of the random component.
+     * @param {boolean} [options.addCounter=true] - Whether to include a counter component.
+     * @returns {string} A unique ID string.
+     */
+    public generate(options: {
+        timeComponent?: number;
+        randomComponent?: number;
+        addCounter?: boolean;
+    } = {}): string {
+        const {
+            timeComponent = 6,
+            randomComponent = 8,
+            addCounter = true
+        } = options;
+
+        const timestamp = this.getTimestamp();
+        const random = this.getRandomComponent(randomComponent);
+        const counterStr = addCounter ? this.getCounterComponent() : '';
+
+        return `${this.encodeTimestamp(timestamp, timeComponent)}${counterStr}${random}`;
+    }
+
+    private getTimestamp(): number {
+        const now = Date.now();
+        if (now === this.lastTimestamp) {
+            this.counter++;
+        } else {
+            this.counter = 0;
+            this.lastTimestamp = now;
+        }
+        return now;
+    }
+
+    private encodeTimestamp(timestamp: number, length: number): string {
+        return this.encodeNumber(timestamp, length);
+    }
+
+    private getCounterComponent(): string {
+        return this.encodeNumber(this.counter, 2);
+    }
+
+    private getRandomComponent(length: number): string {
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += this.chars[Math.floor(Math.random() * this.chars.length)];
+        }
+        return result;
+    }
+
+    private encodeNumber(num: number, length: number): string {
+        const encoded = num.toString(this.chars.length).padStart(length, '0');
+        return encoded.split('').map(char => this.chars[parseInt(char, this.chars.length)]).join('');
     }
 }

@@ -214,7 +214,7 @@ export const fetchModels = async (): Promise<any> => {
 }
 
 export const saveNewThread = async (
-    thread_id: number | string,
+    thread_id: string,
     title: string,
     userId: string,
     messages: string[]
@@ -224,8 +224,8 @@ export const saveNewThread = async (
     try {
         const { data, error } = await client.from("threads").insert([
             {
-                title: title,
                 thread_id: thread_id,
+                title: title,
                 user_id: userId,
                 messages: messages,
             },
@@ -258,7 +258,7 @@ export const updateThreadName = async (threadId: string, title: string) => {
 };
 
 export const updateThreadMessages = async (
-    threadId: string | number,
+    id: number,
     messages: any[]
 ) => {
     const client = createClerkSupabaseClient();
@@ -269,7 +269,7 @@ export const updateThreadMessages = async (
             .update({
                 messages: messages.map((msg) => safeJSONParse<MessageProps>(msg)),
             })
-            .eq('id', threadId)
+            .eq('id', id)
             .select();
         if (error) {
             console.log("error from thing", error);
