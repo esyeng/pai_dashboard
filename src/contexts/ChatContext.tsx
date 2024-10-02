@@ -333,8 +333,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         model: string,
         agentId: string,
         currentThreadId: string,
-        maxTokens?: number,
-        temperature?: number,
+        maxTokens?: number | null,
+        temperature?: number | null,
         nameGiven?: string
     ) => {
         let name: string = user?.firstName
