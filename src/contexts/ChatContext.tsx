@@ -140,16 +140,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [agents, setAgents] = useState<AgentProps[]>([]);
     const [models, setModels] = useState<any>([]);
     const [prompts, setPrompts] = useState<PromptMap>({});
-    const [messagesInActiveThread, setMessagesInActiveThread] = useState<MessageProps[]>((): [] =>
-        lastThreadId && threadCache[lastThreadId]
-            ? threadCache[lastThreadId].messages
-            : []
-    );
-    const [activeMessageQueue, setActiveMessageQueue] = useState<MessageProps[]>((): [] =>
-        lastThreadId && threadCache[lastThreadId]
-            ? threadCache[lastThreadId].messages.slice(-7)
-            : []
-    );
+    const [messagesInActiveThread, setMessagesInActiveThread] = useState<MessageProps[]>([]);
+    const [activeMessageQueue, setActiveMessageQueue] = useState<MessageProps[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [responseMsg, setResponseMsg] = useState<MessageProps | null>(null);
     const [loadComplete, setLoadComplete] = useState<boolean>(false);
@@ -602,3 +594,15 @@ export const useChat = (): ChatContextType => {
 //     alert("Your session has expired. Please log in again.");
 //     // Redirect to login page or show login modal
 // }, [logout]);
+
+
+// const [messagesInActiveThread, setMessagesInActiveThread] = useState<MessageProps[]>((): [] =>
+    //     lastThreadId && threadCache[lastThreadId]
+    //         ? threadCache[lastThreadId].messages
+    //         : []
+    // );
+    // const [activeMessageQueue, setActiveMessageQueue] = useState<MessageProps[]>((): [] =>
+    //     lastThreadId && threadCache[lastThreadId]
+    //         ? threadCache[lastThreadId].messages.slice(-7)
+    //         : []
+    // );
