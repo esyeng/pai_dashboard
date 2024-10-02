@@ -7,7 +7,8 @@ export type Threads = Record<string, Thread>;
 
 export interface Thread {
     [id: string | number]: {
-        id: string | number;
+        id?: number;
+        threadId: string;
         title?: string;
         createdAt: Date;
         userId?: string;

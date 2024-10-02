@@ -220,7 +220,7 @@ export const saveNewThread = async (
     messages: string[]
 ) => {
     const client = createClerkSupabaseClient();
-    console.log("saving new thread", thread_id, title, userId, messages);
+    console.log("saving new thread (thread id, title, user id, last message)", thread_id, title, userId, messages[messages.length - 1]);
     try {
         const { data, error } = await client.from("threads").insert([
             {
@@ -229,10 +229,11 @@ export const saveNewThread = async (
                 user_id: userId,
                 messages: messages,
             },
-        ]);
+        ]).select();
         if (error) {
             throw new Error("Failed to create thread");
         }
+        // console.log("data from saving new thread??", data);
         return data;
     } catch (error) {
         console.error("Error creating thread:", error);

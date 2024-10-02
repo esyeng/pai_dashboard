@@ -212,6 +212,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             currentThreadId
         ) {
             const currentThread = threads[currentThreadId];
+            // console.log('current thread', currentThread);
             updateThreadMessagesAsync(currentThread.id, [
                 ...messagesInActiveThread,
             ]);
@@ -471,29 +472,38 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         });
         const threadsArray = Object.values(threads);
         // await threads
-        console.log("threads length", threadsArray.length);
+        // console.log("threads length", threadsArray.length);
         setCurrentThreadId(newThreadId);
         localStorage.setItem("lastThreadId", newThreadId);
+        let newThread: any = null;
+        try {
+            if (user) {
+                console.log("now saving new thread");
+                newThread = await saveNewThread(
+                    newThreadId,
+                    newThreadTitle,
+                    user.user.id,
+                    []
+                )
+                if (Array.isArray(newThread)) {
+                    newThread = newThread[0];
+                };
+                // console.log("new thread from saveNewThread in ChatContext line 488", newThread);
+            }
 
-        setThreads((prev: Threads) => ({
-            ...prev,
-            [newThreadId]: {
-                id: newThreadId,
-                title: newThreadTitle,
-                createdAt: formatDate(new Date()),
-                messages: [] as unknown[],
-            },
-        }));
-        setActiveMessageQueue([]);
-        // console.log("user", user);
-        if (user) {
-            console.log("now saving new thread");
-            return await saveNewThread(
-                newThreadId,
-                newThreadTitle,
-                user.user.id,
-                []
-            );
+
+        } catch (error) {
+            console.error("Error creating new thread from chat provider:", error);
+        } finally {
+            if (newThread) {
+                setThreads((prev: Threads) => ({
+                    ...prev,
+                    [newThreadId]: {
+                        ...newThread
+                    },
+                }));
+            }
+            setActiveMessageQueue([]);
         }
     };
 
