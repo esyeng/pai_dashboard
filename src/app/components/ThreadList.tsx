@@ -73,7 +73,7 @@ const ThreadList: React.FC = () => {
                             }
 							return (
 								<li
-									key={threadItem.id ? threadItem.id : threadItem.thread_id}
+									key={threadItem.id}
 									className="flex min-h-16 items-center justify-between  bg-gray-200 rounded-lg border-2 border-mint"
 								>
 									<span
