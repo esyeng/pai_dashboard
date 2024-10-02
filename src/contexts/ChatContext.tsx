@@ -71,7 +71,7 @@ interface PromptMap {
 const idGenerator = UniqueIdGenerator.getInstance();
 
 const _createTitle = () => {
-    const date = new Date(Date.now());
+    const date = new Date();
     return `${date.toLocaleDateString(undefined, {
         dateStyle: "medium",
     })} ${date.toLocaleTimeString(undefined, {
