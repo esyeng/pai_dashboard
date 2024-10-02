@@ -444,7 +444,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
      */
     const createNewThread = async () => {
         const newThreadTitle: string = _createTitle();
-        const newThreadId: string = idGenerator.generate();
+        const newThreadId: string = idGenerator.generate({timeComponent: 8, randomComponent: 10, addCounter: true});
         const threadsArray = Object.values(threads);
         // await threads
         console.log('threads length', threadsArray.length);
