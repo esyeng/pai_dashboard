@@ -260,7 +260,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             }, {} as Threads);
             setThreads(threadsObject);
             // setThreadCache(threadsObject);
-            localStorage.setItem("cachedThreads", JSON.stringify(threadsObject));
+            // localStorage.setItem("cachedThreads", JSON.stringify(threadsObject));
             console.log("fetchedThreads", fetchedThreads);
 
             // Set the most recent thread as the current thread
