@@ -39,8 +39,8 @@ export interface ChatContextType {
         model: string,
         agentId: string,
         currentThreadId: string,
-        maxTokens?: number,
-        temperature?: number,
+        maxTokens?: number | null,
+        temperature?: number | null,
         nameGiven?: string
     ) => Promise<void>;
     switchThread: (threadId: string) => void;
