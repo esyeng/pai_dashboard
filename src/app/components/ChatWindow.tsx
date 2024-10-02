@@ -30,7 +30,7 @@ export const ChatWindow: React.FC = () => {
 		return threads[currentThreadId]
 			? Array.isArray(threads[currentThreadId].messages)
 				? threads[currentThreadId].messages
-				: Array.isArray(threads[currentThreadId].messages.messages)
+				: Array.isArray(threads[currentThreadId].messages?.messages)
 					? threads[currentThreadId].messages.messages
 					: []
 			: [];

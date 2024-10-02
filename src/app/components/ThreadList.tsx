@@ -67,7 +67,7 @@ const ThreadList: React.FC = () => {
 					{loadComplete && threadsArray.length > 0 ? (
 						[...threadsArray].reverse().map((threadItem: any) => {
 							// console.log("thread from threadsArray", threadItem);
-                            if (threadItem.title !== "New Thread" && threadItem.messages?.length == 0) {
+                            if (threadItem.title !== "New Thread" && threadItem.messages?.length == 0 || (threadItem.id === null || threadItem.id === undefined)) {
                                 // deleteThread(threadItem.id);
                                 return null;
                             }
