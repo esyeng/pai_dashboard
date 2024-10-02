@@ -527,6 +527,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         <ChatContext.Provider
             value={{
                 threads,
+                threadCache,
                 agents,
                 models,
                 currentThreadId,
