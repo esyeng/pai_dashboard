@@ -2,6 +2,9 @@ This is a personal AI chat server developed by Esme Keats @esyeng. All rights re
 
 # JasmynAI - Personalized AI Agent conversational dashboard
 
+![application preview](./public/assets/apppreview_1.png)
+![agent menu preview](./public/assets/agentmenupreview.png)
+
 ### Note:
 Application not currently accessible to new users. Reasoning: This app depends on paid API services that are currently only set up to work with my personal account and I'm not intending to charge for its use with this set up. Thus I've disabled new user sign ups while I update the python backend to allow for new users, who will provide their own API keys to use the software. This project is ongoing, I'll update this page once the app is open to all! For now feel free to view/download/fork the code.
 
