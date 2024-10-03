@@ -47,11 +47,6 @@ export interface UserInfo {
     gender?: string;
     pronouns?: string;
 }
-// export interface MessageObject extends MessageProps {
-//     id: number;
-//     timestamp: string | number | Date;
-//     sender: string;
-// }
 
 export interface Chat extends Record<string, any> {
     id: string;

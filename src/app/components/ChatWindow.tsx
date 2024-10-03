@@ -5,14 +5,12 @@ import { Message } from "./Message";
 import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
 import { useChat } from "@/contexts/ChatContext";
 import { MessageProps } from "@/lib/types";
-import { useAuth, useUser } from "@clerk/nextjs";
 import { safeJSONParse } from "@/lib/utils";
 
 export const ChatWindow: React.FC = () => {
 	const [inputValue, setInputValue] = useState("");
 	const [previousId, setPreviousId] = useState<string | number>("");
 	const inputRef = useRef<HTMLTextAreaElement>(null);
-	const { userId, isLoaded } = useAuth();
 	const chatWindowRef = useRef<HTMLDivElement>(null);
 	const {
 		agentId,
@@ -66,8 +64,6 @@ export const ChatWindow: React.FC = () => {
             null,
             null,
             user?.firstName
-			// 2000,
-			// 0.3
 		);
 	};
 

@@ -1,21 +1,9 @@
-// src/app/components/NotesPanel.tsx
+"use client";
+
 import React, { useState, useEffect } from "react";
-import { useChat } from "../../contexts/ChatContext";
 
 const NotesPanel: React.FC = () => {
     const [notes, setNotes] = useState("");
-    const { loadComplete, user } = useChat();
-
-    // useEffect(() => {
-    //     if (user && user.id) {
-    //         resetNotesOnUserChange(user.id);
-    //     }
-    //     const storedNotes = localStorage.getItem("notes");
-    //     if (storedNotes) {
-    //         console.log("last note user is current user")
-    //         setNotes(storedNotes);
-    //     }
-    // }, [loadComplete]);
 
     useEffect(() => {
         const storedNotes = localStorage.getItem("notes");

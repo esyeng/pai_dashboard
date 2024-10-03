@@ -33,14 +33,11 @@ import { safeJSONParse } from "./utils";
 dotenv.config();
 
 const BASE = process.env.BASE_URL
-  ? process.env.BASE_URL
-  : "https://jasmyn-418676732313.us-central1.run.app";
+    ? process.env.BASE_URL
+    : "https://jasmyn-418676732313.us-central1.run.app";
 
-
-// const BASE = 'http://localhost:8000';
 
 const GPT_BASE = `${BASE}/model/gpt`;
-// const CLAUDE_CHAT = `${BASE}/claude`;
 const CLAUDE_CHAT = `${BASE}/model/claude/chat`;
 
 
@@ -108,6 +105,9 @@ export function parseMessageString(messageString: string): MessageProps {
     return message;
 }
 
+// ******* CLAUDE ********
+// TODO - allow for different models
+
 export const queryModel = async (
     params: ClaudeChatRequestParams,
     token: string
@@ -138,7 +138,6 @@ export const queryModel = async (
 export const fetchUser = async (token: any) => {
     const client = createClerkSupabaseClient();
     try {
-        // console.log("token from fetchUser", token);
         const response = await fetch(`${BASE}/auth/user`, {
             method: "POST",
             headers: {
@@ -150,9 +149,9 @@ export const fetchUser = async (token: any) => {
         const responseObj: UserResponse = await response.json()
         const { data, error } = await client.from("users").select().eq('user_id', responseObj.user_id)
         if (!response.ok) {
-            throw new Error("Failed to fetch user with session ID");
+            throw new Error("Failed to fetch user with session ID" + error?.message);
         }
-        console.log("data from finding user in db?", data)
+
         return {
             session_id: responseObj.session_id,
             user: responseObj.user,
@@ -172,7 +171,7 @@ export const fetchThreads = async (
     try {
         const { data, error } = await client.from("threads").select("*");
         if (error) {
-            throw new Error("Failed to fetch threads");
+            throw new Error("Failed to fetch threads" + error?.message);
         }
         return data as Thread[];
     } catch (error) {
@@ -185,12 +184,12 @@ export const fetchAssistants = async (assistantIds: string[]): Promise<any> => {
     const client = createClerkSupabaseClient();
     try {
         const { data, error } = await
-        client
-            .from("assistants")
-            .select("*")
-            .in("assistant_id", assistantIds);
+            client
+                .from("assistants")
+                .select("*")
+                .in("assistant_id", assistantIds);
         if (error) {
-            throw new Error("Failed to fetch assistants");
+            throw new Error("Failed to fetch assistants" + error?.message);
         }
         return data;
     } catch (error) {
@@ -231,9 +230,8 @@ export const saveNewThread = async (
             },
         ]).select();
         if (error) {
-            throw new Error("Failed to create thread");
+            throw new Error("Failed to create thread" + error?.message);
         }
-        // console.log("data from saving new thread??", data);
         return data;
     } catch (error) {
         console.error("Error creating thread:", error);
@@ -242,6 +240,7 @@ export const saveNewThread = async (
 };
 
 export const updateThreadName = async (threadId: string, title: string) => {
+    // TODO - update to reflect latest supabase client changes
     const client = createClerkSupabaseClient();
     try {
         const { data, error } = await client
@@ -263,7 +262,6 @@ export const updateThreadMessages = async (
     messages: any[]
 ) => {
     const client = createClerkSupabaseClient();
-    // console.log("in api.ts --> updating thread messages", threadId, messages.length);
     try {
         const { data, error } = await client
             .from("threads")
@@ -276,9 +274,7 @@ export const updateThreadMessages = async (
             console.log("error from thing", error);
             throw new Error("Failed to update thread messages");
         }
-        // console.log("checking if data received from updating thread messages");
         if (data) console.log("success updated thread messages!", data);
-            // console.log("data from updated thread messages but empty?", data);
         return data;
     } catch (error) {
         console.error("Error updating thread messages:", error);
@@ -286,8 +282,9 @@ export const updateThreadMessages = async (
     }
 };
 
-// OPENAI METHODS:
+// ******* OPENAI METHODS ********
 // api.ts
+// TODO - Enable the following methods to interact with the OpenAI API
 
 // Functions to interact with FastAPI endpoints
 

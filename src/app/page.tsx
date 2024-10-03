@@ -1,6 +1,5 @@
 import type { NextPage, Metadata } from "next";
 import { MainContent } from "./components/MainContent";
-import { useAuth, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 
 export const metadata: Metadata = {

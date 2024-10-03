@@ -16,14 +16,13 @@ import {
     updateThreadMessages,
     parseMessageString,
 } from "../lib/api";
-import { formatDate, UniqueIdGenerator } from "@/lib/utils";
+import { UniqueIdGenerator } from "@/lib/utils";
 import {
     Thread,
     Threads,
     User,
     MessageProps,
     AgentProps,
-    UserInfo,
 } from "@/lib/types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -112,7 +111,6 @@ const personalizePrompt = (prompt: string, userProfile: User): string => {
     }
     const personalizedSystemPrompt: string =
         prompt + " " + JSON.stringify(details);
-    // console.log('personalized system prompt!', personalizedSystemPrompt)
     return personalizedSystemPrompt;
 };
 
@@ -149,7 +147,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     const updateThreadMessagesAsync = async (id: number, messages: any[]) => {
         try {
-            // console.log("updating thread messages from updateThreadMessagesAsync call");
             await updateThreadMessages(id, messages); // id from db thread obj
         } catch (error) {
             console.error("Error updating thread messages:", error);
@@ -176,7 +173,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
-    // effects
+    // ****** effects *******
 
     useEffect(() => {
         if (threadsLoaded && currentThreadId && threads[currentThreadId]) {
@@ -212,7 +209,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             currentThreadId
         ) {
             const currentThread = threads[currentThreadId];
-            // console.log('current thread', currentThread);
             updateThreadMessagesAsync(currentThread.id, [
                 ...messagesInActiveThread,
             ]);
@@ -232,8 +228,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     useEffect(() => {
         if (loadComplete) {
-            // console.log("fetching user...");
-            // console.log("token", token);
+
             fetchData();
             console.log("fetching threads...");
             fetchThreadsData(token);
@@ -243,7 +238,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         };
     }, [loadComplete]);
 
-    // chat & threads methods
+    // ******  chat & threads methods ********
 
     /**
      * @method fetchThreadsData
@@ -302,13 +297,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             const t = await token;
             const authenticatedUserObject = await fetchUser(t);
-            // console.log("authenticatedUserObject", authenticatedUserObject);
             if (authenticatedUserObject) {
                 setUser(authenticatedUserObject);
-                console.log(
-                    "authenticated user object",
-                    authenticatedUserObject
-                );
                 clearNoteStorage(authenticatedUserObject);
                 getAgents(authenticatedUserObject);
                 setToken(t);
@@ -392,8 +382,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         setActiveMessageQueue(updatedQueue);
         console.log("active queue???:", activeMessageQueue);
         const messagesToSend = updatedQueue.map(msg => {
-            // console.log("MSG TO SEND LINE 272!!!", msg);
-            console.log("TYPE OF MSG TO SEND LINE 272!!!", typeof msg);
             const messageToSend =
                 typeof msg === "string" ? parseMessageString(msg) : msg;
             return {
@@ -401,8 +389,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 content: messageToSend.msg.content,
             };
         });
-        // console.log("messages to send", messagesToSend);
-        // console.log('prompt map value at selected agentId index: ', prompts[agentId]);
 
         try {
             setIsLoading(true);
@@ -421,7 +407,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                         messages: messagesToSend,
                         currentThreadId: currentThreadId,
                         user_id: user && user.user_id ? user.user_id : 0,
-                        // session_id: user.
                     },
                     token
                 );
@@ -456,7 +441,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         localStorage.setItem("lastThreadId", threadId);
         setActiveMessageQueue([...threads[threadId].messages.slice(-7)]);
         setMessagesInActiveThread([...threads[threadId].messages]);
-        console.log("SWITCH THREAD switching thread to", threadId);
     };
 
     /**
@@ -470,9 +454,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             randomComponent: 10,
             addCounter: true,
         });
-        const threadsArray = Object.values(threads);
-        // await threads
-        // console.log("threads length", threadsArray.length);
+
         setCurrentThreadId(newThreadId);
         localStorage.setItem("lastThreadId", newThreadId);
         let newThread: any = null;
@@ -488,7 +470,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 if (Array.isArray(newThread)) {
                     newThread = newThread[0];
                 };
-                // console.log("new thread from saveNewThread in ChatContext line 488", newThread);
             }
 
 
@@ -508,6 +489,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     };
 
     const deleteThread = async (threadId: string | number) => {
+        // TODO: implement delete thread
         // const response = await fetch(`${BASE}/db/threads/${threadId}`, {
         //     method: "DELETE",
         // });
@@ -566,6 +548,7 @@ export const useChat = (): ChatContextType => {
     return context;
 };
 
+// TODO - implement on logout data clear function
 // export const useLogout = ():ChatContextType => {
 //     const context = useContext(ChatContext);
 //     if (!context) {
@@ -573,19 +556,6 @@ export const useChat = (): ChatContextType => {
 //     }
 //     return context.logout;
 //   };
-
-//     // function to clear all cached data
-//     const clearAllCachedData = useCallback(() => {
-//         localStorage.removeItem('cachedUser');
-//         localStorage.removeItem('cachedAgents');
-//         localStorage.removeItem('cachedModels');
-//         localStorage.removeItem('cachedThreads');
-//         localStorage.removeItem('lastThreadId');
-//         setUserCache(null);
-//         setAgentsCache([]);
-//         setModelsCache([]);
-//         setThreadCache({});
-//     }, []);
 
 //     // logout function
 //     const logout = useCallback(() => {
@@ -597,23 +567,3 @@ export const useChat = (): ChatContextType => {
 //         setAgents([]);
 //         setModels([]);
 //     }, [clearAllCachedData]);
-
-//     // function to handle session expiration
-// const handleSessionExpiration = useCallback(() => {
-//     logout();
-//     // Add logic to show a session expiration message to the user
-//     alert("Your session has expired. Please log in again.");
-//     // Redirect to login page or show login modal
-// }, [logout]);
-
-
-// const [messagesInActiveThread, setMessagesInActiveThread] = useState<MessageProps[]>((): [] =>
-    //     lastThreadId && threadCache[lastThreadId]
-    //         ? threadCache[lastThreadId].messages
-    //         : []
-    // );
-    // const [activeMessageQueue, setActiveMessageQueue] = useState<MessageProps[]>((): [] =>
-    //     lastThreadId && threadCache[lastThreadId]
-    //         ? threadCache[lastThreadId].messages.slice(-7)
-    //         : []
-    // );
