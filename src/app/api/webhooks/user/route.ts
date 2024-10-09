@@ -24,21 +24,21 @@ export const POST = async (req: Request) => {
     console.log(`clerk webhook payload: ${{ data, type }}`);
     switch (type) {
         case 'user.created': {
-          console.log('creating user due to clerk webhook');
-          return await userService.createUser(data.id, data, undefined); // TODO test basic user first, then add custom
+            console.log('creating user due to clerk webhook');
+            return await userService.createUser(data.id, data, undefined); // TODO test basic user first, then add custom
         }
         case 'user.deleted': {
-          return userService.deleteUser(data.id);
+            return userService.deleteUser(data.id);
         }
         case 'user.updated': {
-          return await userService.updateUser(data.id, data, params);
+            return await userService.updateUser(data.id, data, params);
         }
 
         default: {
-          console.log(
-            `${req.url} received event type "${type}", but no handler is defined for this type`,
-          );
-          return NextResponse.json({ error: `unrecognised payload type: ${type}` }, { status: 400 });
+            console.log(
+                `${req.url} received event type "${type}", but no handler is defined for this type`,
+            );
+            return NextResponse.json({ error: `unrecognised payload type: ${type}` }, { status: 400 });
         }
     }
 }
