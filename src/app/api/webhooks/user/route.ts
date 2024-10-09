@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { validateRequest } from "./validateRequest";
 import { UserService } from "@/lib/services/user";
-import dotenv from "dotenv";
-dotenv.config();
+// import dotenv from "dotenv";
+// dotenv.config();
 
 const SECRET: string = process.env.CLERK_WEBHOOK_SECRET || "";
 
