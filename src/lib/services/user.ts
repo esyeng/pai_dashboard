@@ -12,7 +12,7 @@ interface JasmynUser {
 }
 
 export class UserService {
-    createUser = async (id: string, params: UserJSON, customOptions: JasmynUser | undefined) => {
+    createUser = async (id: string, params: UserJSON, customOptions: JasmynUser | undefined): Promise<NextResponse> => {
         const res = await UserModel.findById(id);
 
         if (res) {
@@ -49,11 +49,17 @@ export class UserService {
             return NextResponse.json({ message: 'user created', success: true, user: data }, { status: 200 });
         } catch (error) {
             console.error("Error creating user in db from clerk", error);
-            return error;
+            return NextResponse.json(
+                {
+                    message: "Next res: error creating user",
+                    success: false,
+                },
+                { status: 200 },
+            )
         }
     }
 
-    deleteUser = async (id?: string) => {
+    deleteUser = async (id?: string): Promise<NextResponse> => {
         if (id) {
             try {
                 console.log('delete user due to clerk webhook');
@@ -61,7 +67,13 @@ export class UserService {
                 return NextResponse.json({ message: 'user deleted' }, { status: 200 });
             } catch (error) {
                 console.error("Error deleting user", error);
-                return error;
+                return NextResponse.json(
+                    {
+                        message: "Next res: error deleting user",
+                        success: false,
+                    },
+                    { status: 200 },
+                )
             }
         } else {
             console.warn('clerk sent a delete user request, but no user ID was included in the payload');
@@ -69,7 +81,7 @@ export class UserService {
         }
     };
 
-    updateUser = async (id: string, params: UserJSON, customOptions: JasmynUser | {}) => {
+    updateUser = async (id: string, params: UserJSON, customOptions: JasmynUser | {}): Promise<NextResponse> => {
         console.log('updating user due to clerk webhook');
         const res = await UserModel.findById(id);
         if (!res) {
@@ -99,7 +111,13 @@ export class UserService {
             return NextResponse.json({ message: 'user updated', success: true, user: data }, { status: 200 });
         } catch (error) {
             console.error("Error updating user", error);
-            return error;
+            return NextResponse.json(
+                {
+                    message: "Next res: error updating user",
+                    success: false,
+                },
+                { status: 200 },
+            )
         }
     };
 

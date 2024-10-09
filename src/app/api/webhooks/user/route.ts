@@ -6,7 +6,7 @@ dotenv.config();
 
 const SECRET: string = process.env.CLERK_WEBHOOK_SECRET || "";
 
-export const POST = async (req: Request) => {
+export const POST = async (req: Request):Promise<NextResponse> => {
     const payload = await validateRequest(req, SECRET);
     const params = req.json();
     console.log("req params obj", params);
