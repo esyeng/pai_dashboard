@@ -38,7 +38,7 @@ const BASE = process.env.BASE_URL
 
 
 const GPT_BASE = `${BASE}/model/gpt`;
-const CLAUDE_CHAT = `${BASE}/model/claude/chat`;
+const CLAUDE = `${BASE}/model/claude/`;
 
 
 interface ClaudeChatRequestParams {
@@ -113,7 +113,7 @@ export const queryModel = async (
     token: string
 ): Promise<ModelResponse> => {
     try {
-        const response = await fetch(`${CLAUDE_CHAT}`, {
+        const response = await fetch(`${CLAUDE}/chat`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -134,6 +134,53 @@ export const queryModel = async (
         throw error;
     }
 };
+
+
+/**
+ *
+ * queryResearchModel - queries the ReAct ChatBot
+ *
+ * example request body:
+ * {
+    "user_id": "...",
+    "question": "What are some fall women's fashion trends to look out for in NYC this fall?",
+    "date": "November 2024",
+    "max_turns": 5,
+    "actions_to_include": ["wikipedia", "google"],
+    "additional_instructions": "Search either wikipedia or google to find information relevant to the question",
+    "example": "",
+    "character": "You are ..."
+}
+ */
+
+export const queryResearchModel = async (
+    params: any,
+    token: string
+): Promise<ModelResponse> => {
+    try {
+        const response = await fetch(`${CLAUDE}/search`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify(params),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error sending research request:", error);
+        throw error;
+    }
+}
+
+
 
 export const fetchUser = async (token: any) => {
     const client = createClerkSupabaseClient();
