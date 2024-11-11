@@ -65,10 +65,10 @@ export const SearchOptions: React.FC = () => {
                     <div className="flex w-full flex-col justify-center ">
                         <span className="text-[#85d7de] text-lg py-2 pr-2 rounded leading-tight">Search Tools: </span>
                         {actionsToInclude.map(action => (
-                            <div className="px-4 py-2 rounded w-full">
+                            <div className="px-4 py-2 rounded w-full" key={action}>
 
 
-                                <label key={action} className=" flex items-center">
+                                <label  className=" flex items-center">
                                     <input
                                         type="checkbox"
                                         checked={selectedActions.includes(action)}
