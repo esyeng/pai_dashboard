@@ -32,14 +32,26 @@ import dotenv from "dotenv";
 import { safeJSONParse } from "./utils";
 dotenv.config();
 
-const BASE = process.env.BASE_URL
-    ? process.env.BASE_URL
-    : "https://jasmyn-418676732313.us-central1.run.app";
-
+// const BASE = process.env.BASE_URL
+//     ? process.env.BASE_URL
+//     : "https://jasmyn-418676732313.us-central1.run.app";
+const BASE = "http://localhost:8000";
 
 const GPT_BASE = `${BASE}/model/gpt`;
-const CLAUDE = `${BASE}/model/claude/`;
+const CLAUDE = `${BASE}/model/claude`;
 
+
+interface ClaudeResearchRequestParams {
+    user_id: string;
+    model: string;
+    question: string;
+    date: string;
+    max_turns: number;
+    actions_to_include: string[];
+    additional_instructions: string;
+    example: string;
+    character: string;
+}
 
 interface ClaudeChatRequestParams {
     max_tokens: number;
@@ -154,7 +166,7 @@ export const queryModel = async (
  */
 
 export const queryResearchModel = async (
-    params: any,
+    params: ClaudeResearchRequestParams,
     token: string
 ): Promise<ModelResponse> => {
     try {

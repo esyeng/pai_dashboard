@@ -7,12 +7,17 @@ import { Sidebar } from "./Sidebar";
 import { useChat } from "@/contexts/ChatContext";
 import { SignInOrOut } from "./account/SignInOrOut";
 import { useAuth } from "@clerk/nextjs";
+import { SearchOptions } from "./SearchOptions";
+import { set } from "lodash";
 
 export const MainContent: React.FC = () => {
     const [sideOnBottom, setSideOnBottom] = useState(false);
     const { isLoaded, getToken } = useAuth();
-    const { agents, models, setToken } =
+    const { agents, models, setToken, shouldQueryResearchModel, setShouldQueryResearchModel } =
         useChat();
+
+
+
 
     useEffect(() => {
         const handleResize = () => {
@@ -49,10 +54,20 @@ export const MainContent: React.FC = () => {
                     <SignInOrOut />
                 </div>
                 {isLoaded ? (
-                    <Options agents={agents} models={models} />
+                    <>
+                        <Options agents={agents} models={models} />
+                        <div
+                            className={`mb-2 pb-2 px-36 w-full transition-all duration-700 ease-in-out overflow-scroll ${shouldQueryResearchModel ? 'max-h-screen' : 'max-h-0'
+                                }`}
+                        >
+                            {shouldQueryResearchModel && <SearchOptions />}
+                        </div>
+                    </>
+
                 ) : (
                     <div className="h-12">
                         <div className="flex items-center justify-center bg-gray-200 rounded-lg p-4">
+                            <span className="text-gray-600">Loading...</span>
                             <svg
                                 className="w-5 h-5 text-gray-600 animate-spin"
                                 xmlns="http://www.w3.org/2000/svg"

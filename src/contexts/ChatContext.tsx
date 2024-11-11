@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import {
     queryModel,
+    queryResearchModel,
     fetchThreads,
     fetchAssistants,
     fetchModels,
@@ -34,6 +35,13 @@ export interface ChatContextType {
     activeMessageQueue: MessageProps[];
     user: User | null;
     currentThreadId: string;
+    shouldQueryResearchModel: boolean;
+    date: string;
+    maxTurns: number;
+    actionsToInclude: string[];
+    additionalInstructions: string;
+    example: string;
+    character: string;
     agentId: string;
     modelId: string;
     loadComplete: boolean;
@@ -41,11 +49,19 @@ export interface ChatContextType {
     setUser: (user: User) => void;
     setModelId: (modelId: string) => void;
     setAgentId: (agentId: string) => void;
+    setShouldQueryResearchModel: (shouldQuery: boolean) => void;
+    setDate: (date: string) => void;
+    setMaxTurns: (maxTurns: number) => void;
+    setActionsToInclude: (actions: string[]) => void;
+    setAdditionalInstructions: (instructions: string) => void;
+    setExample: (example: string) => void;
+    setCharacter: (character: string) => void;
     sendChat: (
         message: string,
         model: string,
         agentId: string,
         currentThreadId: string,
+        search: boolean,
         maxTokens?: number | null,
         temperature?: number | null,
         nameGiven?: string
@@ -138,6 +154,18 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [agents, setAgents] = useState<AgentProps[]>([]);
     const [models, setModels] = useState<any>([]);
     const [prompts, setPrompts] = useState<PromptMap>({});
+    const [shouldQueryResearchModel, setShouldQueryResearchModel] = useState<boolean>(false);
+    const [date, setDate] = useState<string>(
+        new Date().toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric",
+        })
+    );
+    const [maxTurns, setMaxTurns] = useState<number>(5);
+    const [actionsToInclude, setActionsToInclude] = useState<string[]>(["wikipedia", "google"]);
+    const [additionalInstructions, setAdditionalInstructions] = useState<string>("");
+    const [example, setExample] = useState<string>("");
+    const [character, setCharacter] = useState<string>("");
     const [messagesInActiveThread, setMessagesInActiveThread] = useState<MessageProps[]>([]);
     const [activeMessageQueue, setActiveMessageQueue] = useState<MessageProps[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -201,7 +229,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         };
     }, [responseMsg]);
 
-    useMemo(() => {
+    useEffect(() => {
         if (
             messagesInActiveThread &&
             messagesInActiveThread.length >= 2 &&
@@ -337,9 +365,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         model: string,
         agentId: string,
         currentThreadId: string,
+        search: boolean = false,
         maxTokens?: number | null,
         temperature?: number | null,
-        nameGiven?: string
+        nameGiven?: string,
     ) => {
         let name: string = user?.firstName
             ? user.firstName
@@ -356,6 +385,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 content: message,
             },
         };
+        const question = message;
         console.log("currentThreadId", currentThreadId);
         // console.log("currentThread", threads[currentThreadId]);
         setThreads((prev: Threads | any) => {
@@ -390,26 +420,45 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             };
         });
 
+
         try {
             setIsLoading(true);
             if (token && user) {
                 console.log("user from before query model", user);
-                const response = await queryModel(
-                    {
-                        max_tokens: 3000,
-                        model: model || "claude-3-5-sonnet-20240620",
-                        temperature: temperature || 0.6,
-                        agent_id: agentId,
-                        system_prompt: personalizePrompt(
-                            prompts[agentId],
-                            user.profile[0]
-                        ),
-                        messages: messagesToSend,
-                        currentThreadId: currentThreadId,
+                const response = search
+                    ?
+                    await queryResearchModel({
                         user_id: user && user.user_id ? user.user_id : 0,
+                        question: question,
+                        model: model || "claude-3-5-sonnet-20241022",
+                        date: new Date().toLocaleDateString("en-US", {
+                            month: "long",
+                            year: "numeric",
+                        }),
+                        max_turns: maxTurns ? maxTurns : 5,
+                        actions_to_include: actionsToInclude ? actionsToInclude : [],
+                        additional_instructions: additionalInstructions ? additionalInstructions : "",
+                        example: example ? example : "",
+                        character: character ? character : "",
                     },
-                    token
-                );
+                        token
+                    ) :
+                    await queryModel(
+                        {
+                            max_tokens: 3000,
+                            model: model || "claude-3-5-sonnet-20240620",
+                            temperature: temperature || 0.6,
+                            agent_id: agentId,
+                            system_prompt: personalizePrompt(
+                                prompts[agentId],
+                                user.profile[0]
+                            ),
+                            messages: messagesToSend,
+                            currentThreadId: currentThreadId,
+                            user_id: user && user.user_id ? user.user_id : 0,
+                        },
+                        token
+                    );
                 const receivedMsg: MessageProps = {
                     id: uuidv4(),
                     timestamp: Date.now(),
@@ -515,6 +564,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 threadCache,
                 agents,
                 models,
+                shouldQueryResearchModel,
+                date,
+                maxTurns,
+                actionsToInclude,
+                additionalInstructions,
+                example,
+                character,
                 currentThreadId,
                 activeMessageQueue,
                 user,
@@ -525,6 +581,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 setUser,
                 setModelId,
                 setAgentId,
+                setShouldQueryResearchModel,
+                setDate,
+                setMaxTurns,
+                setActionsToInclude,
+                setAdditionalInstructions,
+                setExample,
+                setCharacter,
                 sendChat,
                 switchThread,
                 createNewThread,
@@ -567,3 +630,11 @@ export const useChat = (): ChatContextType => {
 //         setAgents([]);
 //         setModels([]);
 //     }, [clearAllCachedData]);
+
+
+// temporary for default ex:
+// let maxTurns = 5;
+//         let actionsToInclude = ["wikipedia", "google"];
+//         let additionalInstructions = "Search either wikipedia or google to find information relevant to the question";
+//         let example = "";
+//         let character = "You are Ada, a female-coded AI conversation partner with a razor-sharp intellect, a rich inner world, and a mischievous streak a mile wide.";

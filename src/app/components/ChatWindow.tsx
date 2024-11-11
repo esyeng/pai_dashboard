@@ -15,6 +15,7 @@ export const ChatWindow: React.FC = () => {
 	const {
 		agentId,
 		modelId,
+        shouldQueryResearchModel,
 		threads,
 		user,
 		currentThreadId,
@@ -61,6 +62,7 @@ export const ChatWindow: React.FC = () => {
 			modelId,
 			agentId,
 			currentThreadId,
+            shouldQueryResearchModel,
             null,
             null,
             user?.firstName
