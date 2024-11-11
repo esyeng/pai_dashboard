@@ -205,3 +205,44 @@ export class UniqueIdGenerator {
         return encoded.split('').map(char => this.chars[parseInt(char, this.chars.length)]).join('');
     }
 }
+
+
+interface DataObject {
+    createdAt: string;
+    [key: string]: any;
+}
+
+
+export const timeStringToMilliseconds = (timeString: string): number | null => {
+    try {
+        // Parse the time string
+        const dt = new Date(timeString);
+
+        // Check if the date is valid
+        if (isNaN(dt.getTime())) {
+            throw new Error('Invalid date');
+        }
+
+        // Calculate milliseconds since Unix epoch
+        const milliseconds = dt.getTime();
+
+        return milliseconds;
+    } catch (e) {
+        console.error(`Error parsing time string: ${e}`);
+        return null;
+    }
+}
+
+export const sortObjectsByCreatedAt = (objects: any[]): any[] => {
+    return objects.sort((a, b) => {
+        const timeA = timeStringToMilliseconds(a?.createdAt ? a.createdAt : '');
+        const timeB = timeStringToMilliseconds(b?.createdAt ? b.createdAt : '');
+
+        if (timeA === null || timeB === null) {
+            console.error('Error comparing dates');
+            return 0;
+        }
+
+        return timeA - timeB;
+    });
+}

@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { Thread } from "@/lib/types";
 import { updateThreadName } from "@/lib/api";
 import { useChat } from "@/contexts/ChatContext";
+import { sortObjectsByCreatedAt } from "@/lib/utils";
 
 export interface Message {
 	id: string;
@@ -27,9 +28,12 @@ const ThreadList: React.FC = () => {
 	} = useChat();
 
 	const threadsArray = Object.values(threads);
+    const sortedThreads = sortObjectsByCreatedAt(threadsArray);
+
 
 	if (Object.entries(threads).length > 0) {
-		console.log("threadsArray", threadsArray);
+		// console.log("threadsArray", threadsArray);
+        console.log("sortedThreads", sortedThreads);
 	}
 
 	const handleThreadNameKeyDown = async (
@@ -64,9 +68,9 @@ const ThreadList: React.FC = () => {
 					</button>
 				</div>
 				<ul className="grid grid-cols-1 gap-2 overflow-y-auto p-4 ">
-					{loadComplete && threadsArray.length > 0 ? (
-						[...threadsArray].reverse().map((threadItem: any) => {
-							// console.log("thread from threadsArray", threadItem);
+					{loadComplete && sortedThreads.length > 0 ? (
+						[...sortedThreads].reverse().map((threadItem: any) => {
+							// console.log("thread from sortedThreads", threadItem);
                             if (threadItem.title !== "New Thread" && threadItem.messages?.length == 0 || (threadItem.id === null || threadItem.id === undefined)) {
                                 // deleteThread(threadItem.id);
                                 return null;
