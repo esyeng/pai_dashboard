@@ -1,62 +1,109 @@
 // @lib/types.ts
 import { Message } from "ai";
 
-export type ServerActionResult<Result> = Promise<Result | { error: string }>;
 
-export type Threads = Record<string, Thread>;
+// export type Threads = Record<string, Thread>;
 
-export interface Thread {
-    [id: string | number]: {
-        id?: number;
-        threadId: string;
-        title?: string;
-        createdAt: Date;
-        userId?: string;
-        path?: string;
-        messages: MessageProps[] | any;
-        sharePath?: string;
-    };
-}
+// export interface Thread {
+//     [id: string | number]: {
+//         id?: number;
+//         threadId: string;
+//         title?: string;
+//         createdAt: Date;
+//         userId?: string;
+//         path?: string;
+//         messages: MessageProps[] | any[];
+//         sharePath?: string;
+//     };
+// }
 
-export interface MessageProps {
-    id: string | number;
-    timestamp: string | number | Date;
-    sender: string;
-    msg: {
-        role: string;
-        content: string;
-    };
-    agentId: string;
-    stream?: boolean;
-    language?: string;
-}
+// export interface MessageProps {
+//     id: string | number;
+//     timestamp: string | number | Date;
+//     sender: string;
+//     msg: {
+//         role: string;
+//         content: string;
+//     };
+//     agentId: string;
+//     stream?: boolean;
+//     language?: string;
+// }
 
-export interface AgentProps {
-    id: number;
-    name: string;
-    assistant_id: string;
-    system_prompt: string;
-    description?: string;
-    user_ids?: string[];
-}
+// export interface AgentProps {
+//     id: number;
+//     name: string;
+//     assistant_id: string;
+//     system_prompt: string;
+//     description?: string;
+//     user_ids?: string[];
+// }
 
-export interface UserInfo {
-    name: string;
-    age?: number | string;
-    nickname?: string;
-    gender?: string;
-    pronouns?: string;
-}
+// export interface UserInfo {
+//     name: string;
+//     age?: number | string;
+//     nickname?: string;
+//     gender?: string;
+//     pronouns?: string;
+// }
 
-export interface Chat extends Record<string, any> {
-    id: string;
-    title: string;
-    createdAt: Date;
-    userId: string;
-    path: string;
-    messages: MessageProps[];
-    sharePath?: string;
-}
+// export interface Chat extends Record<string, any> {
+//     id: string;
+//     title: string;
+//     createdAt: Date;
+//     userId: string;
+//     path: string;
+//     messages: MessageProps[];
+//     sharePath?: string;
+// }
+
+// export interface ChatContextType {
+//     threads: Threads;
+//     threadCache: Threads;
+//     agents: any;
+//     models: any;
+//     activeMessageQueue: MessageProps[];
+//     user: User | null;
+//     currentThreadId: string;
+//     shouldQueryResearchModel: boolean;
+//     date: string;
+//     maxTurns: number;
+//     actionsToInclude: string[];
+//     additionalInstructions: string;
+//     example: string;
+//     character: string;
+//     agentId: string;
+//     modelId: string;
+//     loadComplete: boolean;
+//     setToken: (token: string | Promise<string> | any) => void;
+//     setUser: (user: User) => void;
+//     setModelId: (modelId: string) => void;
+//     setAgentId: (agentId: string) => void;
+//     setShouldQueryResearchModel: (shouldQuery: boolean) => void;
+//     setDate: (date: string) => void;
+//     setMaxTurns: (maxTurns: number) => void;
+//     setActionsToInclude: (actions: string[]) => void;
+//     setAdditionalInstructions: (instructions: string) => void;
+//     setExample: (example: string) => void;
+//     setCharacter: (character: string) => void;
+//     sendChat: (
+//         message: string,
+//         model: string,
+//         agentId: string,
+//         currentThreadId: string,
+//         search: boolean,
+//         maxTokens?: number | null,
+//         temperature?: number | null,
+//         nameGiven?: string
+//     ) => Promise<void>;
+//     switchThread: (threadId: string) => void;
+//     createNewThread: () => Promise<any>;
+//     deleteThread: (threadId: string) => Promise<void>;
+//     exportThread: (threadId: string) => void;
+//     fetchThreadsData: (token: string | Promise<string>) => Promise<Thread[]>;
+//     setThreads: (threads: Threads) => void;
+//     isLoading?: boolean;
+// }
 
 export interface Session {
     user: {
@@ -70,19 +117,19 @@ export interface AuthResult {
     message: string;
 }
 
-export interface User extends Record<string, any> {
-    id?: string;
-    email?: string;
-    firstName?: string;
-    lastName?: string;
-    gender?: string;
-    pronouns?: string;
-    nickname?: string;
-    threads?: any;
-    assistantIds?: string[];
-    modelIds?: string[];
-    notes?: any;
-}
+// export interface User extends Record<string, any> {
+//     id?: string;
+//     email?: string;
+//     firstName?: string;
+//     lastName?: string;
+//     gender?: string;
+//     pronouns?: string;
+//     nickname?: string;
+//     threads?: any;
+//     assistantIds?: string[];
+//     modelIds?: string[];
+//     notes?: any;
+// }
 
 export interface OpenAIThread {
     id: string;
