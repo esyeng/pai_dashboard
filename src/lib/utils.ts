@@ -228,18 +228,20 @@ export const timeStringToMilliseconds = (timeString: string): number | null => {
 
         return milliseconds;
     } catch (e) {
-        console.error(`Error parsing time string: ${e}`);
+        // console.error(`Error parsing time string: ${e}`);
+        console.log(`Error parsing time string: ${e}`);
         return null;
     }
 }
 
 export const sortObjectsByCreatedAt = (objects: any[]): any[] => {
     return objects.sort((a, b) => {
-        const timeA = timeStringToMilliseconds(a?.createdAt ? a.createdAt : '');
-        const timeB = timeStringToMilliseconds(b?.createdAt ? b.createdAt : '');
+        const timeA = timeStringToMilliseconds(a?.created_at ? a.created_at : '');
+        const timeB = timeStringToMilliseconds(b?.created_at ? b.created_at : '');
 
         if (timeA === null || timeB === null) {
-            console.error('Error comparing dates');
+            // console.error('Error comparing dates');
+            console.log('Error comparing dates');
             return 0;
         }
 
