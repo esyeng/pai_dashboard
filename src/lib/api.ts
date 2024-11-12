@@ -1,11 +1,4 @@
 import {
-    Thread,
-    Threads,
-    MessageProps,
-    OpenAIAssistant,
-    OpenAIMessage,
-    OpenAIRun,
-    OpenAIThread,
     AssistantResponse,
     AssistantsResponse,
     CreateAndRunParams,
@@ -25,11 +18,11 @@ import {
     GetRunResponse,
     GetThreadResponse,
     ListRunsResponse,
-    User
 } from "./types";
 import { createClerkSupabaseClient } from "../app/supabase/client";
 import dotenv from "dotenv";
 import { safeJSONParse } from "./utils";
+import { profile } from "console";
 dotenv.config();
 
 // const BASE = process.env.BASE_URL
@@ -40,46 +33,6 @@ const BASE = "http://localhost:8000";
 const GPT_BASE = `${BASE}/model/gpt`;
 const CLAUDE = `${BASE}/model/claude`;
 
-
-interface ClaudeResearchRequestParams {
-    user_id: string;
-    model: string;
-    question: string;
-    date: string;
-    max_turns: number;
-    actions_to_include: string[];
-    additional_instructions: string;
-    example: string;
-    character: string;
-}
-
-interface ClaudeChatRequestParams {
-    max_tokens: number;
-    model: string;
-    temperature: number;
-    agent_id: string;
-    system_prompt: string;
-    messages: { role: string; content: string }[];
-    currentThreadId: string | number;
-    user_id: string | 0;
-}
-
-interface ModelResponse {
-    response?:
-    | any
-    | {
-        text?: string;
-        response?: string | JSON;
-    };
-    text?: string;
-}
-
-interface UserResponse {
-    session_id: string;
-    user: User | any;
-    user_id: string;
-    profile: any;
-}
 
 export function parseMessageString(messageString: string): MessageProps {
     let parsedMessage = JSON.parse(messageString);
@@ -197,6 +150,11 @@ export const queryResearchModel = async (
 export const fetchUser = async (token: any) => {
     const client = createClerkSupabaseClient();
     try {
+        if (typeof token === "object") {
+            token = await token;
+        }
+        console.log("fetching user with session ID", token);
+        console.log("type of token", typeof token);
         const response = await fetch(`${BASE}/auth/user`, {
             method: "POST",
             headers: {
@@ -205,23 +163,50 @@ export const fetchUser = async (token: any) => {
             },
             body: JSON.stringify(token),
         });
-        const responseObj: UserResponse = await response.json()
-        const { data, error } = await client.from("users").select().eq('user_id', responseObj.user_id)
-        if (!response.ok) {
-            throw new Error("Failed to fetch user with session ID" + error?.message);
+        const responseObj: UserResponse = await response.json() as UserResponse;
+        console.log("response json", response.json());
+        if (responseObj.user_id === undefined) {
+            throw new Error("Failed to fetch user with session ID")
         }
-
-        return {
-            session_id: responseObj.session_id,
-            user: responseObj.user,
-            user_id: responseObj.user_id,
-            profile: data
-        }
+        return await client.from("users").select().eq('user_id', responseObj.user_id)
+            .then((data) => {
+                console.log("data", data);
+                if (data.error) {
+                    throw new Error("Failed to fetch user with session ID" + data.error?.message);
+                }
+                return {
+                    ...responseObj,
+                    profile: data.data[0]
+                } as UserResponse;
+            }) as UserResponse;
     } catch (error) {
         console.error("Error fetching user:", error);
-        return null;
+        throw error;
     }
-};
+}
+    //         .then(async (responseObj) => {
+    //             console.log("responseObj", responseObj);
+    //             if (responseObj.user_id === undefined) {
+    //                 throw new Error("Failed to fetch user with session ID")
+    //             }
+    //             await client.from("users").select().eq('user_id', responseObj.user_id)
+    //                 .then((data) => {
+    //                     console.log("data", data);
+    //                     if (data.error) {
+    //                         throw new Error("Failed to fetch user with session ID" + data.error?.message);
+    //                     }
+    //                     return {
+    //                         ...responseObj,
+    //                         profile: data.data[0]
+    //                     } as UserResponse;
+    //                 })
+    //         }) as UserResponse;
+
+    // } catch (error) {
+    //     console.error("Error fetching user:", error);
+    //     throw error;
+    // }
+// };
 
 export const fetchThreads = async (
     token: string | Promise<string>

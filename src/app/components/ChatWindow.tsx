@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Message } from "./Message";
 import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
 import { useChat } from "@/contexts/ChatContext";
-import { MessageProps } from "@/lib/types";
 import { safeJSONParse } from "@/lib/utils";
 
 export const ChatWindow: React.FC = () => {
@@ -16,16 +15,15 @@ export const ChatWindow: React.FC = () => {
 		agentId,
 		modelId,
         shouldQueryResearchModel,
-		threads,
+		threadState: { threads, currentThreadId },
 		user,
-		currentThreadId,
 		sendChat,
 		isLoading,
 	} = useChat();
 
 	const repopulateConversation = () => {
 		console.log(`currentThreadId: ${currentThreadId}`);
-
+        if (!currentThreadId) return [];
 		return threads[currentThreadId]
 			? Array.isArray(threads[currentThreadId].messages)
 				? threads[currentThreadId].messages
@@ -36,6 +34,7 @@ export const ChatWindow: React.FC = () => {
 	};
 
 	const currentConversation = useMemo(() => {
+        if (!currentThreadId) return [];
 		setPreviousId(currentThreadId);
 		return repopulateConversation();
 	}, [threads, currentThreadId]);
@@ -61,7 +60,7 @@ export const ChatWindow: React.FC = () => {
 			message,
 			modelId,
 			agentId,
-			currentThreadId,
+			currentThreadId ? currentThreadId : "",
             shouldQueryResearchModel,
             null,
             null,

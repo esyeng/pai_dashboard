@@ -2,24 +2,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Thread } from "@/lib/types";
 import { updateThreadName } from "@/lib/api";
 import { useChat } from "@/contexts/ChatContext";
 import { sortObjectsByCreatedAt } from "@/lib/utils";
 
-export interface Message {
-	id: string;
-	content: string;
-	createdAt: Date;
-	userId: string;
-}
+// export interface Message {
+// 	id: string;
+// 	content: string;
+// 	createdAt: Date;
+// 	userId: string;
+// }
 
 const ThreadList: React.FC = () => {
 	const {
-		setThreads,
-		currentThreadId,
 		switchThread,
-		threads,
+		threadState: { threads },
 		loadComplete,
 		createNewThread,
 		deleteThread,
