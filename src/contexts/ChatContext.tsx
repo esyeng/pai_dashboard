@@ -21,7 +21,8 @@ import {
     UniqueIdGenerator,
     convertToMarkdown,
     createTitle,
-    personalizePrompt
+    personalizePrompt,
+    sortObjectsByCreatedAt
 } from "@/lib/utils";
 import { threadsReducer } from "./threadsReducer";
 import { v4 as uuidv4 } from "uuid";
@@ -132,9 +133,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             dispatchThreads({ type: 'SET_THREADS', payload: threadsObject });
             setThreadCache(threadsObject);
             localStorage.setItem("cachedThreads", JSON.stringify(threadsObject));
-
             if (fetchedThreads.length > 0) {
-                const latestThread = fetchedThreads[fetchedThreads.length - 1];
+                const sortedThreads = sortObjectsByCreatedAt(fetchedThreads);
+                const latestThread = sortedThreads[sortedThreads.length - 1];
                 console.log("latestThread", latestThread);
                 dispatchThreads({ type: 'SET_CURRENT_THREAD', payload: latestThread.thread_id.toString()});
             }

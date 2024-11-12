@@ -34,6 +34,8 @@ export const threadsReducer = (state: ThreadsState, action: ThreadsAction): Thre
             return { ...state, threads: remainingThreads };
 
         case 'ADD_MESSAGE':
+            console.log('adding message to thread', action.payload.threadId);
+            console.log("the state thread item throwing error is", state.threads[action.payload.threadId])
             return {
                 ...state,
                 threads: {
@@ -41,7 +43,7 @@ export const threadsReducer = (state: ThreadsState, action: ThreadsAction): Thre
                     [action.payload.threadId]: {
                         ...state.threads[action.payload.threadId],
                         [action.payload.threadId]: {
-                            ...state.threads[action.payload.threadId][action.payload.threadId],
+                            ...state.threads[action.payload.threadId],
                             messages: [
                                 ...state.threads[action.payload.threadId][action.payload.threadId].messages,
                                 action.payload.message

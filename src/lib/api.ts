@@ -164,7 +164,7 @@ export const fetchUser = async (token: any) => {
             body: JSON.stringify(token),
         });
         const responseObj: UserResponse = await response.json() as UserResponse;
-        console.log("response json", response.json());
+        // console.log("response json", response.json());
         if (responseObj.user_id === undefined) {
             throw new Error("Failed to fetch user with session ID")
         }
