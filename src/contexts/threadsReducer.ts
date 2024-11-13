@@ -8,9 +8,7 @@ export const threadsReducer = (state: ThreadsState, action: ThreadsAction): Thre
                 ...state,
                 threads: {
                     ...state.threads,
-                    [action.payload.threadId]: {
-                        [action.payload.threadId]: action.payload.thread[0]
-                    }
+                    [action.payload.threadId]: action.payload.thread[0]
                 }
             };
 
@@ -21,10 +19,7 @@ export const threadsReducer = (state: ThreadsState, action: ThreadsAction): Thre
                     ...state.threads,
                     [action.payload.threadId]: {
                         ...state.threads[action.payload.threadId],
-                        [action.payload.threadId]: {
-                            ...state.threads[action.payload.threadId][action.payload.threadId],
-                            ...action.payload.updates
-                        }
+                        ...action.payload.updates
                     }
                 }
             };
@@ -42,13 +37,10 @@ export const threadsReducer = (state: ThreadsState, action: ThreadsAction): Thre
                     ...state.threads,
                     [action.payload.threadId]: {
                         ...state.threads[action.payload.threadId],
-                        [action.payload.threadId]: {
-                            ...state.threads[action.payload.threadId],
-                            messages: [
-                                ...state.threads[action.payload.threadId][action.payload.threadId].messages,
-                                action.payload.message
-                            ]
-                        }
+                        messages: [
+                            ...state.threads[action.payload.threadId].messages,
+                            action.payload.message
+                        ]
                     }
                 },
                 messagesInActiveThread: state.currentThreadId === action.payload.threadId
@@ -63,8 +55,8 @@ export const threadsReducer = (state: ThreadsState, action: ThreadsAction): Thre
             return {
                 ...state,
                 currentThreadId: action.payload,
-                messagesInActiveThread: state.threads[action.payload]?.[action.payload]?.messages || [],
-                activeMessageQueue: state.threads[action.payload]?.[action.payload]?.messages.slice(-7) || []
+                messagesInActiveThread: state.threads[action.payload]?.messages || [],
+                activeMessageQueue: state.threads[action.payload]?.messages.slice(-7) || []
             };
 
         case 'SET_ACTIVE_MESSAGE_QUEUE':

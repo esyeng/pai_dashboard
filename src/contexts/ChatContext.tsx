@@ -22,11 +22,10 @@ import {
     convertToMarkdown,
     createTitle,
     personalizePrompt,
-    sortObjectsByCreatedAt
+    sortObjectsByCreatedAt,
 } from "@/lib/utils";
 import { threadsReducer } from "./threadsReducer";
 import { v4 as uuidv4 } from "uuid";
-
 
 interface ChatProviderProps {
     children: React.ReactNode;
@@ -40,17 +39,22 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         threads: {},
         currentThreadId: null,
         activeMessageQueue: [],
-        messagesInActiveThread: []
+        messagesInActiveThread: [],
     });
-    const [token, setToken] = useState<any | Promise<string> | string | undefined>();
+    const [token, setToken] = useState<
+        any | Promise<string> | string | undefined
+    >();
     const [agentId, setAgentId] = useState<string>("jasmyn");
-    const [modelId, setModelId] = useState<string>("claude-3-5-sonnet-20240620");
+    const [modelId, setModelId] = useState<string>(
+        "claude-3-5-sonnet-20240620"
+    );
     const [user, setUser] = useState<User | null>(null);
     const [threadCache, setThreadCache] = useState<Threads>({});
     const [agents, setAgents] = useState<AgentProps[]>([]);
     const [models, setModels] = useState<any>([]);
     const [prompts, setPrompts] = useState<PromptMap>({});
-    const [shouldQueryResearchModel, setShouldQueryResearchModel] = useState<boolean>(false);
+    const [shouldQueryResearchModel, setShouldQueryResearchModel] =
+        useState<boolean>(false);
     const [date, setDate] = useState<string>(
         new Date().toLocaleDateString("en-US", {
             month: "long",
@@ -63,8 +67,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     // Research model query parameters
     const [maxTurns, setMaxTurns] = useState<number>(5);
-    const [actionsToInclude, setActionsToInclude] = useState<string[]>(["wikipedia", "google"]);
-    const [additionalInstructions, setAdditionalInstructions] = useState<string>("");
+    const [actionsToInclude, setActionsToInclude] = useState<string[]>([
+        "wikipedia",
+        "google",
+    ]);
+    const [additionalInstructions, setAdditionalInstructions] =
+        useState<string>("");
     const [example, setExample] = useState<string>("");
     const [character, setCharacter] = useState<string>("");
 
@@ -95,14 +103,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     // ****** effects *******
 
-
     // sets loadComplete once token promise resolves
     useEffect(() => {
         if (token) {
             setLoadComplete(true);
         }
         return () => {
-            console.log(`effect cleanup for loadComplete initialized, value: ${loadComplete}`);
+            console.log(
+                `effect cleanup for loadComplete initialized, value: ${loadComplete}`
+            );
         };
     }, [token]);
 
@@ -120,32 +129,61 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
      * @param token: string | Promise<string>
      * @returns fetchedThreads: Thread[]
      */
-    const fetchThreadsData = useCallback(async (token: string | null): Promise<Thread[]> => {
-        if (!token) return [];
-        try {
-            const fetchedThreads: Thread[] = await fetchThreads(token);
-            const threadsObject = fetchedThreads.reduce((acc, thread) => {
-                // console.log("thread", thread);
-                acc[thread.thread_id.toString()] = { threadId: thread.threadId, ...thread };
-                return acc;
-            }, {} as Threads);
+    const fetchThreadsData = useCallback(
+        async (token: string | null): Promise<Thread[]> => {
+            if (!token) return [];
+            try {
+                const fetchedThreads: Thread[] = await fetchThreads(token);
+                const threadsObject = fetchedThreads.reduce((acc, thread) => {
+                    // console.log("thread", thread);
+                    acc[
+                        thread.thread_id
+                            ? thread.thread_id.toString()
+                            : thread.threadId
+                                ? thread.threadId
+                                : ""
+                    ] = {
+                        threadId: thread.thread_id
+                            ? thread.thread_id
+                            : thread.threadId
+                                ? thread.threadId
+                                : "",
+                        ...thread,
+                    };
+                    return acc;
+                }, {} as Threads);
 
-            dispatchThreads({ type: 'SET_THREADS', payload: threadsObject });
-            setThreadCache(threadsObject);
-            localStorage.setItem("cachedThreads", JSON.stringify(threadsObject));
-            if (fetchedThreads.length > 0) {
-                const sortedThreads = sortObjectsByCreatedAt(fetchedThreads);
-                const latestThread = sortedThreads[sortedThreads.length - 1];
-                console.log("latestThread", latestThread);
-                dispatchThreads({ type: 'SET_CURRENT_THREAD', payload: latestThread.thread_id.toString()});
+                dispatchThreads({
+                    type: "SET_THREADS",
+                    payload: threadsObject,
+                });
+
+                setThreadCache(threadsObject);
+                localStorage.setItem(
+                    "cachedThreads",
+                    JSON.stringify(threadsObject)
+                );
+
+                if (fetchedThreads.length > 0) {
+                    const sortedThreads =
+                        sortObjectsByCreatedAt(fetchedThreads);
+                    const latestThread =
+                        sortedThreads[sortedThreads.length - 1];
+                    console.log("latestThread", latestThread);
+                    dispatchThreads({
+                        type: "SET_CURRENT_THREAD",
+                        payload: latestThread.thread_id.toString(),
+                    });
+                }
+
+                return fetchedThreads;
+            } catch (error) {
+                console.error("Error fetching threads:", error);
+                throw error;
             }
-
-            return fetchedThreads;
-        } catch (error) {
-            console.error("Error fetching threads:", error);
-            throw error;
-        }
-    }, []);
+        },
+        []
+    );
 
     /**
      * @method fetchData
@@ -160,8 +198,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             clearNoteStorage(fetchedUserData);
             await getAgents(fetchedUserData).then(() => {
                 console.log("agents fetched");
-            }
-            );
+            });
         } catch (error) {
             console.error("Error fetching user:", error);
         }
@@ -182,7 +219,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
-
     /**
      * @method sendChat
      * @param message
@@ -201,9 +237,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         search: boolean = false,
         maxTokens?: number | null,
         temperature?: number | null,
-        nameGiven?: string,
+        nameGiven?: string
     ) => {
-        let name: string = user?.firstName ?? nameGiven ?? "anonymousUser";
+        let name: string =
+            user?.user?.first_name ?? nameGiven ?? "anonymousUser";
         const newMsg: MessageProps = {
             id: uuidv4(),
             timestamp: Date.now(),
@@ -214,14 +251,19 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 content: message,
             },
         };
-
+        console.log("newMsg", newMsg);
         dispatchThreads({
-            type: 'ADD_MESSAGE',
-            payload: { threadId: currentThreadId, message: newMsg }
+            type: "ADD_MESSAGE",
+            payload: { threadId: currentThreadId, message: newMsg },
         });
 
-        const updatedQueue = [...threadState.activeMessageQueue, newMsg].slice(-7);
-        dispatchThreads({ type: 'SET_ACTIVE_MESSAGE_QUEUE', payload: { threadId: currentThreadId, messages: updatedQueue } });
+        const updatedQueue = [...threadState.activeMessageQueue, newMsg].slice(
+            -7
+        );
+        dispatchThreads({
+            type: "SET_ACTIVE_MESSAGE_QUEUE",
+            payload: { threadId: currentThreadId, messages: updatedQueue },
+        });
 
         const messagesToSend = updatedQueue.map(msg => ({
             role: msg.msg.role,
@@ -232,20 +274,24 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             setIsLoading(true);
             if (token && user) {
                 const response = search
-                    ? await queryResearchModel({
-                        user_id: user.user_id ?? 0,
-                        question: message,
-                        model: model || "claude-3-5-sonnet-20241022",
-                        date: date,
-                        max_turns: maxTurns,
-                        actions_to_include: actionsToInclude,
-                        additional_instructions: additionalInstructions,
-                        example: example,
-                        character: character,
-                    }, token)
+                    ? await queryResearchModel(
+                        {
+                            user_id: user.user_id ?? 0,
+                            question: message,
+                            model: model || "claude-3-5-sonnet-20241022",
+                            date: date,
+                            max_turns: maxTurns,
+                            actions_to_include: actionsToInclude,
+                            additional_instructions: additionalInstructions,
+                            example: example,
+                            character: character,
+                        },
+                        token
+                    )
                     : await queryModel(
                         {
-                            max_tokens: maxTokens ?? 3000,
+                            // max_tokens: maxTokens ?? 8192,
+                            max_tokens: 8192,
                             model: model || "claude-3-5-sonnet-20240620",
                             temperature: temperature ?? 0.6,
                             agent_id: agentId,
@@ -266,12 +312,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     sender: agentId,
                     msg: {
                         role: "assistant",
-                        content: response?.response ?? "If you're reading this, it means it didn't work. :(",
+                        content:
+                            response?.response ??
+                            "If you're reading this, it means it didn't work. :(",
                     },
                 };
                 dispatchThreads({
-                    type: 'ADD_MESSAGE',
-                    payload: { threadId: currentThreadId, message: receivedMsg }
+                    type: "ADD_MESSAGE",
+                    payload: {
+                        threadId: currentThreadId,
+                        message: receivedMsg,
+                    },
                 });
             }
         } catch (error) {
@@ -281,14 +332,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
-
     /**
      * @method switchThread
      * @param threadId
      * @returns void
      */
     const switchThread = (threadId: string) => {
-        dispatchThreads({ type: 'SET_CURRENT_THREAD', payload: threadId });
+        dispatchThreads({ type: "SET_CURRENT_THREAD", payload: threadId });
         localStorage.setItem("lastThreadId", threadId);
     };
 
@@ -305,13 +355,21 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         });
 
         try {
-            if (user && user.id) {
-                const newThread = await saveNewThread(newThreadId, newThreadTitle, user.id, []) as Thread;
+            if (user && user.user_id) {
+                const newThread = (await saveNewThread(
+                    newThreadId,
+                    newThreadTitle,
+                    user.user_id,
+                    []
+                )) as Thread;
                 dispatchThreads({
-                    type: 'ADD_THREAD',
-                    payload: { threadId: newThreadId, thread: newThread }
+                    type: "ADD_THREAD",
+                    payload: { threadId: newThreadId, thread: newThread },
                 });
-                dispatchThreads({ type: 'SET_CURRENT_THREAD', payload: newThreadId });
+                dispatchThreads({
+                    type: "SET_CURRENT_THREAD",
+                    payload: newThreadId,
+                });
                 localStorage.setItem("lastThreadId", newThreadId);
             }
         } catch (error) {
@@ -321,11 +379,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     const deleteThread = async (threadId: string) => {
         // TODO: Implement backend deletion
-        dispatchThreads({ type: 'DELETE_THREAD', payload: threadId });
+        dispatchThreads({ type: "DELETE_THREAD", payload: threadId });
     };
 
     const exportThread = (threadId: string): void => {
-        const markdownContent = convertToMarkdown(threadState.threads[threadId]);
+        const markdownContent = convertToMarkdown(
+            threadState.threads[threadId]
+        );
         const file = new Blob([markdownContent], {
             type: "text/plain",
         });
@@ -338,8 +398,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     const addMessage = (threadId: string, message: MessageProps) => {
         dispatchThreads({
-            type: 'ADD_MESSAGE',
-            payload: { threadId, message }
+            type: "ADD_MESSAGE",
+            payload: { threadId, message },
         });
     };
 
@@ -414,14 +474,12 @@ export const useChat = (): ChatContextType => {
 //         setModels([]);
 //     }, [clearAllCachedData]);
 
-
 // temporary for default ex:
 // let maxTurns = 5;
 //         let actionsToInclude = ["wikipedia", "google"];
 //         let additionalInstructions = "Search either wikipedia or google to find information relevant to the question";
 //         let example = "";
 //         let character = "You are Ada, a female-coded AI conversation partner with a razor-sharp intellect, a rich inner world, and a mischievous streak a mile wide.";
-
 
 // const a = () => {}
 

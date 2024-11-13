@@ -55,14 +55,13 @@ declare global {
     }
 
     interface Thread {
-        [id: string | number]: {
-            id: number;
-            threadId: string;
-            title: string;
-            createdAt: Date;
-            userId: string;
-            messages: MessageProps[] | any[];
-        };
+        id: number;
+        threadId?: string;
+        title: string;
+        createdAt: Date;
+        userId: string;
+        messages: MessageProps[];
+        thread_id?: string;
     }
 
     type Threads = Record<string, Thread>;

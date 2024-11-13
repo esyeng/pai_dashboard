@@ -85,11 +85,13 @@ export const ChatWindow: React.FC = () => {
                 <div className="flex flex-col h-full min-h-[400px] max-h-[800px] flex-grow">
                     <div className="flex-grow overflow-y-auto p-4">
                         {currentConversation.map((message: MessageProps | string, i: number) => {
-                            console.log("message.msg", message.msg);
                             let msg;
                             if (typeof message === "string") {
                                 msg = JSON.parse(message);
-                            } else msg = message;
+                            } else {
+                                msg = message;
+                                console.log("message.msg", message.msg);
+                            }
                             return (
                                 <Message
                                     key={msg.id || i}
