@@ -8,7 +8,7 @@ export const threadsReducer = (state: ThreadsState, action: ThreadsAction): Thre
                 ...state,
                 threads: {
                     ...state.threads,
-                    [action.payload.threadId]: action.payload.thread[0]
+                    [action.payload.threadId]: action.payload.thread
                 }
             };
 
