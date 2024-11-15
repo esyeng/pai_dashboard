@@ -1,7 +1,6 @@
 export { };
 
 declare global {
-
     interface MessageProps {
         id: string | number;
         timestamp: string | number | Date;

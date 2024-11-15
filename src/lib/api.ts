@@ -304,9 +304,10 @@ export const updateThreadName = async (threadId: string, title: string) => {
 export const updateThreadMessages = async (
     id: number,
     messages: any[]
-) => {
+): Promise<any> => {
     const client = createClerkSupabaseClient();
     try {
+        // console.log("last message to update", messages[messages.length - 1])
         const { data, error } = await client
             .from("threads")
             .update({

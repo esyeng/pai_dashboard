@@ -16,6 +16,7 @@ import {
     fetchModels,
     fetchUser,
     saveNewThread,
+    updateThreadMessages
 } from "../lib/api";
 import {
     UniqueIdGenerator,
@@ -27,9 +28,22 @@ import {
 import { threadsReducer } from "./threadsReducer";
 import { v4 as uuidv4 } from "uuid";
 
+/**
+ * ChatContext.tsx
+ *
+ * ChatContext is a ReactContext object that represents which contexts other components read or provide.
+ * It is the object returned from createContext, and gets passed as the argument to useContext.
+ * At the end of this file the useChat hook is defined which calls useContext,
+ * granting access to all variables in the ChatContext.Provider returned by this component
+ * to the child component it is called from
+ */
+
+
 interface ChatProviderProps {
     children: React.ReactNode;
 }
+
+// Unique ID for each thread, used for selecting and updating. Is separate from db object thread.id
 const idGenerator = UniqueIdGenerator.getInstance();
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -44,6 +58,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [token, setToken] = useState<
         any | Promise<string> | string | undefined
     >();
+    // Default agent, model
     const [agentId, setAgentId] = useState<string>("jasmyn");
     const [modelId, setModelId] = useState<string>(
         "claude-3-5-sonnet-20240620"
@@ -52,6 +67,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [threadCache, setThreadCache] = useState<Threads>({});
     const [agents, setAgents] = useState<AgentProps[]>([]);
     const [models, setModels] = useState<any>([]);
+    // prompts is an object used to combine user details with character prompt for personalized messages
     const [prompts, setPrompts] = useState<PromptMap>({});
     const [shouldQueryResearchModel, setShouldQueryResearchModel] =
         useState<boolean>(false);
@@ -64,6 +80,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // Status flags
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [loadComplete, setLoadComplete] = useState<boolean>(false);
+    // flag for updating database thread messages
+    const [updateThread, setUpdateThread] = useState<boolean>(false);
 
     // Research model query parameters
     const [maxTurns, setMaxTurns] = useState<number>(5);
@@ -76,6 +94,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [example, setExample] = useState<string>("");
     const [character, setCharacter] = useState<string>("");
 
+    // fetch agents from db once user data present
     const getAgents = async (user: UserResponse) => {
         console.log("get agents called");
         console.log("user object in getAgents", user);
@@ -101,6 +120,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
+    // saves convo to database thread
+    // called in effect callback after message received from server
+    const updateThreadSavedMessages = async (id: number, messages: MessageProps[]) => {
+        try {
+            const updated: [] = await updateThreadMessages(id, messages); // id from db thread obj
+            if (updated && updated.length) {
+                return updated;
+            }
+        } catch (error) {
+            console.error("Error updating thread messages:", error);
+        }
+    };
+
+
     // ****** effects *******
 
     // sets loadComplete once token promise resolves
@@ -115,6 +148,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         };
     }, [token]);
 
+    // executes once token promise resolves, fetches and sets user data then threads
     useEffect(() => {
         if (loadComplete) {
             fetchData();
@@ -122,20 +156,31 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             fetchThreadsData(token);
         }
     }, [loadComplete, token]);
-    // ******  chat & threads methods ********
 
+    // save thread messages after each msg
+    useEffect(() => {
+        if (!updateThread) return
+        if (threadState.currentThreadId && threadState.threads[threadState.currentThreadId].messages) {
+            console.log("updating thread messages");
+            updateThreadSavedMessages(threadState.threads[threadState.currentThreadId].id, threadState.threads[threadState.currentThreadId].messages);
+            setUpdateThread(false);
+        }
+    }, [updateThread]);
+
+    // ******  chat & threads methods ********
     /**
      * @method fetchThreadsData
-     * @param token: string | Promise<string>
+     * @param token: string | null
      * @returns fetchedThreads: Thread[]
      */
     const fetchThreadsData = useCallback(
         async (token: string | null): Promise<Thread[]> => {
             if (!token) return [];
             try {
-                const fetchedThreads: Thread[] = await fetchThreads(token);
+                // fetch and filter empty
+                const fetchedThreads: Thread[] = (await fetchThreads(token)).filter((t: Thread) => t.messages.length > 0);
                 const threadsObject = fetchedThreads.reduce((acc, thread) => {
-                    // console.log("thread", thread);
+                    // construct threads object, converting fetched data to object state
                     acc[
                         thread.thread_id
                             ? thread.thread_id.toString()
@@ -152,7 +197,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     };
                     return acc;
                 }, {} as Threads);
-
+                // mount threads state
                 dispatchThreads({
                     type: "SET_THREADS",
                     payload: threadsObject,
@@ -164,19 +209,21 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     JSON.stringify(threadsObject)
                 );
 
+                // ensure chronological sorting
                 if (fetchedThreads.length > 0) {
                     const sortedThreads =
                         sortObjectsByCreatedAt(fetchedThreads);
+                    // grab latest non empty thread
                     const latestThread =
                         sortedThreads[sortedThreads.length - 1];
-                    console.log("latestThread", latestThread);
+                    // load last thread
                     dispatchThreads({
                         type: "SET_CURRENT_THREAD",
                         payload: latestThread.thread_id.toString(),
                     });
                 }
-
                 return fetchedThreads;
+
             } catch (error) {
                 console.error("Error fetching threads:", error);
                 throw error;
@@ -192,6 +239,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const fetchData = useCallback(async () => {
         try {
             if (!token) return;
+            // once clerkAuth request completes the following executes
             const fetchedUserData = await fetchUser(token);
             console.log("fetchedUserData", fetchedUserData);
             setUser(fetchedUserData);
@@ -265,10 +313,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             payload: { threadId: currentThreadId, messages: updatedQueue },
         });
 
-        const messagesToSend = updatedQueue.map(msg => ({
-            role: msg.msg.role,
-            content: msg.msg.content,
-        }));
+        const messagesToSend = updatedQueue.map(msg => {
+            let msgObj: any = {};
+            if (typeof msg === "string") {
+                msgObj = JSON.parse(msg)
+            } else msgObj = msg;
+            return {
+                role: msgObj.msg.role,
+                content: msgObj.msg.content,
+            }
+        });
+
 
         try {
             setIsLoading(true);
@@ -324,6 +379,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                         message: receivedMsg,
                     },
                 });
+                setUpdateThread(true);
             }
         } catch (error) {
             console.error("Error sending chat:", error);

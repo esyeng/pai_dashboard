@@ -8,7 +8,6 @@ import { useChat } from "@/contexts/ChatContext";
 
 export const ChatWindow: React.FC = () => {
     const [inputValue, setInputValue] = useState("");
-    // const [currentConversation, setCurrentConversation] = useState<MessageProps[]>([]);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const chatWindowRef = useRef<HTMLDivElement>(null);
     const {
@@ -21,22 +20,6 @@ export const ChatWindow: React.FC = () => {
         isLoading,
     } = useChat();
 
-    // useEffect(() => {
-    //     if (currentThreadId && threads[currentThreadId]?.messages) {
-    //         setCurrentConversation(threads[currentThreadId].messages);
-    //         chatWindowRef.current?.scrollIntoView({
-    //             behavior: "smooth",
-    //             block: "end",
-    //         });
-    //     }
-
-
-    //     return () => {
-    //         // setCurrentConversation([]);
-    //         console.log("cleaning up chat window");
-    //     }
-
-    // }, [threads, currentThreadId]);
 
     const currentConversation = useMemo(() => {
         return currentThreadId && threads[currentThreadId]?.messages
