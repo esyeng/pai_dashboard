@@ -51,8 +51,8 @@ const ThreadList: React.FC = () => {
 	};
 
 	return (
-		<div className=" rounded-xl shadow-xl flex-1 w-full">
-			<h2 className="text-lg text-caribbean-current font-bold mb-2 bg-mint bg-opacity-85 rounded-tl-lg rounded-tr-lg p-4">
+		<div className=" rounded-xl shadow-xl flex-1 w-full border-4 border-[#4ce6ab2d]">
+			<h2 className="text-lg text-mint font-bold mb-2 bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] bg-opacity-85 rounded-tl-lg rounded-tr-lg p-4">
 				Threads
 			</h2>
 			<div className="max-h-96  flex flex-col overflow-y-auto items-center justify-between">
@@ -68,17 +68,17 @@ const ThreadList: React.FC = () => {
 					{loadComplete && sortedThreads.length > 0 ? (
 						[...sortedThreads].reverse().map((threadItem: any) => {
 							// console.log("thread from sortedThreads", threadItem);
-                            if (threadItem.title !== "New Thread" && threadItem.messages?.length == 0 || (threadItem.id === null || threadItem.id === undefined)) {
-                                // deleteThread(threadItem.id);
-                                return null;
-                            }
+                            // if (threadItem.title !== "New Thread" && threadItem.messages?.length == 0 || (threadItem.id === null || threadItem.id === undefined)) {
+                            //     // deleteThread(threadItem.id);
+                            //     return null;
+                            // }
 							return (
 								<li
 									key={threadItem.id}
 									className="flex min-h-16 items-center justify-between  bg-gray-200 rounded-lg border-2 border-mint"
 								>
 									<span
-										className="text-caribbean-current font-bold bg-mint self-stretch p-2 hover:transition-colors cursor-pointer duration-300 hover:bg-mint/20 rounded-l-lg"
+										className="text-mint font-bold self-stretch p-2 hover:transition-colors cursor-pointer duration-300 hover:bg-mint/20 rounded-l-lg"
 										// contentEditable="true"
 										// onInput={handleThreadNameInput}
 										// onKeyDown={(event) =>
@@ -109,7 +109,7 @@ const ThreadList: React.FC = () => {
 										</svg>
 									</button>
 									<button
-										className="px-2 self-stretch cursor-pointer bg-blue-500 text-white rounded-md focus:outline-none hover:text-light-coral hover:scale-105 transition-colors duration-300"
+										className="px-2 self-stretch cursor-pointer bg-blue-500 text-mint rounded-md focus:outline-none hover:text-[#151515] hover:scale-105 transition-colors duration-300 hover:bg-mint "
 										onClick={() =>
 											exportThread(threadItem.id)
 										}

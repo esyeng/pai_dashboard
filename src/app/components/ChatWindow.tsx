@@ -125,7 +125,7 @@ export const ChatWindow: React.FC = () => {
                         />
                     </div>
                     <button
-                        className="transition ease-in-out px-4 py-2 bg-tea-green/25 text-caribbean-current rounded hover:bg-tea-green/60 duration-300"
+                        className="transition ease-in-out px-4 py-2 border-2 border-mint bg-[#151515] text-[#fff] rounded hover:bg-mint hover:border-transparent hover:text-caribbean-current duration-300"
                         onClick={handleSendMessage}
                         disabled={isLoading}
                     >

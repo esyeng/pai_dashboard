@@ -39,7 +39,7 @@ export const Message: React.FC<MessageProps> = ({
 
     const isUserMessage = msg?.role === "user";
     const messageClass = isUserMessage
-        ? "bg-[#fafcff66] text-black font-normal border border-gray-200"
+        ? "bg-[#b9c0be] text-black font-normal border border-gray-200"
         : "bg-[#000000bd] text-white font-light";
     const alignmentClass = isUserMessage ? "justify-end" : "justify-start";
     const parsedContent = parseCodeBlocks(msg.content);
@@ -54,17 +54,25 @@ export const Message: React.FC<MessageProps> = ({
                     <React.Fragment key={index}>
                         {part.type === "text" ? (
                             <>
-                                <span className={`block ${isUserMessage
-                                    ? 'text-caribbean-current' : 'text-light-coral'} text-2xl`}>
-                                    {msg.role === "user"
-                                        ? currentUserName
-                                        : currentAgentName
-                                    }
-                                </span>
-                                <div className="block text-lg">
-                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                        {part.content}
-                                    </ReactMarkdown>
+                                <div className="flex">
+                                    <span className={`block ${isUserMessage
+                                        ? 'text-caribbean-current' : 'text-light-coral'} text-xl pr-2 min-w-20`}>
+                                        {msg.role === "user"
+                                            ? currentUserName
+                                            : currentAgentName
+                                        }:
+                                    </span>
+                                    <div className="block text-lg flex-1">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                            {part.content}
+                                        </ReactMarkdown>
+                                    </div>
+                                    <button
+                                        className={`text-xs ${isUserMessage ? 'text-[#151515' : 'text-[#fff]'}  hover:scale-1.1 focus:outline-none hover:text-vista-blue`}
+                                        onClick={() => copyToClipboard(msg.content)}
+                                    >
+                                        {isCopied ? "Copied!" : <ClipboardIcon />}
+                                    </button>
                                 </div>
                             </>
                         ) : (
@@ -75,18 +83,8 @@ export const Message: React.FC<MessageProps> = ({
                         )}
                     </React.Fragment>
                 ))}
-                <button
-                    className={`text-xs text-chocolate-cosmos hover:scale-1.1 focus:outline-none`}
-                    onClick={() => copyToClipboard(msg.content)}
-                >
-                    {isCopied ? "Copied!" : <ClipboardIcon />}
-                </button>
             </div>
         </div>
     );
 };
 
-/**
- * ? "bg-vista-blue text-gray"
-        : "bg-jasmine text-black";
- */
