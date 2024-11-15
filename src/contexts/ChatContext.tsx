@@ -417,7 +417,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     newThreadTitle,
                     user.user_id,
                     []
-                )) as Thread;
+                ))[0] as Thread;
                 dispatchThreads({
                     type: "ADD_THREAD",
                     payload: { threadId: newThreadId, thread: newThread },

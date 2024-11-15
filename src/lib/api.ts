@@ -22,7 +22,7 @@ import {
 import { createClerkSupabaseClient } from "../app/supabase/client";
 import dotenv from "dotenv";
 import { safeJSONParse } from "./utils";
-import { profile } from "console";
+
 dotenv.config();
 
 // const BASE = process.env.BASE_URL
@@ -261,7 +261,7 @@ export const saveNewThread = async (
     title: string,
     userId: string,
     messages: string[]
-) => {
+): Promise<any> => {
     const client = createClerkSupabaseClient();
     console.log("saving new thread (thread id, title, user id, last message)", thread_id, title, userId, messages[messages.length - 1]);
     try {
