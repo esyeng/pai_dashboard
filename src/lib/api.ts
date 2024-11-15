@@ -4,20 +4,17 @@ import { safeJSONParse } from "./utils";
 
 dotenv.config();
 
-// const BASE = process.env.BASE_URL
-//     ? process.env.BASE_URL
-//     : "https://jasmyn-418676732313.us-central1.run.app";
-const BASE = "http://localhost:8000";
+const BASE = process.env.BASE_URL
+    ? process.env.BASE_URL
+    : "https://jasmyn-dev-418676732313.us-central1.run.app";
 
-const GPT_BASE = `${BASE}/model/gpt`;
+
+// const GPT_BASE = `${BASE}/model/gpt`;
 const CLAUDE = `${BASE}/model/claude`;
 
 
 export function parseMessageString(messageString: string): MessageProps {
     let parsedMessage = JSON.parse(messageString);
-    // console.log(
-    // 	messageString
-    // );
 
     if (typeof parsedMessage === "string") {
         parsedMessage = JSON.parse(parsedMessage);
@@ -30,9 +27,6 @@ export function parseMessageString(messageString: string): MessageProps {
     if (typeof parsedMessage === "string") {
         parsedMessage = JSON.parse(parsedMessage);
     }
-    // console.log(
-    // typeof parsedMessage
-    // );
     const message: MessageProps = {
         id: parsedMessage.id,
         timestamp: parsedMessage.timestamp,
