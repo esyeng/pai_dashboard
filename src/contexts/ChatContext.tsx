@@ -268,7 +268,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     };
 
     /**
-     * @method sendChat
+     * @method sendChat - http method for back and forth chatting with endpoint configured to match claude schema
      * @param message
      * @param model
      * @param agentId
