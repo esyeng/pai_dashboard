@@ -89,6 +89,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [character, setCharacter] = useState<string>("");
     const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
     const [year, setYear] = useState<number>(new Date().getFullYear());
+    const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
     const [disableQuery, setDisableQuery] = useState<boolean>(false);
     const actionsToInclude = ["wikipedia", "google", "process_urls", "write_report"];
 
@@ -334,7 +338,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             user_id: user.user_id ?? 0,
                             question: message,
                             model: model || "claude-3-5-sonnet-20241022",
-                            date: date,
+                            date: `${months[month + 1]} ${year}`,
                             max_turns: maxTurns,
                             actions_to_include: selectedActions,
                             additional_instructions: additionalInstructions,
