@@ -474,7 +474,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 agents,
                 models,
                 shouldQueryResearchModel,
-                date,
                 maxTurns,
                 actionsToInclude,
                 additionalInstructions,
