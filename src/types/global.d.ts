@@ -109,7 +109,6 @@ declare global {
         setModelId: (modelId: string) => void;
         setAgentId: (agentId: string) => void;
         setShouldQueryResearchModel: (shouldQuery: boolean) => void;
-        setDate: (date: number) => void;
         setMaxTurns: (maxTurns: number) => void;
         setAdditionalInstructions: (instructions: string) => void;
         setSelectedActions: (actions: string[]) => void;

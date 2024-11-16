@@ -71,12 +71,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [prompts, setPrompts] = useState<PromptMap>({});
     const [shouldQueryResearchModel, setShouldQueryResearchModel] =
         useState<boolean>(false);
-    const [date, setDate] = useState<string>(
-        new Date().toLocaleDateString("en-US", {
-            month: "long",
-            year: "numeric",
-        })
-    );
     // Status flags
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [loadComplete, setLoadComplete] = useState<boolean>(false);
