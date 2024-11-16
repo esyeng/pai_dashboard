@@ -91,7 +91,6 @@ declare global {
         models: any;
         user: User | null;
         shouldQueryResearchModel: boolean;
-        date: string;
         maxTurns: number;
         actionsToInclude: string[];
         additionalInstructions: string;
@@ -100,18 +99,25 @@ declare global {
         agentId: string;
         token: string;
         modelId: string;
+        month: number;
+        year: number;
         loadComplete: boolean;
+        selectedActions: string[];
+        disableQuery: boolean;
         setToken: (token: string | Promise<string> | any) => void;
         setUser: (user: User) => void;
         setModelId: (modelId: string) => void;
         setAgentId: (agentId: string) => void;
         setShouldQueryResearchModel: (shouldQuery: boolean) => void;
-        setDate: (date: string) => void;
+        setDate: (date: number) => void;
         setMaxTurns: (maxTurns: number) => void;
-        setActionsToInclude: (actions: string[]) => void;
         setAdditionalInstructions: (instructions: string) => void;
+        setSelectedActions: (actions: string[]) => void;
         setExample: (example: string) => void;
         setCharacter: (character: string) => void;
+        setMonth: (month: number) => void;
+        setYear: (year: number) => void;
+        setDisableQuery: (disableQuery: boolean) => void
         sendChat: (
             message: string,
             model: string,

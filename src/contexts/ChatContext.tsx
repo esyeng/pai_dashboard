@@ -85,7 +85,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     // Research model query parameters
     const [maxTurns, setMaxTurns] = useState<number>(5);
-    const [actionsToInclude, setActionsToInclude] = useState<string[]>([
+    const [selectedActions, setSelectedActions] = useState<string[]>([
         "wikipedia",
         "google",
     ]);
@@ -93,6 +93,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         useState<string>("");
     const [example, setExample] = useState<string>("");
     const [character, setCharacter] = useState<string>("");
+    const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
+    const [year, setYear] = useState<number>(new Date().getFullYear());
+    const [disableQuery, setDisableQuery] = useState<boolean>(false);
+    const actionsToInclude = ["wikipedia", "google", "process_urls", "write_report"];
+
 
     // fetch agents from db once user data present
     const getAgents = async (user: UserResponse) => {
@@ -327,6 +332,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
         try {
             setIsLoading(true);
+            setDisableQuery(true);
             if (token && user) {
                 const response = search
                     ? await queryResearchModel(
@@ -336,7 +342,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             model: model || "claude-3-5-sonnet-20241022",
                             date: date,
                             max_turns: maxTurns,
-                            actions_to_include: actionsToInclude,
+                            actions_to_include: selectedActions,
                             additional_instructions: additionalInstructions,
                             example: example,
                             character: character,
@@ -385,6 +391,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             console.error("Error sending chat:", error);
         } finally {
             setIsLoading(false);
+            setDisableQuery(false);
         }
     };
 
@@ -471,11 +478,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 maxTurns,
                 actionsToInclude,
                 additionalInstructions,
+                selectedActions,
                 example,
                 character,
+                disableQuery,
                 user,
                 agentId,
                 token,
+                month,
+                year,
                 setToken,
                 modelId,
                 loadComplete,
@@ -483,12 +494,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 setModelId,
                 setAgentId,
                 setShouldQueryResearchModel,
-                setDate,
+                setMonth,
+                setYear,
                 setMaxTurns,
-                setActionsToInclude,
                 setAdditionalInstructions,
+                setSelectedActions,
                 setExample,
                 setCharacter,
+                setDisableQuery,
                 sendChat,
                 switchThread,
                 createNewThread,
