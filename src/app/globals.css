@@ -86,8 +86,8 @@
 }
 
 html {
-    /* background: rgb(var(--caribbean-current)); */
-    background: rgb(var(--dark-dark-grey));
+    background: rgb(var(--caribbean-current));
+    /* background: rgb(var(--dark-dark-grey)); */
 }
 
 body {

@@ -20,9 +20,9 @@ export const SignInOrOut: React.FC = () => {
     }
 
     return (
-        <div className="w-44 border border-mint rounded-lg flex justify-center items-center hover:bg-mint hover:duration-100">
+        <div className="w-44 cursor-pointer absolute right-4 border border-mint rounded-lg flex justify-center items-center  hover:duration-100 hover:bg-mint hover:text-caribbean-current">
             <SignOutButton signOutOptions={{ sessionId }} >
-                <button className="p-4 cursor-crosshair text-[#9de6ca] text-md rounded leading-tight hover:duration-100 hover:text-caribbean-current hover:scale-105" onClick={clearNoteUser}>Sign Out</button>
+                <button className="p-2 text-carribean-current text-md rounded leading-tight hover:duration-100 " onClick={clearNoteUser}>Sign Out</button>
             </SignOutButton>
         </div>
     )

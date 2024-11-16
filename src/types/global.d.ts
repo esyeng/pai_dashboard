@@ -98,6 +98,7 @@ declare global {
         example: string;
         character: string;
         agentId: string;
+        token: string;
         modelId: string;
         loadComplete: boolean;
         setToken: (token: string | Promise<string> | any) => void;

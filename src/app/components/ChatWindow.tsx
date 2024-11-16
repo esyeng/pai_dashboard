@@ -20,7 +20,6 @@ export const ChatWindow: React.FC = () => {
         isLoading,
     } = useChat();
 
-
     const currentConversation = useMemo(() => {
         return currentThreadId && threads[currentThreadId]?.messages
             ? threads[currentThreadId].messages
@@ -51,6 +50,12 @@ export const ChatWindow: React.FC = () => {
         }
     };
 
+    const agentNameFormatted = agentId.split(/[ +_+]/).map(word => (
+        word.length > 1
+            ? word.split("")[0].toUpperCase() + word.slice(1, word.length)
+            : word.toUpperCase())
+    ).join(' ')
+
     const { onKeyDown } = useEnterSubmit(handleSendMessage);
 
     useEffect(() => {
@@ -67,25 +72,27 @@ export const ChatWindow: React.FC = () => {
             <div className="w-full mx-auto h-full">
                 <div className="flex flex-col h-full min-h-[400px] max-h-[800px] flex-grow">
                     <div className="flex-grow overflow-y-auto p-4">
-                        {currentConversation.map((message: MessageProps | string, i: number) => {
-                            let msg;
-                            if (typeof message === "string") {
-                                msg = JSON.parse(message);
-                            } else {
-                                msg = message;
-                                console.log("message.msg", message.msg);
+                        {currentConversation.map(
+                            (message: MessageProps | string, i: number) => {
+                                let msg;
+                                if (typeof message === "string") {
+                                    msg = JSON.parse(message);
+                                } else {
+                                    msg = message;
+                                    console.log("message.msg", message.msg);
+                                }
+                                return (
+                                    <Message
+                                        key={msg.id || i}
+                                        id={msg.id}
+                                        msg={msg.msg}
+                                        timestamp={msg.timestamp}
+                                        sender={msg.sender}
+                                        agentId={msg.agentId}
+                                    />
+                                );
                             }
-                            return (
-                                <Message
-                                    key={msg.id || i}
-                                    id={msg.id}
-                                    msg={msg.msg}
-                                    timestamp={msg.timestamp}
-                                    sender={msg.sender}
-                                    agentId={msg.agentId}
-                                />
-                            )
-                        })}
+                        )}
                         {isLoading && (
                             <div className="h-12">
                                 <div className="flex items-center justify-center bg-gray-200 rounded-lg p-4">
@@ -117,10 +124,14 @@ export const ChatWindow: React.FC = () => {
                         <textarea
                             ref={inputRef}
                             className="flex-grow p-2 border border-mint rounded-xl max-h-[420px] shadow-m bg-[#fff1c000] text-[#85d7de] border-slate-300 py-2 pl-9 pr-3 placeholder:text-[#85d7de] transition ease-in-out hover:bg-mint/20 focus:bg-mint/20 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 focus:ring-offset-1 focus:ring-offset-[#5bdde8] duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
-                            placeholder="Type your message..."
+                            placeholder={
+                                shouldQueryResearchModel
+                                    ? `Conduct research with ${agentNameFormatted}`
+                                    : `Send a message to ${agentNameFormatted}...`
+                            }
                             value={inputValue}
                             onKeyDown={onKeyDown}
-                            onChange={(e) => setInputValue(e.target.value)}
+                            onChange={e => setInputValue(e.target.value)}
                             disabled={isLoading}
                         />
                     </div>
@@ -129,10 +140,42 @@ export const ChatWindow: React.FC = () => {
                         onClick={handleSendMessage}
                         disabled={isLoading}
                     >
-                        Send
+                        {shouldQueryResearchModel ? "Search" : "Send"}
                     </button>
                 </div>
             </div>
         </div>
     );
 };
+
+// {testData && (
+//     <div className="p-4 flex items-center justify-center">
+//         <h1 className="flex gap-2 p-8 w-full text-[#9de6ca] text-xl rounded">
+//             test data!: {JSON.stringify(testData)}
+//         </h1>
+//     </div>
+// )}
+
+// <button onClick={handleTestSearch}>TextResearchResponse</button>
+// const handleTestSearch = async () => {
+//     const testObj = {
+//         "user_id": "user_2fcYxEZjvkR9JSYcPCWFArsVy4p",
+//         "question": "What are some fall women's fashion trends to look out for in NYC this fall?", "date": "November 2024",
+//         "max_turns": 2,
+//         "actions_to_include": ["wikipedia", "google"],
+//         "additional_instructions": "Search either wikipedia or google to find information relevant to the question",
+//         "model": "claude-3-5-sonnet-20241022",
+//         "example": "",
+//         "character": ""
+//     }
+//     console.log("await token");
+//     if (token) {
+//         console.log("token!")
+//         let res = await queryResearchModel(testObj, token);
+//         console.log("res", res);
+//         if (res) {
+//             setTestData(res);
+//         }
+//     }
+
+// }

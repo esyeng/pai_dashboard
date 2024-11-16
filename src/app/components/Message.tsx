@@ -39,7 +39,7 @@ export const Message: React.FC<MessageProps> = ({
 
     const isUserMessage = msg?.role === "user";
     const messageClass = isUserMessage
-        ? "bg-[#b9c0be] text-black font-normal border border-gray-200"
+        ? "bg-[#fafcff66] text-black font-normal border border-gray-200"
         : "bg-[#000000bd] text-white font-light";
     const alignmentClass = isUserMessage ? "justify-end" : "justify-start";
     const parsedContent = parseCodeBlocks(msg.content);

@@ -475,6 +475,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 character,
                 user,
                 agentId,
+                token,
                 setToken,
                 modelId,
                 loadComplete,
@@ -540,3 +541,14 @@ export const useChat = (): ChatContextType => {
 // const a = () => {}
 
 // function a() {}
+
+// const testObj = {
+//     "user_id": "user_2fcYxEZjvkR9JSYcPCWFArsVy4p",
+//     "question": "What are some fall women's fashion trends to look out for in NYC this fall?", "date": "November 2024",
+//     "max_turns": 2,
+//     "actions_to_include": ["wikipedia", "google"],
+//     "additional_instructions": "Search either wikipedia or google to find information relevant to the question",
+//     "model": "claude-3-5-sonnet-20241022",
+//     "example": "",
+//     "character": ""
+// }

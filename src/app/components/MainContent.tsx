@@ -7,25 +7,18 @@ import { Sidebar } from "./Sidebar";
 import { useChat } from "@/contexts/ChatContext";
 import { SignInOrOut } from "./account/SignInOrOut";
 import { useAuth } from "@clerk/nextjs";
-import { SearchOptions } from "./SearchOptions";
-import { set } from "lodash";
 
 export const MainContent: React.FC = () => {
-    const [sideOnBottom, setSideOnBottom] = useState(false);
+    const [sideOnBottom, setSideOnBottom] = useState<boolean>(false);
     const { isLoaded, getToken } = useAuth();
-    const { agents, models, setToken, shouldQueryResearchModel, setShouldQueryResearchModel } =
+    const { agents, models, setToken, token } =
         useChat();
-
-
-
 
     useEffect(() => {
         const handleResize = () => {
             setSideOnBottom(window.innerWidth < 768);
         };
-
         window.addEventListener("resize", handleResize);
-
         return () => {
             window.removeEventListener("resize", handleResize);
         };
@@ -56,12 +49,6 @@ export const MainContent: React.FC = () => {
                 {isLoaded ? (
                     <>
                         <Options agents={agents} models={models} />
-                        <div
-                            className={`mb-2 pb-2 px-36 w-full transition-all duration-700 ease-in-out overflow-scroll ${shouldQueryResearchModel ? 'max-h-screen' : 'max-h-0'
-                                }`}
-                        >
-                            {shouldQueryResearchModel && <SearchOptions />}
-                        </div>
                     </>
 
                 ) : (
@@ -97,3 +84,4 @@ export const MainContent: React.FC = () => {
         </div>
     );
 };
+
