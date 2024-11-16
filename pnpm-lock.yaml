@@ -8,6 +8,9 @@ dependencies:
   '@clerk/nextjs':
     specifier: 5.0.2
     version: 5.0.2(eslint@8.57.0)(next@14.2.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.4.5)
+  '@heroicons/react':
+    specifier: 2.1.5
+    version: 2.1.5(react@18.2.0)
   '@prisma/client':
     specifier: 5.20.0
     version: 5.20.0(prisma@5.20.0)
@@ -395,7 +398,15 @@ packages:
   '@floating-ui/utils@0.2.1':
     resolution: {integrity: sha512-9TANp6GPoMtYzQdt54kfAyMmz1+osLlXdg2ENroU7zzrtflTLrrC/lgrIfaSe+Wu0b89GKccT7vxXA0MoAIO+Q==}
 
-  '@humanwhocodes/config-array@0.11.14':
+  /@heroicons/react@2.1.5(react@18.2.0):
+    resolution: {integrity: sha512-FuzFN+BsHa+7OxbvAERtgBTNeZpUjgM/MIizfVkSCL2/edriN0Hx/DWRCR//aPYwO5QX/YlgLGXk+E3PcfZwjA==}
+    peerDependencies:
+      react: '>= 16'
+    dependencies:
+      react: 18.2.0
+    dev: false
+
+  /@humanwhocodes/config-array@0.11.14:
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
     deprecated: Use @eslint/config-array instead

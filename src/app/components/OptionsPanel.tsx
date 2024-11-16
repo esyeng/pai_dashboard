@@ -3,6 +3,7 @@
 // import * as Slider from '@radix-ui/react-slider';
 // import * as Separator from '@radix-ui/react-separator';
 import { AgentDropdown } from "./AgentDropdown";
+import AgentManager from "./AgentManager";
 import { useChat } from "@/contexts/ChatContext";
 
 
@@ -33,6 +34,9 @@ export const Options: React.FC<OptionsProps> = ({ agents, models }) => {
                         |
                     </span>
                     <AgentDropdown agents={agents} mode="agent" />
+                </div>
+                <div className="flex justify-center items-center px-2 my-1 mx-4">
+                    <AgentManager />
                 </div>
             </div>
         </div>
