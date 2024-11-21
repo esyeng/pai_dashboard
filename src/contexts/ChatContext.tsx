@@ -350,9 +350,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     : await queryModel(
                         {
                             // max_tokens: maxTokens ?? 8192,
-                            max_tokens: 8192,
+                            max_tokens: 4096,
                             model: model || "claude-3-5-sonnet-20240620",
-                            temperature: temperature ?? 0.6,
+                            temperature: temperature ?? 0.2,
                             agent_id: agentId,
                             system_prompt: personalizePrompt(
                                 prompts[agentId],
