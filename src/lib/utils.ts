@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { customAlphabet } from "nanoid";
 import { twMerge } from "tailwind-merge";
+import { parseMessageString } from "./api";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -205,3 +206,88 @@ export class UniqueIdGenerator {
         return encoded.split('').map(char => this.chars[parseInt(char, this.chars.length)]).join('');
     }
 }
+
+
+export const timeStringToMilliseconds = (timeString: string): number | null => {
+    try {
+        // Parse the time string
+        const dt = new Date(timeString);
+
+        // Check if the date is valid
+        if (isNaN(dt.getTime())) {
+            throw new Error('Invalid date');
+        }
+
+        // Calculate milliseconds since Unix epoch
+        const milliseconds = dt.getTime();
+
+        return milliseconds;
+    } catch (e) {
+        // console.error(`Error parsing time string: ${e}`);
+        console.log(`Error parsing time string: ${e}`);
+        return null;
+    }
+}
+
+export const sortObjectsByCreatedAt = (objects: any[]): any[] => {
+    return objects.sort((a, b) => {
+        const timeA = timeStringToMilliseconds(a?.created_at ? a.created_at : '');
+        const timeB = timeStringToMilliseconds(b?.created_at ? b.created_at : '');
+
+        if (timeA === null || timeB === null) {
+            // console.error('Error comparing dates');
+            console.log('Error comparing dates');
+            return 0;
+        }
+
+        return timeA - timeB;
+    });
+}
+
+
+export const createTitle = () => {
+    const date = new Date();
+    return `${date.toLocaleDateString(undefined, {
+        dateStyle: "medium",
+    })} ${date.toLocaleTimeString(undefined, {
+        timeStyle: "short",
+    })} ${(Math.random() * 1000).toPrecision(3)}`;
+};
+
+
+export const convertToMarkdown = (thread: any): string => {
+    let markdown = `# ${thread.title}\n\n`;
+    thread.messages?.forEach((message: any) => {
+        let msg =
+            typeof message === "string" ? parseMessageString(message) : message;
+        if (typeof msg === "string") {
+            msg = parseMessageString(msg);
+        }
+        if (typeof msg === "string") {
+            msg = parseMessageString(msg);
+        }
+        markdown += `**${msg.sender}:** ${msg.msg.content}\n\n`;
+    });
+    return markdown;
+};
+
+
+export const personalizePrompt = (prompt: string, userProfile: User): string => {
+    const detailsToPull: string[] = [
+        "first_name",
+        "age",
+        "gender",
+        "pronouns",
+        "nickname",
+    ];
+    let details: { [key: string]: string } = {};
+    for (const info in userProfile) {
+        const item = userProfile[info];
+        if (item && item !== "" && detailsToPull.includes(info)) {
+            details[info] = item;
+        }
+    }
+    const personalizedSystemPrompt: string =
+        prompt + " " + JSON.stringify(details);
+    return personalizedSystemPrompt;
+};
