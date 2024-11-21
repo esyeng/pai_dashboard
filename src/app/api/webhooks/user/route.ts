@@ -1,3 +1,4 @@
+"use client";
 import { NextResponse } from "next/server";
 import { validateRequest } from "./validateRequest";
 import { UserService } from "@/lib/services/user";

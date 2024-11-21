@@ -12,11 +12,7 @@ interface OptionsProps {
 }
 
 export const Options: React.FC<OptionsProps> = ({ agents, models }) => {
-    const { shouldQueryResearchModel, setShouldQueryResearchModel } = useChat();
 
-    const toggleSearchOptions = () => {
-        setShouldQueryResearchModel(!shouldQueryResearchModel);
-    }
     return (
         <div className="flex  justify-center w-full sm:flex-col">
             <div className="mb-4 flex flex-1 flex-col items-center justify-center my-2 lg:flex-row p-2 rounded-3xl bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] shadow-xl">
@@ -37,17 +33,6 @@ export const Options: React.FC<OptionsProps> = ({ agents, models }) => {
                         |
                     </span>
                     <AgentDropdown agents={agents} mode="agent" />
-                </div>
-                <div className="flex justify-center items-center px-2 my-1 mx-4">
-
-                    <button
-                        onClick={toggleSearchOptions}
-                        className={`${shouldQueryResearchModel ? "bg-mint text-caribbean-current " : " bg-transparent text-mint"} p-1 rounded font-mono bg-transparent border shadow leading-tight `}
-
-                    >
-                        Toggle Search Options
-                    </button>
-
                 </div>
             </div>
         </div>

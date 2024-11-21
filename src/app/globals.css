@@ -29,6 +29,7 @@
     /* RGB */
     /* --tropical-indigo: #9883e5ff;
     --caribbean-current: #0d5c63ff; */
+    --h-dark-dark-grey: #151515;
     --h-sandy-brown: #fc9f5bff;
     --h-light-coral: #ed7b84ff;
     --h-vista-blue: #72a1e5ff;
@@ -49,7 +50,7 @@
     --gray: 249 250 251;
     --black: 0, 0, 0;
 
-
+    --dark-dark-grey: 21, 21, 21;
     --sandy-brown: 252, 159, 91;
     --light-coral: 237, 123, 132;
     --vista-blue: 114, 161, 229;
@@ -70,6 +71,7 @@
     --ultra-violet: 78, 65, 135;
     --raspberry-rose: 170, 68, 101;
     --dark-green: 23, 48, 28;
+    --user-text: 185, 192, 190;
     /* --other-cc: rgb(40, 157, 168); */
     --other-cc: 40, 157, 168;
     --dark-coral: 149, 61, 69;
@@ -85,6 +87,7 @@
 
 html {
     background: rgb(var(--caribbean-current));
+    /* background: rgb(var(--dark-dark-grey)); */
 }
 
 body {

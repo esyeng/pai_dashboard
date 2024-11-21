@@ -1,91 +1,20 @@
-import {
-    Thread,
-    Threads,
-    MessageProps,
-    OpenAIAssistant,
-    OpenAIMessage,
-    OpenAIRun,
-    OpenAIThread,
-    AssistantResponse,
-    AssistantsResponse,
-    CreateAndRunParams,
-    CreateAndRunResponse,
-    CreateImageParams,
-    CreateImageResponse,
-    CreateMessageParams,
-    CreateMessageResponse,
-    CreateRunParams,
-    CreateRunResponse,
-    CreateSpeechParams,
-    CreateSpeechResponse,
-    CreateThreadResponse,
-    CreateTranscriptionParams,
-    CreateTranscriptionResponse,
-    GetMessagesResponse,
-    GetRunResponse,
-    GetThreadResponse,
-    ListRunsResponse,
-    User
-} from "./types";
 import { createClerkSupabaseClient } from "../app/supabase/client";
 import dotenv from "dotenv";
 import { safeJSONParse } from "./utils";
+
 dotenv.config();
 
-// const BASE = process.env.BASE_URL
-//     ? process.env.BASE_URL
-//     : "https://jasmyn-418676732313.us-central1.run.app";
-const BASE = "http://localhost:8000";
+const BASE = process.env.BASE_URL
+    ? process.env.BASE_URL
+    : "https://jasmyn-dev-418676732313.us-central1.run.app";
 
-const GPT_BASE = `${BASE}/model/gpt`;
+
+// const GPT_BASE = `${BASE}/model/gpt`;
 const CLAUDE = `${BASE}/model/claude`;
 
 
-interface ClaudeResearchRequestParams {
-    user_id: string;
-    model: string;
-    question: string;
-    date: string;
-    max_turns: number;
-    actions_to_include: string[];
-    additional_instructions: string;
-    example: string;
-    character: string;
-}
-
-interface ClaudeChatRequestParams {
-    max_tokens: number;
-    model: string;
-    temperature: number;
-    agent_id: string;
-    system_prompt: string;
-    messages: { role: string; content: string }[];
-    currentThreadId: string | number;
-    user_id: string | 0;
-}
-
-interface ModelResponse {
-    response?:
-    | any
-    | {
-        text?: string;
-        response?: string | JSON;
-    };
-    text?: string;
-}
-
-interface UserResponse {
-    session_id: string;
-    user: User | any;
-    user_id: string;
-    profile: any;
-}
-
 export function parseMessageString(messageString: string): MessageProps {
     let parsedMessage = JSON.parse(messageString);
-    // console.log(
-    // 	messageString
-    // );
 
     if (typeof parsedMessage === "string") {
         parsedMessage = JSON.parse(parsedMessage);
@@ -98,9 +27,6 @@ export function parseMessageString(messageString: string): MessageProps {
     if (typeof parsedMessage === "string") {
         parsedMessage = JSON.parse(parsedMessage);
     }
-    // console.log(
-    // typeof parsedMessage
-    // );
     const message: MessageProps = {
         id: parsedMessage.id,
         timestamp: parsedMessage.timestamp,
@@ -197,6 +123,11 @@ export const queryResearchModel = async (
 export const fetchUser = async (token: any) => {
     const client = createClerkSupabaseClient();
     try {
+        if (typeof token === "object") {
+            token = await token;
+        }
+        console.log("fetching user with session ID", token);
+        console.log("type of token", typeof token);
         const response = await fetch(`${BASE}/auth/user`, {
             method: "POST",
             headers: {
@@ -205,23 +136,27 @@ export const fetchUser = async (token: any) => {
             },
             body: JSON.stringify(token),
         });
-        const responseObj: UserResponse = await response.json()
-        const { data, error } = await client.from("users").select().eq('user_id', responseObj.user_id)
-        if (!response.ok) {
-            throw new Error("Failed to fetch user with session ID" + error?.message);
+        const responseObj: UserResponse = await response.json() as UserResponse;
+        // console.log("response json", response.json());
+        if (responseObj.user_id === undefined) {
+            throw new Error("Failed to fetch user with session ID")
         }
-
-        return {
-            session_id: responseObj.session_id,
-            user: responseObj.user,
-            user_id: responseObj.user_id,
-            profile: data
-        }
+        return await client.from("users").select().eq('user_id', responseObj.user_id)
+            .then((data) => {
+                console.log("data", data);
+                if (data.error) {
+                    throw new Error("Failed to fetch user with session ID" + data.error?.message);
+                }
+                return {
+                    ...responseObj,
+                    profile: data.data[0]
+                } as UserResponse;
+            }) as UserResponse;
     } catch (error) {
         console.error("Error fetching user:", error);
-        return null;
+        throw error;
     }
-};
+}
 
 export const fetchThreads = async (
     token: string | Promise<string>
@@ -276,7 +211,7 @@ export const saveNewThread = async (
     title: string,
     userId: string,
     messages: string[]
-) => {
+): Promise<any> => {
     const client = createClerkSupabaseClient();
     console.log("saving new thread (thread id, title, user id, last message)", thread_id, title, userId, messages[messages.length - 1]);
     try {
@@ -319,9 +254,10 @@ export const updateThreadName = async (threadId: string, title: string) => {
 export const updateThreadMessages = async (
     id: number,
     messages: any[]
-) => {
+): Promise<any> => {
     const client = createClerkSupabaseClient();
     try {
+        // console.log("last message to update", messages[messages.length - 1])
         const { data, error } = await client
             .from("threads")
             .update({
@@ -338,368 +274,5 @@ export const updateThreadMessages = async (
     } catch (error) {
         console.error("Error updating thread messages:", error);
         return error;
-    }
-};
-
-// ******* OPENAI METHODS ********
-// api.ts
-// TODO - Enable the following methods to interact with the OpenAI API
-
-// Functions to interact with FastAPI endpoints
-
-export const getAssistant = async (
-    assistant_id: string,
-    token: string
-): Promise<AssistantResponse> => {
-    try {
-        const response = await fetch(`${GPT_BASE}/assistant/${assistant_id}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: "Bearer " + token,
-            },
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching assistant:", error);
-        throw error;
-    }
-};
-
-export const getAllAssistants = async (
-    token: string
-): Promise<AssistantsResponse> => {
-    try {
-        const response = await fetch(`${GPT_BASE}/assistants`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: "Bearer " + token,
-            },
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching assistants:", error);
-        throw error;
-    }
-};
-
-export const createThread = async (
-    token: string
-): Promise<CreateThreadResponse> => {
-    try {
-        const response = await fetch(`${GPT_BASE}/thread`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: "Bearer " + token,
-            },
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error creating thread:", error);
-        throw error;
-    }
-};
-
-export const getThread = async (
-    thread_id: string,
-    token: string
-): Promise<GetThreadResponse> => {
-    try {
-        const response = await fetch(`${GPT_BASE}/thread/${thread_id}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: "Bearer " + token,
-            },
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching thread:", error);
-        throw error;
-    }
-};
-
-export const createMessage = async (
-    params: CreateMessageParams,
-    token: string
-): Promise<CreateMessageResponse> => {
-    try {
-        const response = await fetch(
-            `${GPT_BASE}/thread/${params.thread_id}/message`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    Authorization: "Bearer " + token,
-                },
-                body: JSON.stringify(params),
-            }
-        );
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error creating message:", error);
-        throw error;
-    }
-};
-
-export const getMessages = async (
-    thread_id: string,
-    token: string
-): Promise<GetMessagesResponse> => {
-    try {
-        const response = await fetch(
-            `${GPT_BASE}/thread/${thread_id}/messages`,
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    Authorization: "Bearer " + token,
-                },
-            }
-        );
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching messages:", error);
-        throw error;
-    }
-};
-
-export const getMessage = async (
-    thread_id: string,
-    message_id: string,
-    token: string
-): Promise<GetMessagesResponse> => {
-    try {
-        const response = await fetch(
-            `${GPT_BASE}/thread/${thread_id}/message/${message_id}`,
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    Authorization: "Bearer " + token,
-                },
-            }
-        );
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching message:", error);
-        throw error;
-    }
-};
-
-export const createRun = async (
-    params: CreateRunParams,
-    token: string
-): Promise<CreateRunResponse> => {
-    try {
-        const response = await fetch(
-            `${GPT_BASE}/thread/${params.thread_id}/run`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    Authorization: "Bearer " + token,
-                },
-                body: JSON.stringify(params),
-            }
-        );
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error creating run:", error);
-        throw error;
-    }
-};
-
-export const createAndRun = async (
-    params: CreateAndRunParams,
-    token: string
-): Promise<CreateAndRunResponse> => {
-    try {
-        const response = await fetch(`${GPT_BASE}/run`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify(params),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error creating and running:", error);
-        throw error;
-    }
-};
-
-export const listRuns = async (
-    thread_id: string,
-    token: string
-): Promise<ListRunsResponse> => {
-    try {
-        const response = await fetch(`${GPT_BASE}/thread/${thread_id}/runs`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: "Bearer " + token,
-            },
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error listing runs:", error);
-        throw error;
-    }
-};
-
-export const getRun = async (
-    thread_id: string,
-    run_id: string,
-    token: string
-): Promise<GetRunResponse> => {
-    try {
-        const response = await fetch(
-            `${GPT_BASE}/thread/${thread_id}/run/${run_id}`,
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    Authorization: "Bearer " + token,
-                },
-            }
-        );
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching run:", error);
-        throw error;
-    }
-};
-
-export const createSpeech = async (
-    params: CreateSpeechParams,
-    token: string
-): Promise<CreateSpeechResponse> => {
-    try {
-        const response = await fetch(`${GPT_BASE}/speech`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify(params),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error creating speech:", error);
-        throw error;
-    }
-};
-
-export const createTranscription = async (
-    params: CreateTranscriptionParams,
-    token: string
-): Promise<CreateTranscriptionResponse> => {
-    try {
-        const response = await fetch(`${GPT_BASE}/transcription`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify(params),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error creating transcription:", error);
-        throw error;
-    }
-};
-
-export const createImage = async (
-    params: CreateImageParams,
-    token: string
-): Promise<CreateImageResponse> => {
-    try {
-        const response = await fetch(`${GPT_BASE}/image`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify(params),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error creating image:", error);
-        throw error;
     }
 };
