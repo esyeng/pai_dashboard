@@ -1,6 +1,5 @@
-import { SupabaseClient } from '@supabase/supabase-js';
 import { TRPCError } from '@trpc/server';
-// import { createClerkSupabaseClient } from "../../app/supabase/client";
+import { createClerkSupabaseClient } from "../../app/supabase/client";
 
 interface NewUser { // ensure all columns initialized NULL
     avatar: string | null;
@@ -41,20 +40,17 @@ export class UserNotFoundError extends TRPCError {
 }
 
 export class UserModel {
-    private client: SupabaseClient;
-    constructor(client: SupabaseClient) {
-        this.client = client;
-    }
+    private static client = createClerkSupabaseClient();
 
-    findById = async (id: string) => {
+    static findById = async (id: string) => {
         return this.client.from("users").select("*").eq("user_id", id);
     };
 
-    findByEmail = async (email: string) => {
+    static findByEmail = async (email: string) => {
         return this.client.from("users").select("*").eq("email", email);
     };
 
-    createUser = async (params: NewUser) => {
+    static createUser = async (params: NewUser) => {
         const newDbUser: NewUser = {
             avatar: params.avatar,
             email: params.email,
@@ -74,11 +70,11 @@ export class UserModel {
         return this.client.from("users").insert([newDbUser]).select();
     }
 
-    deleteUser = async (id: string) => {
+    static deleteUser = async (id: string) => {
         return this.client.from("users").delete().eq("user_id", id);
     }
 
-    updateUser = async (id: string, values: UpdateUser) => {
+    static updateUser = async (id: string, values: UpdateUser) => {
         return this.client.from("users").update(values).eq("user_id", id).select();
     }
 
