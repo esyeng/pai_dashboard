@@ -1,4 +1,4 @@
-import { useSupabaseClient } from "../app/supabase/client";
+// import { useSupabaseClient } from "../app/supabase/client";
 import dotenv from "dotenv";
 import { safeJSONParse } from "./utils";
 import { useAuth } from "@/contexts/AuthContext";
