@@ -119,7 +119,7 @@ export function useApi() {
                 .from("users")
                 .select()
                 .eq("user_id", responseObj.user_id)
-                .then((data) => {
+                .then((data: any) => {
                     console.log("data", data);
                     if (data.error) {
                         throw new Error(
