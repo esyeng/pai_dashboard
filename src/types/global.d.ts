@@ -131,7 +131,7 @@ declare global {
         createNewThread: () => Promise<any>;
         deleteThread: (threadId: string) => Promise<void>;
         exportThread: (threadId: string) => void;
-        fetchThreadsData: (token: string | null) => Promise<Thread[] | undefined>;
+        fetchThreadsData: () => Promise<Thread[] | undefined>;
         isLoading?: boolean;
     }
 
