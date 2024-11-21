@@ -2,16 +2,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { updateThreadName } from "@/lib/api";
+// import { updateThreadName } from "@/lib/api";
 import { useChat } from "@/contexts/ChatContext";
 import { sortObjectsByCreatedAt } from "@/lib/utils";
 
-// export interface Message {
-// 	id: string;
-// 	content: string;
-// 	createdAt: Date;
-// 	userId: string;
-// }
 
 const ThreadList: React.FC = () => {
     const {
@@ -31,7 +25,7 @@ const ThreadList: React.FC = () => {
 
     if (Object.entries(threads).length > 0) {
         // console.log("threadsArray", threadsArray);
-        console.log("sortedThreads", sortedThreads);
+        // console.log("sortedThreads", sortedThreads);
     }
 
     const handleThreadNameKeyDown = async (

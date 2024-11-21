@@ -135,6 +135,12 @@ declare global {
         isLoading?: boolean;
     }
 
+    interface AuthContextType {
+        supabaseClient: SupabaseClient | null;
+        latestToken: string | null;
+        getLatestToken: () => Promise<string | null>;
+    }
+
     interface DataObject {
         createdAt: string;
         [key: string]: any;
