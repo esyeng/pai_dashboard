@@ -50,9 +50,12 @@ export function parseMessageString(messageString: string): MessageProps {
 
 export const queryModel = async (
     params: ClaudeChatRequestParams,
-    token: string
+    token: any
 ): Promise<ModelResponse> => {
     try {
+        if (typeof token === "object") {
+            token = await token;
+        }
         const response = await fetch(`${CLAUDE}/chat`, {
             method: "POST",
             headers: {
