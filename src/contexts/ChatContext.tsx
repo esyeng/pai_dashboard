@@ -26,6 +26,7 @@ import {
 } from "@/lib/utils";
 import { threadsReducer } from "./threadsReducer";
 import { v4 as uuidv4 } from "uuid";
+import { useAuth } from "@clerk/nextjs";
 
 /**
  * ChatContext.tsx
@@ -57,6 +58,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [token, setToken] = useState<
         any | Promise<string> | string | undefined
     >();
+    const [latestToken, setLatestToken] = useState<
+        any | Promise<string> | string | undefined
+    >();
+    const { getToken } = useAuth();
     // Default agent, model
     const [agentId, setAgentId] = useState<string>("jasmyn");
     const [modelId, setModelId] = useState<string>(
@@ -137,6 +142,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
 
     // ****** effects *******
+
+    useEffect(() => {
+        const refreshInterval = setInterval(() => {
+            setLatestToken(getToken())
+        }, 50000);
+
+        return () => {
+            clearInterval(refreshInterval);
+        }
+    }, [])
 
     // sets loadComplete once token promise resolves
     useEffect(() => {
@@ -330,7 +345,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setIsLoading(true);
             setDisableQuery(true);
-            if (token && user) {
+            if (latestToken && user) {
                 const response = search
                     ? await queryResearchModel(
                         {
@@ -344,7 +359,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             example: example,
                             character: character,
                         },
-                        token
+                        latestToken
                     )
                     : await queryModel(
                         {
@@ -361,7 +376,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             currentThreadId: currentThreadId,
                             user_id: user.user_id ?? 0,
                         },
-                        token
+                        latestToken
                     );
                 const receivedMsg: MessageProps = {
                     id: uuidv4(),
@@ -481,9 +496,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 user,
                 agentId,
                 token,
+                latestToken,
                 month,
                 year,
                 setToken,
+                setLatestToken,
                 modelId,
                 loadComplete,
                 setUser,
