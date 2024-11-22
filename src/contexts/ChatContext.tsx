@@ -317,10 +317,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             },
         };
         console.log("newMsg", newMsg);
-        dispatchThreads({
-            type: "ADD_MESSAGE",
-            payload: { threadId: currentThreadId, message: newMsg },
-        });
+        addMessage(currentThreadId, newMsg);
 
         const updatedQueue = [...threadState.activeMessageQueue, newMsg].slice(
             -7
@@ -390,13 +387,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             "If you're reading this, it means it didn't work. :(",
                     },
                 };
-                dispatchThreads({
-                    type: "ADD_MESSAGE",
-                    payload: {
-                        threadId: currentThreadId,
-                        message: receivedMsg,
-                    },
-                });
+                addMessage(currentThreadId, receivedMsg);
                 setUpdateThread(true);
             }
         } catch (error) {
