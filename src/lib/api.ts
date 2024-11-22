@@ -1,3 +1,4 @@
+
 import { createClerkSupabaseClient } from "../app/supabase/client";
 import dotenv from "dotenv";
 import { safeJSONParse } from "./utils";
