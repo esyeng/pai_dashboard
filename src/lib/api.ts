@@ -9,6 +9,7 @@ const BASE = process.env.BASE_URL
     : "https://jasmyn-dev-418676732313.us-central1.run.app";
 
 
+
 // const GPT_BASE = `${BASE}/model/gpt`;
 const CLAUDE = `${BASE}/model/claude`;
 
@@ -93,9 +94,12 @@ export const queryModel = async (
 
 export const queryResearchModel = async (
     params: ClaudeResearchRequestParams,
-    token: string
+    token: any
 ): Promise<ModelResponse> => {
     try {
+        if (typeof token === "object") {
+            token = await token;
+        }
         const response = await fetch(`${CLAUDE}/search`, {
             method: "POST",
             headers: {
