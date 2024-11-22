@@ -11,7 +11,7 @@ import { useAuth } from "@clerk/nextjs";
 export const MainContent: React.FC = () => {
     const [sideOnBottom, setSideOnBottom] = useState<boolean>(false);
     const { isLoaded, getToken } = useAuth();
-    const { agents, models, setToken, token } =
+    const { agents, models, setToken, token, setLatestToken } =
         useChat();
 
     useEffect(() => {
@@ -26,7 +26,9 @@ export const MainContent: React.FC = () => {
 
     useEffect(() => {
         if (isLoaded) {
-            setToken(getToken());
+            let t = getToken()
+            setToken(t);
+            setLatestToken(t);
         }
     }, [isLoaded]);
 

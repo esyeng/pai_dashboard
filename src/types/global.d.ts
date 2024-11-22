@@ -98,6 +98,7 @@ declare global {
         character: string;
         agentId: string;
         token: string;
+        latestToken: string;
         modelId: string;
         month: number;
         year: number;
@@ -105,6 +106,7 @@ declare global {
         selectedActions: string[];
         disableQuery: boolean;
         setToken: (token: string | Promise<string> | any) => void;
+        setLatestToken: (token: string | Promise<string> | any) => void;
         setUser: (user: User) => void;
         setModelId: (modelId: string) => void;
         setAgentId: (agentId: string) => void;
