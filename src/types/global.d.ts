@@ -131,14 +131,8 @@ declare global {
         createNewThread: () => Promise<any>;
         deleteThread: (threadId: string) => Promise<void>;
         exportThread: (threadId: string) => void;
-        fetchThreadsData: () => Promise<Thread[] | undefined>;
+        fetchThreadsData: (token: string | null) => Promise<Thread[]>;
         isLoading?: boolean;
-    }
-
-    interface AuthContextType {
-        supabaseClient: SupabaseClient | null;
-        latestToken: string | null;
-        getLatestToken: () => Promise<string | null>;
     }
 
     interface DataObject {

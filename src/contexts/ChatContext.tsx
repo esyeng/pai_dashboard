@@ -1,4 +1,3 @@
-// contexts/ChatContext.tsx
 import React, {
     createContext,
     useContext,
@@ -8,7 +7,16 @@ import React, {
     useReducer,
     useCallback,
 } from "react";
-import { useApi } from "@/lib/hooks/useApi";
+import {
+    queryModel,
+    queryResearchModel,
+    fetchThreads,
+    fetchAssistants,
+    fetchModels,
+    fetchUser,
+    saveNewThread,
+    updateThreadMessages
+} from "../lib/api";
 import {
     UniqueIdGenerator,
     convertToMarkdown,
@@ -16,7 +24,6 @@ import {
     personalizePrompt,
     sortObjectsByCreatedAt,
 } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
 import { threadsReducer } from "./threadsReducer";
 import { v4 as uuidv4 } from "uuid";
 
@@ -41,17 +48,6 @@ const idGenerator = UniqueIdGenerator.getInstance();
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-    const {
-        fetchUser,
-        fetchAssistants,
-        fetchModels,
-        queryModel,
-        queryResearchModel,
-        updateThreadMessages,
-        fetchThreads,
-        saveNewThread
-    } = useApi();
-    const { latestToken, supabaseClient } = useAuth();
     const [threadState, dispatchThreads] = useReducer(threadsReducer, {
         threads: {},
         currentThreadId: null,
@@ -122,7 +118,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
         if (models) {
             setModels(models);
-            // console.log("models", JSON.stringify(models));
+            console.log("models", JSON.stringify(models));
         }
     };
 
@@ -144,7 +140,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     // sets loadComplete once token promise resolves
     useEffect(() => {
-        if (token && supabaseClient) {
+        if (token) {
             setLoadComplete(true);
         }
         return () => {
@@ -152,16 +148,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 `effect cleanup for loadComplete initialized, value: ${loadComplete}`
             );
         };
-    }, [token, latestToken]);
+    }, [token]);
 
     // executes once token promise resolves, fetches and sets user data then threads
     useEffect(() => {
-        if (loadComplete && supabaseClient) {
+        if (loadComplete) {
             fetchData();
             console.log("fetching threads...");
-            fetchThreadsData();
+            fetchThreadsData(token);
         }
-    }, [loadComplete, latestToken]);
+    }, [loadComplete, token]);
 
     // save thread messages after each msg
     useEffect(() => {
@@ -180,65 +176,62 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
      * @returns fetchedThreads: Thread[]
      */
     const fetchThreadsData = useCallback(
-        async (): Promise<Thread[] | undefined> => {
+        async (token: string | null): Promise<Thread[]> => {
+            if (!token) return [];
             try {
-                if (supabaseClient) {
-                    console.log(" supabase client not null, fetching threads data ...");
-                    // fetch and filter empty
-                    const fetchedThreads: Thread[] = (await fetchThreads()).filter((t: Thread) => t.messages.length > 0);
-                    const threadsObject = fetchedThreads.reduce((acc, thread) => {
-                        // construct threads object, converting fetched data to object state
-                        acc[
-                            thread.thread_id
-                                ? thread.thread_id.toString()
-                                : thread.threadId
-                                    ? thread.threadId
-                                    : ""
-                        ] = {
-                            threadId: thread.thread_id
-                                ? thread.thread_id
-                                : thread.threadId
-                                    ? thread.threadId
-                                    : "",
-                            ...thread,
-                        };
-                        return acc;
-                    }, {} as Threads);
-                    // mount threads state
+                // fetch and filter empty
+                const fetchedThreads: Thread[] = (await fetchThreads(token)).filter((t: Thread) => t.messages.length > 0);
+                const threadsObject = fetchedThreads.reduce((acc, thread) => {
+                    // construct threads object, converting fetched data to object state
+                    acc[
+                        thread.thread_id
+                            ? thread.thread_id.toString()
+                            : thread.threadId
+                                ? thread.threadId
+                                : ""
+                    ] = {
+                        threadId: thread.thread_id
+                            ? thread.thread_id
+                            : thread.threadId
+                                ? thread.threadId
+                                : "",
+                        ...thread,
+                    };
+                    return acc;
+                }, {} as Threads);
+                // mount threads state
+                dispatchThreads({
+                    type: "SET_THREADS",
+                    payload: threadsObject,
+                });
+
+                setThreadCache(threadsObject);
+                localStorage.setItem(
+                    "cachedThreads",
+                    JSON.stringify(threadsObject)
+                );
+
+                // ensure chronological sorting
+                if (fetchedThreads.length > 0) {
+                    const sortedThreads =
+                        sortObjectsByCreatedAt(fetchedThreads);
+                    // grab latest non empty thread
+                    const latestThread =
+                        sortedThreads[sortedThreads.length - 1];
+                    // load last thread
                     dispatchThreads({
-                        type: "SET_THREADS",
-                        payload: threadsObject,
+                        type: "SET_CURRENT_THREAD",
+                        payload: latestThread.thread_id.toString(),
                     });
-
-                    setThreadCache(threadsObject);
-                    localStorage.setItem(
-                        "cachedThreads",
-                        JSON.stringify(threadsObject)
-                    );
-
-                    // ensure chronological sorting
-                    if (fetchedThreads.length > 0) {
-                        const sortedThreads =
-                            sortObjectsByCreatedAt(fetchedThreads);
-                        // grab latest non empty thread
-                        const latestThread =
-                            sortedThreads[sortedThreads.length - 1];
-                        // load last thread
-                        dispatchThreads({
-                            type: "SET_CURRENT_THREAD",
-                            payload: latestThread.thread_id.toString(),
-                        });
-                    }
-                    return fetchedThreads;
                 }
-
+                return fetchedThreads;
 
             } catch (error) {
                 console.error("Error fetching threads:", error);
                 throw error;
             }
         },
-        [supabaseClient]
+        []
     );
 
     /**
@@ -249,16 +242,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             if (!token) return;
             // once clerkAuth request completes the following executes
-            if (supabaseClient) {
-
-                const fetchedUserData = await fetchUser(token);
-                console.log("fetchedUserData", fetchedUserData);
-                setUser(fetchedUserData);
-                clearNoteStorage(fetchedUserData);
-                await getAgents(fetchedUserData).then(() => {
-                    console.log("agents fetched");
-                });
-            }
+            const fetchedUserData = await fetchUser(token);
+            console.log("fetchedUserData", fetchedUserData);
+            setUser(fetchedUserData);
+            clearNoteStorage(fetchedUserData);
+            await getAgents(fetchedUserData).then(() => {
+                console.log("agents fetched");
+            });
         } catch (error) {
             console.error("Error fetching user:", error);
         }
@@ -354,13 +344,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             example: example,
                             character: character,
                         },
+                        token
                     )
                     : await queryModel(
                         {
                             // max_tokens: maxTokens ?? 8192,
-                            max_tokens: 4096,
+                            max_tokens: 8192,
                             model: model || "claude-3-5-sonnet-20240620",
-                            temperature: temperature ?? 0.2,
+                            temperature: temperature ?? 0.6,
                             agent_id: agentId,
                             system_prompt: personalizePrompt(
                                 prompts[agentId],
@@ -370,6 +361,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             currentThreadId: currentThreadId,
                             user_id: user.user_id ?? 0,
                         },
+                        token
                     );
                 const receivedMsg: MessageProps = {
                     id: uuidv4(),
