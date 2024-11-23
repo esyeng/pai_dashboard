@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 // import { updateThreadName } from "@/lib/api";
 import { useChat } from "@/contexts/ChatContext";
-import { sortObjectsByCreatedAt } from "@/lib/utils";
+import { sortObjectsByCreatedAt } from "@/lib/utils/helpers";
 
 
 const ThreadList: React.FC = () => {

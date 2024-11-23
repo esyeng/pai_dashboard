@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 import { useCopyToClipboard } from "../../lib/hooks/use-copy-to-clipboard";
 import { ClipboardIcon } from "@radix-ui/react-icons";
 import { CodeBlock } from "./ui/CodeBlock";
-import { parseCodeBlocks } from "../../lib/utils";
+import { parseCodeBlocks } from "../../lib/utils/helpers";
 import { useUser } from "@clerk/nextjs";
 import { useChat } from "../../contexts/ChatContext";
 

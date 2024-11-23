@@ -9,11 +9,13 @@ interface DropProps {
 }
 
 export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
-    const { agentId, setAgentId, modelId, setModelId } = useChat();
+    const { models, agentId, setAgentId, modelId, setModelId } = useChat();
 
     const handleSelection = (selectionId: string) => {
         if (mode === "model") {
             setModelId(selectionId);
+
+            // if (models[selectionId])
         } else {
             setAgentId(selectionId);
         }

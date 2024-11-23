@@ -1,7 +1,7 @@
 
 import { createClerkSupabaseClient } from "../app/supabase/client";
 import dotenv from "dotenv";
-import { safeJSONParse } from "./utils";
+import { safeJSONParse } from "./utils/helpers";
 
 dotenv.config();
 
@@ -104,6 +104,7 @@ export const queryResearchModel = async (
         if (typeof token === "object") {
             token = await token;
         }
+        console.log("token from queryResearchModel", token);
         const response = await fetch(`${CLAUDE}/search`, {
             method: "POST",
             headers: {

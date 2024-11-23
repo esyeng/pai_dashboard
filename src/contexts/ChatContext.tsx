@@ -23,7 +23,7 @@ import {
     createTitle,
     personalizePrompt,
     sortObjectsByCreatedAt,
-} from "@/lib/utils";
+} from "@/lib/utils/helpers";
 import { threadsReducer } from "./threadsReducer";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@clerk/nextjs";
