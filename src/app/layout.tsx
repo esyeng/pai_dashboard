@@ -4,25 +4,28 @@ import { Inter } from "next/font/google";
 import { ChatProvider } from "@/contexts/ChatContext";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import ErrorBoundary from './components/ErrorBoundary';
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
-	children,
+    children,
 }: {
-	children: React.ReactNode;
+    children: React.ReactNode;
 }) {
-	return (
-		<ClerkProvider>
-			<html lang="en">
-				<body className={`h-full ${inter.className}`}>
-					<ChatProvider>
-						<div className="container mx-auto">{children}</div>
-					</ChatProvider>
-				</body>
-			</html>
-		</ClerkProvider>
-	);
+    return (
+        <ClerkProvider>
+            <html lang="en">
+                <body className={`h-full ${inter.className}`}>
+                    <ChatProvider>
+                        <ErrorBoundary>
+                            <div className="container mx-auto">{children}</div>
+                        </ErrorBoundary>
+                    </ChatProvider>
+                </body>
+            </html>
+        </ClerkProvider>
+    );
 }
 
 // dark:bg-tropical-indigo
