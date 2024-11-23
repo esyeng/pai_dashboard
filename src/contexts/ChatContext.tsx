@@ -123,7 +123,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
         if (models) {
             setModels(models);
-            console.log("models", JSON.stringify(models));
+            console.log("models", models);
         }
     };
 
