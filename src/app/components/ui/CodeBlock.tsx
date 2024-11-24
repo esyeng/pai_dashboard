@@ -47,6 +47,8 @@ export const programmingLanguages: languageMap = {
     markdown: ".md",
     plaintext: ".txt",
     dockerfile: ".dockerfile",
+    react:".jsx",
+    react_ts: ".tsx",
     // add more file extensions here, make sure the key is same as language prop in CodeBlock.tsx component
 };
 
@@ -63,7 +65,7 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
     const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 });
 
     const downloadAsFile = () => {
-        if (typeof window === "undefined") {
+        if (!language || !value) {
             return;
         }
         const fileExtension = programmingLanguages[language] || ".file";
@@ -139,7 +141,7 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
                 }}
                 codeTagProps={{
                     style: {
-                        fontSize: "1rem",
+                        fontSize: "0.8rem",
                         fontFamily: "var(--font-mono)",
                     },
                 }}

@@ -85,6 +85,9 @@ export const ChatWindow: React.FC = () => {
                                     console.log("message.msg", message.msg);
                                 }
                                 return (
+
+                                    // <div key={msg.id || i}>no
+
                                     <Message
                                         key={msg.id || i}
                                         id={msg.id}
@@ -93,6 +96,8 @@ export const ChatWindow: React.FC = () => {
                                         sender={msg.sender}
                                         agentId={msg.agentId}
                                     />
+                                    // </div>
+
                                 );
                             }
                         )}
