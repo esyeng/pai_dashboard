@@ -3,6 +3,7 @@
 import { Inter } from "next/font/google";
 import { ChatProvider } from "@/contexts/ChatContext";
 import { ClerkProvider } from "@clerk/nextjs";
+import { SidebarProvider } from "@/lib/hooks/use-sidebar";
 import "./globals.css";
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -19,7 +20,9 @@ export default function RootLayout({
                 <body className={`h-full ${inter.className}`}>
                     <ChatProvider>
                         <ErrorBoundary>
-                            <div className="container mx-auto">{children}</div>
+                            <SidebarProvider>
+                            <div>{children}</div>
+                            </SidebarProvider>
                         </ErrorBoundary>
                     </ChatProvider>
                 </body>

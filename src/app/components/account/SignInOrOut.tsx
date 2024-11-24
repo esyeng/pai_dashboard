@@ -14,7 +14,7 @@ export const SignInOrOut: React.FC = () => {
     if (!sessionId) {
         return (
             <div>
-                <SignInButton> <button className="p-2 text-carribean-current text-md rounded leading-tight hover:duration-100">Sign In</button></SignInButton>
+                <SignInButton>Sign In</SignInButton>
             </div>
         )
     }

@@ -1,5 +1,6 @@
 import type { NextPage, Metadata } from "next";
 import { MainContent } from "./components/MainContent";
+// import { SidebarProvider } from "@/lib/hooks/use-sidebar";
 import Image from "next/image";
 
 export const metadata: Metadata = {
@@ -8,9 +9,11 @@ export const metadata: Metadata = {
 };
 
 const Home: NextPage = () => {
+
 	return (
-		<div className="container mx-auto">
-			<main className="flex h-full flex-col items-center justify-between px-0 py-2 my-16 ">
+		<div className="">
+			<main className="container flex h-full flex-col items-center justify-between px-0 py-2 ">
+
 				<MainContent />
 
 				<div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left"></div>

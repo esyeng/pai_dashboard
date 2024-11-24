@@ -4,12 +4,14 @@ import React, { useState, useEffect } from "react";
 import { ChatWindow } from "./ChatWindow";
 import { Options } from "./OptionsPanel";
 import { Sidebar } from "./Sidebar";
+import { useSidebar } from "@/lib/hooks/use-sidebar";
 import { useChat } from "@/contexts/ChatContext";
 import { SignInOrOut } from "./account/SignInOrOut";
 import { useAuth } from "@clerk/nextjs";
 
 export const MainContent: React.FC = () => {
     const [sideOnBottom, setSideOnBottom] = useState<boolean>(false);
+    const { isSidebarOpen, toggleSidebar } = useSidebar();
     const { isLoaded, getToken } = useAuth();
     const { agents, models, setToken, token, setLatestToken } =
         useChat();
@@ -34,8 +36,16 @@ export const MainContent: React.FC = () => {
 
     return (
         <div className="flex justify-between w-full max-md:flex-col">
-            {!sideOnBottom ? <Sidebar /> : null}
-            <div className="flex flex-col flex-1 px-4 items-center justify-between max-w-full md:overflow-x-auto">
+            {/* {!sideOnBottom ? <Sidebar /> : null} */}
+            <div className="flex flex-col items-center">
+                <button
+                    onClick={toggleSidebar}
+                    className="p-1 rounded font-mono border shadow leading-tight duration-200 border-gray-200 resize-y hover:text-mint hover:bg-gradient-to-b hover:from-[#4ce6ab2d] hover:to-[#0ea46a3b]">
+                    <span className="text-2xl font-mono text-mint">{isSidebarOpen ? "hide" : "show"}</span>
+                </button>
+                {isSidebarOpen ? <Sidebar /> : null}
+            </div>
+            <div className="flex flex-col flex-1 px-4 items-center justify-between max-w-full">
                 <div className="flex flex-col items-center justify-around md:flex-row">
                     <div className=" w-full items-center justify-between font-mono text-sm lg:flex">
                         <div className="flex h-10 w-full items-end justify-center">
@@ -81,7 +91,7 @@ export const MainContent: React.FC = () => {
                     </div>
                 )}
                 <ChatWindow />
-                {sideOnBottom ? <Sidebar /> : null}
+                {/* {sideOnBottom ? <Sidebar /> : null} */}
             </div>
         </div>
     );
