@@ -114,7 +114,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         const models = await fetchModels();
         const promptMap: PromptMap = {};
         if (agents) {
-            console.log("user object in getAgents", user);
+            console.log("agents is true", user);
             setAgents(agents);
             console.log("Agents!", agents);
             agents.forEach((agent: AgentProps) => {
@@ -548,25 +548,3 @@ export const useChat = (): ChatContextType => {
 //         setAgents([]);
 //         setModels([]);
 //     }, [clearAllCachedData]);
-
-// temporary for default ex:
-// let maxTurns = 5;
-//         let actionsToInclude = ["wikipedia", "google"];
-//         let additionalInstructions = "Search either wikipedia or google to find information relevant to the question";
-//         let example = "";
-//         let character = "You are Ada, a female-coded AI conversation partner with a razor-sharp intellect, a rich inner world, and a mischievous streak a mile wide.";
-
-// const a = () => {}
-
-// function a() {}
-
-// const testObj = {
-//     "user_id": "user_2fcYxEZjvkR9JSYcPCWFArsVy4p",
-//     "question": "What are some fall women's fashion trends to look out for in NYC this fall?", "date": "November 2024",
-//     "max_turns": 2,
-//     "actions_to_include": ["wikipedia", "google"],
-//     "additional_instructions": "Search either wikipedia or google to find information relevant to the question",
-//     "model": "claude-3-5-sonnet-20241022",
-//     "example": "",
-//     "character": ""
-// }
