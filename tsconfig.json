@@ -32,7 +32,7 @@
         "**/*.ts",
         "**/*.tsx",
         ".next/types/**/*.ts"
-    ],
+, "src/tests/components/ChatContext.test.jsx"    ],
     "exclude": [
         "node_modules"
     ]
