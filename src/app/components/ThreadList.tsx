@@ -46,36 +46,37 @@ const ThreadList: React.FC = () => {
     };
 
     return (
-        <div className="h-1/2 rounded-xl shadow-xl flex-1 w-full">
-            <div className="flex justify-between items-center p-2 bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] bg-opacity-85 rounded-tl-lg rounded-tr-lg"  >
+        <div className="h-1/2 shadow-xl flex-1 w-full border-b-4 border-brand-50 rounded-tl-lg rounded-tr-lg rounded-bl-sm rounded-br-sm">
+            <div className="flex justify-between items-center p-2 bg-brand-50 "  >
 
-                <h2 className="text-xl text-white  font-bold p-4">
+                <h2 className="text-xl text-neutral-600  font-bold p-4">
                     Threads
                 </h2>
 
-            <span className={`${open ? "" : ""} cursor-pointer border-2 border-mint p-2 rounded-lg hover:scale-105 hover:text-mint text-sm`} onClick={() => setOpen(prev => !prev)}>{open ? "Hide" : "Expand"}</span>
+                <span className={`${open ? "" : ""} text-brand-primary cursor-pointer border-2 border-brand-primary p-2 rounded-sm hover:scale-105 hover:text-default-font text-sm`} onClick={() => setOpen(prev => !prev)}>{open ? "Hide" : "Expand"}</span>
             </div>
             {open &&
 
                 <div className="max-h-96  flex flex-col overflow-y-auto items-center justify-between">
                     <div className="flex w-full justify-center self-end">
                         <button
-                            className={`mt-4 w-full px-4 py-2 bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] text-white rounded-md focus:outline-none  transition-colors duration-300 border-2 border-mint hover:bg-mint hover:border-transparent hover:text-caribbean-current ${user?.id ? "" : "disabled"}`}
+                            className={`w-full px-4 py-2 bg-brand-300 text-neutral-600  focus:outline-none transition-colors duration-300 border-1 border-brand-50 hover:bg-brand-primary hover:border-transparent hover:text-default-font ${user?.id ? "" : "disabled"}`}
                             onClick={() => createNewThread()}
                         >
                             + New Thread
                         </button>
                     </div>
-                    <ul className="grid grid-cols-1 gap-2 overflow-y-auto p-4 ">
+                    <ul className="grid grid-cols-1 overflow-y-auto w-full bg-default-background">
                         {loadComplete && sortedThreads.length > 0 ? (
                             [...sortedThreads].reverse().map((threadItem: any) => {
                                 return (
                                     <li
                                         key={threadItem.id}
-                                        className="flex min-h-16 items-center justify-between  bg-gray-200 rounded-lg border-2 border-mint"
+                                        className="flex min-h-16 items-center justify-between bg-default-background
+                                        border-y-1 my-1 rounded-sm border-brand-primary"
                                     >
                                         <span
-                                            className="text-white font-bold self-stretch bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] p-2 hover:transition-colors cursor-pointer duration-300 hover:bg-mint rounded-l-lg hover:text-caribbean-current"
+                                            className="text-brand-primary  border-y-2 border-brand-primary flex-1 font-bold self-stretch rounded-tl-sm rounded-bl-sm bg-neutral-50 p-4 cursor-pointer duration-300 hover:bg-brand-primary  hover:text-black"
                                             // contentEditable="true"
                                             // onInput={handleThreadNameInput}
                                             // onKeyDown={(event) =>
@@ -91,28 +92,33 @@ const ThreadList: React.FC = () => {
                                         >
                                             {threadItem.title !== "New Thread" ? threadItem.title.substring(0, threadItem.title.length) : threadItem.title}
                                         </span>
-                                        <button className="opacity-0 transition-opacity duration-200 ease-in-out hover:opacity-100 bg-transparent border-none rounded-full p-1 flex items-center justify-center">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-4 w-4"
-                                                viewBox="0 0 20 20"
-                                                fill="currentColor"
-                                            >
-                                                <path
-                                                    fillRule="evenodd"
-                                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
-                                        </button>
+                                        <div className="h-full border-t-2 border-r-2 border-b-2 border-brand-primary bg-default-background text-brand-primary rounded-tr-sm rounded-br-sm flex">
+
                                         <button
-                                            className="px-2 self-stretch cursor-pointer bg-blue-500 text-mint rounded-md focus:outline-none hover:text-[#151515] hover:scale-105 transition-colors duration-300 hover:bg-mint "
-                                            onClick={() =>
-                                                exportThread(threadItem.id)
-                                            }
-                                        >
-                                            Export
-                                        </button>
+                                                className="px-2 h-full self-stretch cursor-pointer  focus:outline-none hover:text-default-font hover:scale-105 transition-colors duration-300 hover:underline "
+                                                onClick={() =>
+                                                    exportThread(threadItem.id)
+                                                }
+                                            >
+                                                Export
+                                            </button>
+
+                                            <button className="duration-200 ease-in-out hover:opacity-100 border-tr-2 border-br-2 border-brand-500 p-1 flex items-center justify-center hover:border-brand-primary">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-4 w-4 hover:fill-error-200"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                            </button>
+
+                                        </div>
                                     </li>
                                 );
                             })

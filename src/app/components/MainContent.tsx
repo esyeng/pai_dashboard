@@ -52,7 +52,7 @@ export const MainContent: React.FC = () => {
     }, [isLoaded]);
 
     return (
-        <div className="container ">
+        <div className=" ">
             <div className="space-y-2">
                 <button
                     onClick={toggleSidebar}

@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
     return (
         <ClerkProvider>
-            <html lang="en">
+            <html lang="en" className="bg-default-background">
                 <body className={`h-full ${inter.className}`}>
                     <ChatProvider>
                         <ErrorBoundary>
