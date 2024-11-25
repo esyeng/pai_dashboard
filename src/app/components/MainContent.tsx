@@ -38,9 +38,9 @@ export const MainContent: React.FC = () => {
     }
 
     // first resize event ensures that on mobile screens, sidebar being open hides chat
+    useWindowResize(handleSidebar, { minWidth: 640 });
     // second resize event ensures that the sidebar is always open and chat isnt hidden
     // on screens larger than mobile
-    useWindowResize(handleSidebar, { minWidth: 640 });
     useWindowResize(handleHideChat, { maxWidth: 640 });
 
     useEffect(() => {

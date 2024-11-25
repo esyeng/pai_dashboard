@@ -5,6 +5,9 @@ import React, { useState, useEffect } from "react";
 // import { updateThreadName } from "@/lib/api";
 import { useChat } from "@/contexts/ChatContext";
 import { sortObjectsByCreatedAt } from "@/lib/utils/helpers";
+import { useSidebar } from "@/lib/hooks/use-sidebar";
+import { useWindowResize } from "@/lib/hooks/use-window-resize";
+
 
 
 const ThreadList: React.FC = () => {
@@ -17,8 +20,10 @@ const ThreadList: React.FC = () => {
         exportThread,
         user,
     } = useChat();
+    const { toggleSidebar, isSidebarOpen } = useSidebar();
 
     const [open, setOpen] = useState<boolean>(true);
+    const [createdOrSelected, setCreatedOrSelected] = useState<boolean>(false);
     const threadsArray = Object.values(threads);
     const sortedThreads = sortObjectsByCreatedAt(threadsArray);
 
@@ -27,6 +32,23 @@ const ThreadList: React.FC = () => {
         // console.log("threadsArray", threadsArray);
         // console.log("sortedThreads", sortedThreads);
     }
+
+    const handleCreateOrSelect = () => {
+        if (isSidebarOpen && createdOrSelected) {
+            // condition to close from mobile met
+            toggleSidebar()
+        }
+    }
+
+
+    useWindowResize(handleCreateOrSelect, { minWidth: 640 })
+    useEffect(() => {
+        if (createdOrSelected) {
+            // if sidebar is open and window size is mobile,
+            // new thread or select thread should close sidebar
+            setCreatedOrSelected(false);
+        }
+    }, [createdOrSelected])
 
     const handleThreadNameKeyDown = async (
         event: React.KeyboardEvent<HTMLSpanElement>,
@@ -61,7 +83,11 @@ const ThreadList: React.FC = () => {
                     <div className="flex w-full justify-center self-end">
                         <button
                             className={`w-full px-4 py-2 bg-brand-300 text-neutral-600  focus:outline-none transition-colors duration-300 border-1 border-brand-50 hover:bg-brand-primary hover:border-transparent hover:text-default-font ${user?.id ? "" : "disabled"}`}
-                            onClick={() => createNewThread()}
+                            onClick={() => {
+                                createNewThread()
+                                setCreatedOrSelected(true);
+                            }
+                        }
                         >
                             + New Thread
                         </button>
@@ -88,13 +114,14 @@ const ThreadList: React.FC = () => {
                                             onClick={() => {
                                                 console.log("switching thread", threadItem.thread_id);
                                                 switchThread(threadItem.thread_id);
+                                                setCreatedOrSelected(true);
                                             }}
                                         >
                                             {threadItem.title !== "New Thread" ? threadItem.title.substring(0, threadItem.title.length) : threadItem.title}
                                         </span>
                                         <div className="h-full border-t-2 border-r-2 border-b-2 border-brand-primary bg-default-background text-brand-primary rounded-tr-sm rounded-br-sm flex">
 
-                                        <button
+                                            <button
                                                 className="px-2 h-full self-stretch cursor-pointer  focus:outline-none hover:text-default-font hover:scale-105 transition-colors duration-300 hover:underline "
                                                 onClick={() =>
                                                     exportThread(threadItem.id)
