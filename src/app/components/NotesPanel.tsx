@@ -24,7 +24,7 @@ const NotesPanel: React.FC = () => {
 
 
     return (
-        <div className="flex flex-col mb-4 flex-1 w-full h-full">
+        <div className="flex flex-col mb-4 flex-1 w-full h-1/2">
             <div className="flex justify-between items-center p-2 bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] bg-opacity-85 rounded-tl-lg rounded-tr-lg" >
                 <h2 className="flex-1 text-xl text-white mb-2 font-bold border-b-1  rounded-tr-lg p-4 ">
                     Notes

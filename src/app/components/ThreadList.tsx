@@ -46,7 +46,7 @@ const ThreadList: React.FC = () => {
     };
 
     return (
-        <div className=" rounded-xl shadow-xl flex-1 w-full">
+        <div className="h-1/2 rounded-xl shadow-xl flex-1 w-full">
             <div className="flex justify-between items-center p-2 bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] bg-opacity-85 rounded-tl-lg rounded-tr-lg"  >
 
                 <h2 className="text-xl text-white  font-bold p-4">

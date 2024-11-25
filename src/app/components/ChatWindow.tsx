@@ -71,10 +71,10 @@ export const ChatWindow: React.FC = () => {
     }, [currentConversation.length]);
 
     return (
-        <div className="container mx-auto px-4 py-4 h-full bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] rounded-lg shadow-xl">
-            <div className="w-full mx-auto h-full">
-                <div className="flex flex-col h-full min-h-[400px] max-h-[800px] flex-grow">
-                    <div className="flex-grow overflow-y-auto p-4">
+        <div className=" px-4 py-4 h-full bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] rounded-lg shadow-xl">
+            <div className="">
+                <div className="">
+                    <div className=" overflow-y-auto p-4">
                         {currentConversation.map(
                             (message: MessageProps | string, i: number) => {
                                 let msg;
@@ -103,7 +103,7 @@ export const ChatWindow: React.FC = () => {
                         )}
                         {isLoading && (
                             <div className="h-12">
-                                <div className="flex items-center justify-start bg-gray-200 rounded-lg p-4">
+                                <div className="bg-gray-200 rounded-lg p-4">
                                     <MessageLoadingIndicator />
                                     {/* <svg */}
                                     {/* //             className="w-5 h-5 text-gray-600 animate-spin"
