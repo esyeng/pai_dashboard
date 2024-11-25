@@ -15,7 +15,7 @@ const Home: NextPage = () => {
             <main>
                 <MainContent />
             </main>
-            <footer className="fixed bottom-0 w-full text-xs py-2 text-center bg-default-background">
+            <footer className="fixed bottom-0 w-full text-xs sm:py-2 text-center bg-default-background">
                 <p className="text-brand-primary">
                     &copy; {new Date().getFullYear()} Esmé Keats. All rights
                     reserved.

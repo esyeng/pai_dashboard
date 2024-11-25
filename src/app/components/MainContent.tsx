@@ -56,10 +56,10 @@ export const MainContent: React.FC = () => {
             <div className="space-y-2">
                 <button
                     onClick={toggleSidebar}
-                    className="p-1 rounded text-xs font-mono shadow leading-tight hover:text-mint hover:bg-gradient-to-b hover:from-[#4ce6ab2d] hover:to-[#052b1c5b] sm:hidden">
-                    {isSidebarOpen ? (<span className="min-w-5 ease-in-out duration-300 text-tea-green">X</span>) : (<div className="space-y-2 ease-in-out duration-300">
-                        <span className="block w-5 h-0.5 bg-tea-green"></span>
-                        <span className="block w-2 h-0.5 bg-tea-green"></span>
+                    className="p-1 min-w-6 rounded-sm text-xs font-mono shadow leading-tight text-brand-primary  hover:text-default-font hover:border-2 hover:border-brand-primary hover:p-1 hover:rounded-sm  sm:hidden">
+                    {isSidebarOpen ? (<span className="min-w-5 text-brand-primary">X</span>) : (<div className="space-y-2   ">
+                        <span className="block w-5 h-0.5 bg-brand-primary "></span>
+                        <span className="block w-2 h-0.5 bg-brand-primary"></span>
                     </div>
                     )}
                 </button>
@@ -74,15 +74,14 @@ export const MainContent: React.FC = () => {
             {hideChat ? (null) : (<div className={`w-full sm:visible sm:w-3/4`}>
                 <div className=" items-center justify-around">
                     <div className="  items-center justify-between font-mono text-sm ">
-                        <div className=" items-end justify-center">
-                            <div className="z-10 bg-ultra-violet text-white">
-                                <h1 className=" cursor-crosshair place-items-center gap-2 p-8 text-[#9de6ca] text-lg py-2 pr-8 rounded leading-tight hover:scale-105">
+                        <div className="flex items-center justify-center">
+                            <div className="z-10 items-center justify-center bg-ultra-violet text-white">
+                                <h1 className=" cursor-default place-items-center gap-2 p-8 text-brand-primary text-lg py-2 pr-8 rounded leading-tight">
                                     {"<"} jasmyn.ai {"/>"}
                                 </h1>
                             </div>
                         </div>
                     </div>
-                    <SignInOrOut />
                 </div>
                 {isLoaded ? (
                     <>

@@ -37,8 +37,8 @@ export const Message: React.FC<MessageProps> = ({
 
     const isUserMessage = msg?.role === "user";
     const messageClass = isUserMessage
-        ? "bg-[#fafcff66] text-black font-normal border border-gray-200"
-        : "bg-[#000000bd] text-white font-light";
+        ? "bg-neutral-500/70 text-black font-normal "
+        : "bg-default-background text-neutral-600 font-light";
     const alignmentClass = isUserMessage ? "justify-end" : "justify-start";
 
     const parsedContent = parseCodeBlocks(msg.content);
@@ -46,19 +46,19 @@ export const Message: React.FC<MessageProps> = ({
     return (
         <>
 
-            {parsedContent.length > 0 ? <div className={`flex ${alignmentClass} mb-4`}>
+            {parsedContent.length > 0 ? <div className={`flex w-full mb-4 ${alignmentClass}`}>
                 <div
-                    className={`px-4 py-2 rounded-lg overflow-x-auto ${messageClass} `}
-                    style={{ maxWidth: "80%" }}
+                    className={` px-4 py-2 rounded-md overflow-x-auto ${messageClass} `}
+                    // style={{ maxWidth: "80%" }}
                 >
                     {parsedContent.map((part, index) => (
                         <React.Fragment key={index}>
 
                             {part.type === "text" ? (
                                 <>
-                                    <div className="flex">
+                                    <div className="flex flex-col sm:flex-row space-y-1">
                                         <span className={`block ${isUserMessage
-                                            ? 'text-caribbean-current' : 'text-light-coral'} text-xl pr-2 min-w-20`}>
+                                            ? 'text-brand-50' : 'text-brand-primary'} text-sm pr-2  sm:text-lg`}>
                                             {msg.role === "user"
                                                 ? currentUserName
                                                 : currentAgentName
@@ -70,7 +70,7 @@ export const Message: React.FC<MessageProps> = ({
                                             </ReactMarkdown>
                                         </div>
                                         <button
-                                            className={`text-xs ${isUserMessage ? 'text-[#151515' : 'text-[#fff]'}  hover:scale-1.1 focus:outline-none hover:text-vista-blue`}
+                                            className={`text-md p-2 scale-150 ${isUserMessage ? 'text-black' : 'text-neutral-600'} self-end hover:scale-1.1 focus:outline-none hover:text-brand-400`}
                                             onClick={() => copyToClipboard(msg.content)}
                                         >
                                             {isCopied ? "Copied!" : <ClipboardIcon />}

@@ -26,7 +26,7 @@ export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
             <select
                 value={mode === "agent" ? agentId : modelId}
                 onChange={(e) => handleSelection(e.target.value)}
-                className="block appearance-none w-full font-mono bg-[#151515] border border-[#5fbb97] text-[#9de6ca] py-2 px-4 pr-8 rounded shadow leading-tight hover:bg-caribbean-current focus:bg-caribbean-current focus:outline-none focus:shadow-outline "
+                className="block appearance-none w-full font-mono bg-default-background border border-brand-primary text-brand-primary py-2 px-4 pr-8 rounded-md leading-tight hover:bg-brand-50/60 focus:bg-brand-50/30 focus:outline-none "
             >
                 {agents.map((agent) => (
                     <option
@@ -38,9 +38,9 @@ export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
                     </option>
                 ))}
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[#5fbb97]">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-default-font">
                 <svg
-                    className="fill-mint h-4 w-4"
+                    className="fill-brand-primary h-4 w-4"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                 >

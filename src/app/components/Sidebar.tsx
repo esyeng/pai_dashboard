@@ -4,6 +4,7 @@ import * as ScrollArea from "@radix-ui/react-scroll-area";
 import React from "react";
 import NotesPanel from "./NotesPanel";
 import ThreadList from "./ThreadList";
+import { SignInOrOut } from "./account/SignInOrOut";
 import { SearchOptions } from "./SearchOptions";
 import { useChat } from "@/contexts/ChatContext";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
@@ -20,11 +21,11 @@ export const Sidebar: React.FC = () => {
         <div className={`top-0 left-0 h-screen ease-in-out duration-300 bg-default-background ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} sm:w-1/4 sm:h-full sm:fixed`}>
             <div className="">
 
-                <div className="flex justify-center items-center px-2 my-1 mx-4">
+                <div className="flex justify-center items-center px-2 my-1 ">
 
                     <button
                         onClick={toggleSearchOptions}
-                        className={`${shouldQueryResearchModel ? " text-black " : " bg-gradient-to-b from-brand-50 to-brand-200 "} p-1 mt-8 mb-4  text-default-font rounded font-mono border shadow leading-tight duration-200 w-full  border-brand-primary resize-y  hover:bg-brand-primary`}
+                        className={`${shouldQueryResearchModel ? " text-default-font/70 " : " bg-brand-50 "} p-1 py-2 mt-8 mb-4 hover:text-black  text-default-font/70 rounded-sm leading-tight duration-200 w-full  resize-y  hover:bg-brand-primary`}
                     >
                         Toggle Search Options
                     </button>
@@ -34,8 +35,17 @@ export const Sidebar: React.FC = () => {
                         <SearchOptions />
                     </div>
                     )}
+                <div className="mx-1">
+
                     <NotesPanel />
                     <ThreadList />
+                </div>
+                <div className="flex h-24 mb-8 flex-col items-center justify-center">
+                    <div className="w-full ">
+                        <SignInOrOut />
+                    </div>
+
+                </div>
             </div>
         </div>
     );

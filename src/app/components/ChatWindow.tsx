@@ -71,10 +71,10 @@ export const ChatWindow: React.FC = () => {
     }, [currentConversation.length]);
 
     return (
-        <div className=" px-4 py-4 h-full bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] rounded-lg shadow-xl">
+        <div className=" px-4 py-4 mx-2 h-full bg-brand-50/70 rounded-md">
             <div className="">
                 <div className="">
-                    <div className=" overflow-y-auto p-4">
+                    <div className=" overflow-y-auto sm:p-4">
                         {currentConversation.map(
                             (message: MessageProps | string, i: number) => {
                                 let msg;
@@ -103,7 +103,7 @@ export const ChatWindow: React.FC = () => {
                         )}
                         {isLoading && (
                             <div className="h-12">
-                                <div className="bg-gray-200 rounded-lg p-4">
+                                <div className="">
                                     <MessageLoadingIndicator />
                                     {/* <svg */}
                                     {/* //             className="w-5 h-5 text-gray-600 animate-spin"
@@ -133,7 +133,7 @@ export const ChatWindow: React.FC = () => {
                     <div className="flex flex-col mb-4 items-stretch justify-items-stretch sm:w-full sm:flex-row">
                         <textarea
                             ref={inputRef}
-                            className="flex-grow p-2 border border-mint rounded-xl max-h-[420px] shadow-m bg-[#fff1c000] text-[#85d7de] border-slate-300 py-2 pl-9 pr-3 placeholder:text-[#85d7de] transition ease-in-out hover:bg-mint/20 focus:bg-mint/20 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 focus:ring-offset-1 focus:ring-offset-[#5bdde8] duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
+                            className="flex-grow p-2 mr-2 mb-2 border border-brand-primary rounded-xl max-h-[420px] text-default-font bg-default-background min-h-20 py-2  pr-3 placeholder:text-default-font transition ease-in-out hover:bg-neutral-100/40 focus:bg-neutral-100/40 focus:border-black duration-200 sm:text-sm resize-y sm:w-full"
                             placeholder={
                                 shouldQueryResearchModel
                                     ? `Conduct research with ${agentNameFormatted}`
@@ -145,8 +145,9 @@ export const ChatWindow: React.FC = () => {
                             disabled={isLoading}
                         />
                     </div>
+                    <div className=" flex items-center justify-center w-full"></div>
                     <button
-                        className="transition ease-in-out px-4 py-2 border-2 border-mint bg-[#151515] text-[#fff] rounded hover:bg-mint hover:border-transparent hover:text-caribbean-current duration-300 disabled:opacity-75 disabled:hover:bg-[#151515] disabled:hover:text-[#fff] disabled:cursor-not-allowed"
+                        className="mr-4 mb-8 w-full transition ease-in-out px-4 py-2 border-2 border-brand-primary bg-default-background text-default-font rounded hover:bg-brand-500/50 hover:border-transparent duration-300 disabled:opacity-75 disabled:hover:bg-[#151515] disabled:hover:text-[#fff] disabled:cursor-not-allowed sm:max-w-64"
                         onClick={handleSendMessage}
                         disabled={disableQuery}
                     >

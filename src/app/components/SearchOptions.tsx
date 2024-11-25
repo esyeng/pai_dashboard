@@ -37,6 +37,8 @@ export const SearchOptions: React.FC = () => {
         "character": ""
     };
 
+    const textareaClass = "flex-grow p-2 mr-2 mb-2 border border-brand-primary rounded-xl max-h-[420px] shadow-m text-default-font bg-default-background min-h-20 py-2  pr-3 placeholder:text-default-font transition ease-in-out hover:bg-brand-500/30 focus:bg-brand-500/30 focus:outline-none  duration-200 sm:text-sm resize-y sm:w-full"
+
     const handleSelectedToggle = (action: string) => {
         let newActions =
             selectedActions.includes(action)
@@ -45,7 +47,7 @@ export const SearchOptions: React.FC = () => {
         setSelectedActions(newActions);
     };
 
-    const handleInstructions = (instructions: any) => {
+    const handleInstructions = (instructions: string) => {
         setAdditionalInstructions(instructions);
     };
 
@@ -77,11 +79,11 @@ export const SearchOptions: React.FC = () => {
 
 
     return ( // need form fields for each of the above state variables
-        <div className="w-full py-8 px-10 flex flex-col items-center justify-around  md:flex-row rounded-xl shadow-xl bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b]">
+        <div className="w-full py-8 px-10 flex flex-col items-center justify-around  md:flex-row rounded-xl shadow-xl bg-brand-50">
             <div className=" w-full items-center justify-between font-mono text-sm lg:flex ">
                 <div className="w-full flex flex-col items-start justify-center py-22">
-                    <div className="flex w-full flex-col justify-center ">
-                        <span className="text-[#85d7de] text-lg py-2 pr-2 rounded leading-tight">Search Tools: </span>
+                    <div className="flex w-full flex-col justify-center pr-4">
+                        <span className="text-default-font text-lg py-2 pr-2 rounded leading-tight">Search Tools: </span>
                         {actionsToInclude.map(action => (
                             <div className="px-4 py-2 rounded w-full" key={action}>
 
@@ -90,15 +92,15 @@ export const SearchOptions: React.FC = () => {
                                         type="checkbox"
                                         checked={selectedActions.includes(action)}
                                         onChange={() => handleSelectedToggle(action)}
-                                        className=" text-blue-600 checked:bg-mint"
+                                        className=" text-brand-primary bg-default-background"
                                     />
-                                    <span className="text-mint px-2">{action.split('')[0].toUpperCase() + action.slice(1, action.length)}</span>
+                                    <span className="text-default-font px-2">{action.split('')[0].toUpperCase() + action.slice(1, action.length).replace(/[^a-zA-Z\d\s]/g, " ").trim()}</span>
                                 </label>
                             </div>
                         ))}
                     </div>
 
-                    <span className="text-[#85d7de] text-lg py-2 pr-2 rounded leading-tight">Iterations to run: </span>
+                    <span className="text-default-font text-lg py-2 pr-2 rounded leading-tight">Iterations to run: </span>
                     <input
                         type="number"
                         id="max-turns"
@@ -106,33 +108,36 @@ export const SearchOptions: React.FC = () => {
                         onChange={(e) => handleMaxTurns(parseInt(e.target.value))}
                         min="1"
                         max="10"
-                        className="block w-full px-4 py-2 text-[#85d7de] bg-caribbean-current border rounded-md shadow-sm border-slate-300 pl-9 pr-3 placeholder:text-[#85d7de] transition ease-in-out hover:bg-mint/10 focus:bg-mint/10 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 focus:ring-offset-1 focus:ring-offset-[#5bdde8] duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
+                        className="block w-full px-4 py-2 text-default-font bg-default-background border rounded-md shadow-sm border-brand-primary pl-9 pr-3 placeholder:text-default-font transition ease-in-out hover:bg-brand-500/10 focus:bg-brand-500/10 focus:outline-none  duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
                         placeholder="1"
                     />
 
-                    <span className="text-[#85d7de] text-lg py-2 pr-2 rounded leading-tight">Additional Instructions: </span>
+                    <span className="text-default-font text-lg py-2 pr-2 rounded leading-tight">Additional Instructions: </span>
                     <textarea
-                        className="flex-grow p-2 mr-2 mb-2 border border-mint rounded-xl max-h-[420px] shadow-m bg-caribbean-current text-[#85d7de] border-slate-300 py-2 pl-9 pr-3 placeholder:text-[#85d7de] transition ease-in-out hover:bg-mint/20 focus:bg-mint/20 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 focus:ring-offset-1 focus:ring-offset-[#5bdde8] duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
+                        className={textareaClass}
                         placeholder="Specify any additional instructions here..."
                         onChange={(e) => handleInstructions(e.target.value)}
                     />
 
                     <DateSelector />
 
-                    <span className="text-[#85d7de] text-lg py-2 pr-2 rounded leading-tight">AI Character Role Notes: </span>
+                    <span className="text-default-font text-lg py-2 pr-2 rounded leading-tight">AI Character Role Notes: </span>
 
                     <textarea
-                        className="flex-grow p-2 mr-2 mb-2 border border-mint rounded-xl max-h-[420px] shadow-m bg-caribbean-current text-[#85d7de] border-slate-300 py-2 pl-9 pr-3 placeholder:text-[#85d7de] transition ease-in-out hover:bg-mint/20 focus:bg-mint/20 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 focus:ring-offset-1 focus:ring-offset-[#5bdde8] duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
+                        className={textareaClass}
                         placeholder="Inform the AI of its role in the conversation..."
                         onChange={(e) => handleCharacter(e.target.value)}
                     />
-                    <span className="text-[#85d7de] text-lg py-2 pr-2 rounded leading-tight">Check to provide example for agent</span>
-                    <input
-                        type="checkbox" checked={addExample} className="text-blue-600 checked:bg-mint" onChange={() => toggleField(setAddExample, addExample)} />
+                    <div className="flex align-center justify-between">
+
+                        <span className="text-default-font text-lg py-2 pr-2 rounded leading-tight">Check to provide example for agent</span>
+                        <input
+                            type="checkbox" checked={addExample} className="bg-default-background text-brand-primary p-2 m-2 self-center" onChange={() => toggleField(setAddExample, addExample)} />
+                    </div>
                     {addExample &&
 
                         <textarea
-                            className="flex-grow p-2 mr-2 mb-2 border border-mint rounded-xl max-h-[420px] shadow-m bg-caribbean-current text-[#85d7de] border-slate-300 py-2 pl-9 pr-3 placeholder:text-[#85d7de] transition ease-in-out hover:bg-mint/20 focus:bg-mint/20 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 focus:ring-offset-1 focus:ring-offset-[#5bdde8] duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
+                            className={textareaClass}
                             placeholder="Provide an example of the thought process you'd like agent to follow..."
                             onChange={(e) => handleExample(e.target.value)}
                         />

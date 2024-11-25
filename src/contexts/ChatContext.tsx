@@ -172,6 +172,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             fetchData();
             console.log("fetching threads...");
             fetchThreadsData(token);
+            setDisableQuery(false);
         }
     }, [loadComplete, token]);
 

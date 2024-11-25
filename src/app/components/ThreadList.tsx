@@ -46,10 +46,10 @@ const ThreadList: React.FC = () => {
     };
 
     return (
-        <div className="h-1/2 shadow-xl flex-1 w-full border-b-4 border-brand-50 rounded-tl-lg rounded-tr-lg rounded-bl-sm rounded-br-sm">
-            <div className="flex justify-between items-center p-2 bg-brand-50 "  >
+        <div className={`h-1/2 shadow-xl flex-1 w-full border-brand-50 rounded-tl-lg rounded-tr-lg rounded-bl-sm rounded-br-sm ${open ? "border-b-4" : ""}`}>
+            <div className={`flex  justify-between items-center p-2 bg-brand-50 ${open ? "rounded-tl-lg rounded-tr-lg" : "rounded-lg"}`}  >
 
-                <h2 className="text-xl text-neutral-600  font-bold p-4">
+                <h2 className="text-xl text-default-font/70  font-bold p-4">
                     Threads
                 </h2>
 
@@ -73,10 +73,10 @@ const ThreadList: React.FC = () => {
                                     <li
                                         key={threadItem.id}
                                         className="flex min-h-16 items-center justify-between bg-default-background
-                                        border-y-1 my-1 rounded-sm border-brand-primary"
+                                        border-y-1 my-1 rounded-sm border-brand-400"
                                     >
                                         <span
-                                            className="text-brand-primary  border-y-2 border-brand-primary flex-1 font-bold self-stretch rounded-tl-sm rounded-bl-sm bg-neutral-50 p-4 cursor-pointer duration-300 hover:bg-brand-primary  hover:text-black"
+                                            className="text-brand-600 border-brand-400 border-y-2 flex-1 font-bold self-stretch rounded-tl-sm rounded-bl-sm bg-neutral-50 py-4 pl-2 pr-1 cursor-pointer duration-300 hover:bg-brand-400  hover:text-black"
                                             // contentEditable="true"
                                             // onInput={handleThreadNameInput}
                                             // onKeyDown={(event) =>
