@@ -27,7 +27,7 @@ import {
 import { threadsReducer } from "./threadsReducer";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@clerk/nextjs";
-import { logger } from '@lib/utils/logger';
+// import { logger } from '../lib/utils/logger';
 
 /**
  * ChatContext.tsx
