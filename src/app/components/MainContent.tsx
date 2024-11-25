@@ -5,26 +5,43 @@ import { ChatWindow } from "./ChatWindow";
 import { Options } from "./OptionsPanel";
 import { Sidebar } from "./Sidebar";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
+import { useWindowResize } from "@/lib/hooks/use-window-resize";
 import { useChat } from "@/contexts/ChatContext";
 import { SignInOrOut } from "./account/SignInOrOut";
 import { useAuth } from "@clerk/nextjs";
 
 export const MainContent: React.FC = () => {
-    const [sideOnBottom, setSideOnBottom] = useState<boolean>(false);
-    const { isSidebarOpen, toggleSidebar } = useSidebar();
+    const { isSidebarOpen, toggleSidebar, setSidebarOpen } = useSidebar();
     const { isLoaded, getToken } = useAuth();
-    const { agents, models, setToken, token, setLatestToken } =
-        useChat();
+    const { agents, models, setToken, token, setLatestToken } = useChat();
+    const [hideChat, setHideChat] = useState(true);
 
-    useEffect(() => {
-        const handleResize = () => {
-            setSideOnBottom(window.innerWidth < 768);
-        };
-        window.addEventListener("resize", handleResize);
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, []);
+    const handleSidebar = () => {
+        let el = document.getElementById("sidebar");
+        if (isSidebarOpen) {
+            setHideChat(true);
+            // bring z index back to normal for using sidebar
+            el?.classList.remove("-z-10");
+        }
+        else {
+            setHideChat(false);
+            // high z index of hidden sidebar was blocking actions on chat for small screens
+            el?.classList.add("-z-10");
+        }
+    }
+
+    const handleHideChat = () => {
+        setHideChat(false);
+        if (!isSidebarOpen) {
+            toggleSidebar();
+        }
+    }
+
+    // first resize event ensures that on mobile screens, sidebar being open hides chat
+    // second resize event ensures that the sidebar is always open and chat isnt hidden
+    // on screens larger than mobile
+    useWindowResize(handleSidebar, { minWidth: 640 });
+    useWindowResize(handleHideChat, { maxWidth: 640 });
 
     useEffect(() => {
         if (isLoaded) {
@@ -35,22 +52,31 @@ export const MainContent: React.FC = () => {
     }, [isLoaded]);
 
     return (
-        <div className="flex justify-between w-full max-md:flex-col">
-            {/* {!sideOnBottom ? <Sidebar /> : null} */}
-            <div className="flex flex-col items-center">
+        <div className="container ">
+            <div className="space-y-2">
                 <button
                     onClick={toggleSidebar}
-                    className="p-1 rounded font-mono border shadow leading-tight duration-200 border-gray-200 resize-y hover:text-mint hover:bg-gradient-to-b hover:from-[#4ce6ab2d] hover:to-[#0ea46a3b]">
-                    <span className="text-2xl font-mono text-mint">{isSidebarOpen ? "hide" : "show"}</span>
+                    className="p-1 rounded text-xs font-mono shadow leading-tight hover:text-mint hover:bg-gradient-to-b hover:from-[#4ce6ab2d] hover:to-[#052b1c5b] sm:hidden">
+                    {isSidebarOpen ? (<span className="min-w-5 ease-in-out duration-300 text-tea-green">X</span>) : (<div className="space-y-2 ease-in-out duration-300">
+                        <span className="block w-5 h-0.5 bg-tea-green"></span>
+                        <span className="block w-2 h-0.5 bg-tea-green"></span>
+                    </div>
+                    )}
                 </button>
-                {isSidebarOpen ? <Sidebar /> : null}
+
             </div>
-            <div className="flex flex-col flex-1 px-4 items-center justify-between max-w-full">
-                <div className="flex flex-col items-center justify-around md:flex-row">
-                    <div className=" w-full items-center justify-between font-mono text-sm lg:flex">
-                        <div className="flex h-10 w-full items-end justify-center">
+            <div
+                id="sidebar"
+                className="w-full absolute sm:w-1/4 sm:static"
+            >
+                <Sidebar />
+            </div>
+            {hideChat ? (null) : (<div className={`w-full sm:visible sm:w-3/4`}>
+                <div className=" items-center justify-around">
+                    <div className="  items-center justify-between font-mono text-sm ">
+                        <div className=" items-end justify-center">
                             <div className="z-10 bg-ultra-violet text-white">
-                                <h1 className="flex cursor-crosshair place-items-center gap-2 p-8 w-full text-[#9de6ca] text-xl py-2 pr-8 rounded leading-tight hover:scale-105">
+                                <h1 className=" cursor-crosshair place-items-center gap-2 p-8 text-[#9de6ca] text-lg py-2 pr-8 rounded leading-tight hover:scale-105">
                                     {"<"} jasmyn.ai {"/>"}
                                 </h1>
                             </div>
@@ -65,7 +91,7 @@ export const MainContent: React.FC = () => {
 
                 ) : (
                     <div className="h-12">
-                        <div className="flex items-center justify-center bg-gray-200 rounded-lg p-4">
+                        <div className=" items-center justify-center bg-gray-200 rounded-lg p-4">
                             <span className="text-gray-600">Loading...</span>
                             <svg
                                 className="w-5 h-5 text-gray-600 animate-spin"
@@ -91,8 +117,7 @@ export const MainContent: React.FC = () => {
                     </div>
                 )}
                 <ChatWindow />
-                {/* {sideOnBottom ? <Sidebar /> : null} */}
-            </div>
+            </div>)}
         </div>
     );
 };
