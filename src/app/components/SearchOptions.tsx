@@ -79,7 +79,7 @@ export const SearchOptions: React.FC = () => {
 
 
     return ( // need form fields for each of the above state variables
-        <div className="w-full py-8 px-10 flex flex-col items-center justify-around  md:flex-row rounded-xl shadow-xl bg-brand-50">
+        <div className="w-full py-8 px-2 flex flex-col items-center justify-around  md:flex-row rounded-xl bg-brand-50 sm:mb-12 xl:px-10">
             <div className=" w-full items-center justify-between font-mono text-sm lg:flex ">
                 <div className="w-full flex flex-col items-start justify-center py-22">
                     <div className="flex w-full flex-col justify-center pr-4">

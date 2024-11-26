@@ -50,14 +50,13 @@ export const Message: React.FC<MessageProps> = ({
             {parsedContent.length > 0 ? <div className={`flex w-full mb-4 ${alignmentClass}`}>
                 <div
                     className={` px-4 py-2 rounded-md overflow-x-auto ${messageClass} `}
-                // style={{ maxWidth: "80%" }}
                 >
                     {parsedContent.map((part, index) => (
                         <React.Fragment key={index}>
 
                             {part.type === "text" ? (
                                 <>
-                                    <div className="flex flex-col sm:flex-row space-y-1">
+                                    <div className="flex flex-col sm:flex-row">
                                         <span className={`block ${isUserMessage
                                             ? 'text-brand-50' : 'text-brand-primary'} text-sm pr-2  sm:text-lg`}>
                                             {msg.role === "user"

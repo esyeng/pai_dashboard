@@ -18,7 +18,7 @@ export const Sidebar: React.FC = () => {
     }
 
     return (
-        <div className={`top-0 left-0 h-screen ease-in-out duration-300 bg-default-background ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} sm:w-1/4 sm:h-full sm:fixed`}>
+        <div className={`top-0 left-0 h-screen ease-in-out duration-300 bg-default-background ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} overflow-y-auto sm:w-1/4 sm:h-full sm:fixed sm:mb-28`}>
             <div className="">
 
                 <div className="flex justify-center items-center px-2 my-1 ">
@@ -31,7 +31,7 @@ export const Sidebar: React.FC = () => {
                     </button>
                 </div>
                 {shouldQueryResearchModel &&
-                    (<div className={`mb-2 pb-2 px-8 w-full transition-all duration-700 ease-in-out overflow-scroll ${shouldQueryResearchModel ? 'max-h-screen' : 'max-h-0'}`}>
+                    (<div className={`mb-2 pb-2 px-2 w-full overflow-y-auto transition-all duration-700 ease-in-out  ${shouldQueryResearchModel ? 'max-h-screen' : 'max-h-0'}`}>
                         <SearchOptions />
                     </div>
                     )}

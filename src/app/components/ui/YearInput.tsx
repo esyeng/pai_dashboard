@@ -28,7 +28,7 @@ const YearInput: React.FC<YearInputProps> = ({ label, value, onChange }) => {
                 onChange={handleChange}
                 min="1500"
                 max="2100"
-                className="block w-full px-4 py-2 text-default-font bg-default-background border rounded-md shadow-sm border-brand-primary pl-9 pr-3 placeholder:text-default-font/50 transition ease-in-out hover:bg-brand-400/10 focus:bg-brand-400/10 focus:outline-none duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
+                className="block w-full appearance-none px-4 py-2 text-default-font bg-default-background border rounded-md shadow-sm border-brand-primary pl-9 pr-3 placeholder:text-default-font/50 transition ease-in-out hover:bg-brand-400/10 focus:bg-brand-400/10 focus:outline-none duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
                 placeholder="YYYY"
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
