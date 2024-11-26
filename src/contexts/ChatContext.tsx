@@ -53,8 +53,8 @@ const idGenerator = UniqueIdGenerator.getInstance();
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-    const storedAgent = localStorage.getItem(STORED_AGENT_ID);
-    const storedModel = localStorage.getItem(STORED_MODEL_ID);
+    const storedAgent = localStorage?.getItem(STORED_AGENT_ID);
+    const storedModel = localStorage?.getItem(STORED_MODEL_ID);
     const [threadState, dispatchThreads] = useReducer(threadsReducer, {
         threads: {},
         currentThreadId: null,
