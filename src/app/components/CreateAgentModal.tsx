@@ -58,14 +58,14 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ isOpen, onClose }) 
                 <div ref={modalRef} className="bg-[#151515] p-8 rounded-lg w-full max-w-md relative">
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 text-[#9de6ca] hover:text-white transition-colors duration-300"
+                        className="absolute top-8 right-8 text-brand-primary hover:text-white transition-colors duration-300"
                     >
                         <XMarkIcon className="w-6 h-6" />
                     </button>
-                    <h2 className="text-2xl font-bold mb-6 text-[#9de6ca] font-mono">Create Agent</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-brand-primary font-mono">Create Agent</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label htmlFor="assistantId" className="block text-sm font-medium text-[#9de6ca] font-mono">
+                            <label htmlFor="assistantId" className="block text-sm font-medium text-brand-primary font-mono">
                                 Assistant ID
                             </label>
                             <input
@@ -74,11 +74,11 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ isOpen, onClose }) 
                                 name="assistantId"
                                 value={formData.assistantId}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 bg-[#1e1e1e] border border-[#0d5c63] rounded-md text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#9de6ca]"
+                                className="mt-1 block w-full px-3 py-2 bg-neutral-50 border border-brand-primary rounded-md text-default-font font-mono focus:outline-none"
                             />
                         </div>
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-[#9de6ca] font-mono">
+                            <label htmlFor="name" className="block text-sm font-medium text-brand-primary font-mono">
                                 Name
                             </label>
                             <input
@@ -87,11 +87,11 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ isOpen, onClose }) 
                                 name="name"
                                 value={formData.name}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 bg-[#1e1e1e] border border-[#0d5c63] rounded-md text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#9de6ca]"
+                                className="mt-1 block w-full px-3 py-2 bg-neutral-50 border border-brand-primary rounded-md text-default-font font-mono focus:outline-none focus:ring-2 focus:ring-brand-800"
                             />
                         </div>
                         <div>
-                            <label htmlFor="description" className="block text-sm font-medium text-[#9de6ca] font-mono">
+                            <label htmlFor="description" className="block text-sm font-medium text-brand-primary font-mono">
                                 Description
                             </label>
                             <textarea
@@ -100,11 +100,11 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ isOpen, onClose }) 
                                 value={formData.description}
                                 onChange={handleChange}
                                 rows={3}
-                                className="mt-1 block w-full px-3 py-2 bg-[#1e1e1e] border border-[#0d5c63] rounded-md text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#9de6ca] resize-y"
+                                className="mt-1 block w-full px-3 py-2 bg-neutral-50 border border-brand-primary rounded-md text-neutral-700/60 font-mono focus:outline-none focus:ring-2 focus:ring-brand-800 resize-y"
                             />
                         </div>
                         <div>
-                            <label htmlFor="systemPrompt" className="block text-sm font-medium text-[#9de6ca] font-mono">
+                            <label htmlFor="systemPrompt" className="block text-sm font-medium text-brand-primary font-mono">
                                 System Prompt
                             </label>
                             <textarea
@@ -113,13 +113,13 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ isOpen, onClose }) 
                                 value={formData.systemPrompt}
                                 onChange={handleChange}
                                 rows={5}
-                                className="mt-1 block w-full px-3 py-2 bg-[#1e1e1e] border border-[#0d5c63] rounded-md text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#9de6ca] resize-y"
+                                className="mt-1 block w-full px-3 py-2 bg-neutral-50 border border-brand-primary rounded-md text-default-background font-mono focus:outline-none focus:ring-2 focus:ring-brand-primary resize-y"
                             />
                         </div>
                         <div className="flex justify-center mt-6">
                             <button
                                 type="submit"
-                                className="px-6 py-2 bg-[#0d5c63] text-white rounded-md hover:bg-[#094249] transition-colors duration-300 font-mono"
+                                className="px-6 py-2 bg-brand-100 text-default-font rounded-md hover:bg-brand-primary hover:text-black transition-colors duration-300 font-mono"
                             >
                                 Save Agent
                             </button>

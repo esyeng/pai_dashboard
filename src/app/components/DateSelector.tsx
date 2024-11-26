@@ -9,7 +9,7 @@ const DateSelector: React.FC = () => {
     const { month, year, setMonth, setYear } = useChat();
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
             <MonthSelect
                 label="Select Month (Optional)"
                 value={month}

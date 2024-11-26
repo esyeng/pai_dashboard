@@ -37,7 +37,7 @@ export const SearchOptions: React.FC = () => {
         "character": ""
     };
 
-    const textareaClass = "flex-grow p-2 mr-2 mb-2 border border-brand-primary rounded-xl max-h-[420px] shadow-m text-default-font bg-default-background min-h-20 py-2  pr-3 placeholder:text-default-font transition ease-in-out hover:bg-brand-500/30 focus:bg-brand-500/30 focus:outline-none  duration-200 sm:text-sm resize-y sm:w-full"
+    const textareaClass = "w-full flex-grow p-2 mr-2 mb-2 border border-brand-primary rounded-xl max-h-[420px] shadow-m text-default-font bg-default-background min-h-20 py-2  pr-3 placeholder:text-default-font transition ease-in-out hover:bg-brand-500/30 focus:bg-brand-500/30 focus:outline-none duration-200 sm:text-sm resize-y "
 
     const handleSelectedToggle = (action: string) => {
         let newActions =

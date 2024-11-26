@@ -35,7 +35,7 @@ const NotesPanel: React.FC = () => {
 
             {open && (
                 <textarea
-                    className="max-h-64 min-h-36  border-b-2 border-b-brand-primary rounded-b-xl bg-neutral-50 text-default-font/70 border-x-brand-primary py-2 pl-9 pr-3 placeholder:text-brand-primary transition ease-in-out hover:bg-brand-400/30 focus:bg-brand-300/30 duration-200 w-full resize-y"
+                    className="max-h-64 min-h-36 border-t-0 border-b-2 border-b-brand-primary rounded-b-xl bg-neutral-50 text-default-font/70 border-x-brand-primary py-2 pl-9 pr-3 placeholder:text-brand-primary transition ease-in-out hover:bg-brand-400/30 focus:bg-brand-300/30 duration-200 w-full resize-y"
                     value={notes}
                     onChange={handleNotesChange}
                     placeholder="Write your notes here..."

@@ -9,24 +9,25 @@ import { useWindowResize } from "@/lib/hooks/use-window-resize";
 import { useChat } from "@/contexts/ChatContext";
 import { SignInOrOut } from "./account/SignInOrOut";
 import { useAuth } from "@clerk/nextjs";
+import MessageLoadingIndicator from "./ui/MessageLoadingIndicator";
 
 export const MainContent: React.FC = () => {
     const { isSidebarOpen, toggleSidebar, setSidebarOpen } = useSidebar();
     const { isLoaded, getToken } = useAuth();
     const { agents, models, setToken, token, setLatestToken } = useChat();
     const [hideChat, setHideChat] = useState(true);
+    const barNode = document.getElementById("sidebar");
 
     const handleSidebar = () => {
-        let el = document.getElementById("sidebar");
         if (isSidebarOpen) {
             setHideChat(true);
             // bring z index back to normal for using sidebar
-            el?.classList.remove("-z-10");
+            barNode?.classList.remove("-z-10");
         }
         else {
             setHideChat(false);
             // high z index of hidden sidebar was blocking actions on chat for small screens
-            el?.classList.add("-z-10");
+            barNode?.classList.add("-z-10");
         }
     }
 
@@ -34,6 +35,10 @@ export const MainContent: React.FC = () => {
         setHideChat(false);
         if (!isSidebarOpen) {
             toggleSidebar();
+        }
+        if (barNode && barNode.classList.contains("-z-10")) {
+            barNode.classList.remove("-z-10");
+            barNode.classList.add("z-10");
         }
     }
 
@@ -52,7 +57,7 @@ export const MainContent: React.FC = () => {
     }, [isLoaded]);
 
     return (
-        <div className=" ">
+        <div className="sm:flex">
             <div className="space-y-2">
                 <button
                     onClick={toggleSidebar}
@@ -71,13 +76,13 @@ export const MainContent: React.FC = () => {
             >
                 <Sidebar />
             </div>
-            {hideChat ? (null) : (<div className={`w-full sm:visible sm:w-3/4`}>
+            {hideChat ? (null) : (<div className={`w-full sm:visible sm:w-3/4 sm:self-end`}>
                 <div className=" items-center justify-around">
                     <div className="  items-center justify-between font-mono text-sm ">
                         <div className="flex items-center justify-center">
                             <div className="z-10 items-center justify-center bg-ultra-violet text-white">
-                                <h1 className=" cursor-default place-items-center gap-2 p-8 text-brand-primary text-lg py-2 pr-8 rounded leading-tight">
-                                    {"<"} jasmyn.ai {"/>"}
+                                <h1 className="font-monospace-body cursor-default place-items-center gap-2 p-8 text-brand-primary text-lg py-2 pr-8 rounded leading-tight">
+                                    {"<"} jasmin.ai {"/>"}
                                 </h1>
                             </div>
                         </div>
@@ -90,9 +95,10 @@ export const MainContent: React.FC = () => {
 
                 ) : (
                     <div className="h-12">
-                        <div className=" items-center justify-center bg-gray-200 rounded-lg p-4">
+                        <div className=" items-center justify-center rounded-lg p-4">
                             <span className="text-gray-600">Loading...</span>
-                            <svg
+                            <MessageLoadingIndicator />
+                            {/* <svg
                                 className="w-5 h-5 text-gray-600 animate-spin"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -111,7 +117,7 @@ export const MainContent: React.FC = () => {
                                     fill="currentColor"
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
-                            </svg>
+                            </svg> */}
                         </div>
                     </div>
                 )}

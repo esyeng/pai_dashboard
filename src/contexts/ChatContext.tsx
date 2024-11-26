@@ -44,12 +44,17 @@ interface ChatProviderProps {
     children: React.ReactNode;
 }
 
+const STORED_MODEL_ID: string = "model_id";
+const STORED_AGENT_ID: string = "agent_id";
+
 // Unique ID for each thread, used for selecting and updating. Is separate from db object thread.id
 const idGenerator = UniqueIdGenerator.getInstance();
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
+    const storedAgent = localStorage.getItem(STORED_AGENT_ID);
+    const storedModel = localStorage.getItem(STORED_MODEL_ID);
     const [threadState, dispatchThreads] = useReducer(threadsReducer, {
         threads: {},
         currentThreadId: null,
@@ -64,10 +69,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     >();
     const { getToken } = useAuth();
     // Default agent, model
-    const [agentId, setAgentId] = useState<string>("jasmyn");
-    const [modelId, setModelId] = useState<string>(
-        "claude-3-5-sonnet-20240620"
-    );
+    const [agentId, setAgentId] = useState<string>(storedAgent ? storedAgent : "jasmyn");
+    const [modelId, setModelId] = useState<string>(storedModel ? storedModel : "claude-3-5-sonnet-20240620");
     const [user, setUser] = useState<User | null>(null);
     const [threadCache, setThreadCache] = useState<Threads>({});
     const [agents, setAgents] = useState<AgentProps[]>([]);
@@ -84,10 +87,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     // Research model query parameters
     const [maxTurns, setMaxTurns] = useState<number>(5);
-    const [selectedActions, setSelectedActions] = useState<string[]>([
-        "wikipedia",
-        "google",
-    ]);
+    const [selectedActions, setSelectedActions] = useState<string[]>(["wikipedia", "google"]);
     const [additionalInstructions, setAdditionalInstructions] =
         useState<string>("");
     const [example, setExample] = useState<string>("");

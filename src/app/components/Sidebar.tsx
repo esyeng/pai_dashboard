@@ -25,7 +25,7 @@ export const Sidebar: React.FC = () => {
 
                     <button
                         onClick={toggleSearchOptions}
-                        className={`${shouldQueryResearchModel ? " text-default-font/70 " : " bg-brand-50 "} p-1 py-2 mt-8 mb-4 hover:text-black  text-default-font/70 rounded-sm leading-tight duration-200 w-full  resize-y  hover:bg-brand-primary`}
+                        className={`${shouldQueryResearchModel ? " text-default-font/70 " : "  bg-brand-50 "}border border-brand-primary  p-1 py-2 mt-8 mb-4  text-default-font/70 rounded-sm leading-tight duration-200 w-full  resize-y  hover:bg-brand-300`}
                     >
                         Toggle Search Options
                     </button>

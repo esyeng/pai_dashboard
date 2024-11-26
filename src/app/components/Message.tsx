@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import { useCopyToClipboard } from "../../lib/hooks/use-copy-to-clipboard";
 import { ClipboardIcon } from "@radix-ui/react-icons";
 import { CodeBlock } from "./ui/CodeBlock";
@@ -49,7 +50,7 @@ export const Message: React.FC<MessageProps> = ({
             {parsedContent.length > 0 ? <div className={`flex w-full mb-4 ${alignmentClass}`}>
                 <div
                     className={` px-4 py-2 rounded-md overflow-x-auto ${messageClass} `}
-                    // style={{ maxWidth: "80%" }}
+                // style={{ maxWidth: "80%" }}
                 >
                     {parsedContent.map((part, index) => (
                         <React.Fragment key={index}>
@@ -64,10 +65,10 @@ export const Message: React.FC<MessageProps> = ({
                                                 : currentAgentName
                                             }:
                                         </span>
-                                        <div className="block text-lg flex-1">
-                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                {part.content}
-                                            </ReactMarkdown>
+                                        <div className="block text-sm flex-1 sm:text-lg">
+                                            <ReactMarkdown children={part.content.replace(/\n/gi, "&nbsp; \n").trim()} remarkPlugins={[remarkGfm, remarkBreaks]}
+
+                                            />
                                         </div>
                                         <button
                                             className={`text-md p-2 scale-150 ${isUserMessage ? 'text-black' : 'text-neutral-600'} self-end hover:scale-1.1 focus:outline-none hover:text-brand-400`}

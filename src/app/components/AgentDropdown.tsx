@@ -8,17 +8,21 @@ interface DropProps {
     mode: "model" | "agent";
 }
 
+const STORED_MODEL_ID: string = "model_id";
+const STORED_AGENT_ID: string = "agent_id";
+
 export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
     const { models, agentId, setAgentId, modelId, setModelId } = useChat();
 
     const handleSelection = (selectionId: string) => {
         if (mode === "model") {
             setModelId(selectionId);
-
-            // if (models[selectionId])
-        } else {
-            setAgentId(selectionId);
+            localStorage.setItem(STORED_MODEL_ID, selectionId);
         }
+        else if (mode === "agent") {
+            setAgentId(selectionId);
+            localStorage.setItem(STORED_AGENT_ID, selectionId);
+        };
     };
 
     return (
@@ -26,7 +30,8 @@ export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
             <select
                 value={mode === "agent" ? agentId : modelId}
                 onChange={(e) => handleSelection(e.target.value)}
-                className="block appearance-none w-full font-mono bg-default-background border border-brand-primary text-brand-primary py-2 px-4 pr-8 rounded-md leading-tight hover:bg-brand-50/60 focus:bg-brand-50/30 focus:outline-none "
+                className="block appearance-none w-full font-mono bg-default-background border border-brand-primary text-brand-primary py-2 px-4 pr-8 rounded-md leading-tight hover:bg-brand-50/60 focus:bg-brand-50/30 focus:outline-none bg-none"
+
             >
                 {agents.map((agent) => (
                     <option
