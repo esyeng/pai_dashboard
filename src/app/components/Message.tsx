@@ -66,9 +66,9 @@ export const Message: React.FC<MessageProps> = ({
                                             }:
                                         </span>
                                         <div className="block text-sm flex-1 sm:text-lg">
-                                            <ReactMarkdown children={part.content.replace(/\n/gi, "&nbsp; \n").trim()} remarkPlugins={[remarkGfm, remarkBreaks]}
-
-                                            />
+                                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                                {part.content.replace(/\n/gi, "&nbsp; \n").trim()}
+                                            </ReactMarkdown>
                                         </div>
                                         <button
                                             className={`text-md p-2 scale-150 ${isUserMessage ? 'text-black' : 'text-neutral-600'} self-end hover:scale-1.1 focus:outline-none hover:text-brand-400`}
