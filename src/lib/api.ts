@@ -13,6 +13,7 @@ const BASE = process.env.BASE_URL
 
 // const GPT_BASE = `${BASE}/model/gpt`;
 const CLAUDE = `${BASE}/model/claude`;
+const VENICE = `${BASE}/model/venice`;
 
 
 export function parseMessageString(messageString: string): MessageProps {
@@ -49,14 +50,16 @@ export function parseMessageString(messageString: string): MessageProps {
 // TODO - allow for different models
 
 export const queryModel = async (
-    params: ClaudeChatRequestParams,
+    provider: "claude" | "venice",
+    params: ClaudeChatRequestParams | VeniceChatRequestParams,
     token: any
 ): Promise<ModelResponse> => {
+    let route = provider === "claude" ? CLAUDE : VENICE;
     try {
         if (typeof token === "object") {
             token = await token;
         }
-        const response = await fetch(`${CLAUDE}/chat`, {
+        const response = await fetch(`${route}/chat`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
