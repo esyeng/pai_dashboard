@@ -1,7 +1,4 @@
 "use client";
-
-// import * as Slider from '@radix-ui/react-slider';
-// import * as Separator from '@radix-ui/react-separator';
 import { AgentDropdown } from "./AgentDropdown";
 import AgentManager from "./AgentManager";
 import ModeSwitch from "./ModeSwitch";
@@ -16,10 +13,15 @@ interface OptionsProps {
 export const Options: React.FC<OptionsProps> = ({ agents, models }) => {
     const { provider, setProvider } = useChat();
     const providers = ["claude", "venice"];
+    const claudeModels = ["claude-3-5-sonnet-20240620", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"]
+    const veniceModels = ["flux-dev-uncensored", "fluently-xl", "flux-dev", "nous-theta-8b", "llama-3.2-3b", "dolphin-2.9.2-qwen2-72b", "llama-3.1-405b", "qwen32b"]
+
+    let ids = models.map((model) => model.model_id);
+    console.log("modelIds", ids)
     return (
         <div className="flex  justify-center w-full sm:flex-col">
             <div className="mb-4 mx-2 flex flex-1 flex-col items-center justify-center my-2 lg:flex-row p-2 rounded-lg bg-brand-50/70 ">
-                <ModeSwitch modes={providers} setter={setProvider}/>
+                <ModeSwitch modes={providers} setter={setProvider} />
 
                 <div className="flex justify-center items-center px-2 my-1 mx-4">
                     <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight">
@@ -28,7 +30,7 @@ export const Options: React.FC<OptionsProps> = ({ agents, models }) => {
                     <span className="text-md text-brand-primary my-4 mr-2">
                         |
                     </span>
-                    <AgentDropdown agents={models} mode="model" />
+                    <AgentDropdown agents={provider === "claude" ? models.filter((m) => claudeModels.includes(m.model_id)) : models.filter((m) => veniceModels.includes(m.model_id))} mode="model" />
                 </div>
                 <div className="flex justify-center items-center px-2 my-1 mx-4">
                     <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight">
