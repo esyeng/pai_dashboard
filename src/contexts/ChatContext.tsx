@@ -74,6 +74,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // Default agent, model
     const [agentId, setAgentId] = useState<string>(storedAgent ? storedAgent : "jasmyn");
     const [modelId, setModelId] = useState<string>(storedModel ? storedModel : "claude-3-5-sonnet-20240620");
+    const [provider, setProvider] = useState<"claude" | "venice">("claude");
     const [user, setUser] = useState<User | null>(null);
     const [threadCache, setThreadCache] = useState<Threads>({});
     const [agents, setAgents] = useState<AgentProps[]>([]);
@@ -274,6 +275,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     }, [token, getAgents]);
 
+
     const clearNoteStorage = (user: User) => {
         const noteId = localStorage.getItem("note user id");
         if (!user) {
@@ -290,7 +292,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     };
 
     /**
-     * @method sendChat - http method for back and forth chatting with endpoint configured to match claude schema
+     * @method sendChat - http method for back and forth chatting with provider endpoint
      * @param message
      * @param model
      * @param agentId
@@ -307,7 +309,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         search: boolean = false,
         maxTokens?: number | null,
         temperature?: number | null,
-        nameGiven?: string
+        nameGiven?: string,
+        useVenice?: boolean
     ) => {
         let name: string =
             user?.user?.first_name ?? nameGiven ?? "anonymousUser";
@@ -363,10 +366,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                         },
                         latestToken
                     )
-                    : await queryModel(
+                    : await queryModel(provider,
                         {
-                            // max_tokens: maxTokens ?? 8192,
-                            max_tokens: 8192,
+                            max_tokens: maxTokens ?? 8192,
                             model: model || "claude-3-5-sonnet-20240620",
                             temperature: temperature ?? 0.6,
                             agent_id: agentId,
@@ -498,9 +500,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 setToken,
                 setLatestToken,
                 modelId,
+                provider,
                 loadComplete,
                 setUser,
                 setModelId,
+                setProvider,
                 setAgentId,
                 setShouldQueryResearchModel,
                 setMonth,
