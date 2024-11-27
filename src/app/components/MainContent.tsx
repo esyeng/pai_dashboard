@@ -28,6 +28,7 @@ export const MainContent: React.FC = () => {
             setHideChat(false);
             // high z index of hidden sidebar was blocking actions on chat for small screens
             barNode?.classList.add("-z-10");
+            barNode?.classList.remove("z-10");
         }
     }
 
