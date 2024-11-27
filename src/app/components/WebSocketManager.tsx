@@ -6,16 +6,17 @@ import React, { useState, useEffect, useCallback } from "react";
 interface WSProps {
     url: string;
     route: string;
+    token: string;
 }
 
 
-export const WebSocketManager: React.FC<WSProps> = ({ url, route }) => {
+export const WebSocketManager: React.FC<WSProps> = ({ url, route, token }) => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [messages, setMessages] = useState<string[]>([]);
     const [inputMessage, setInputMessage] = useState<string>("");
 
     useEffect(() => {
-        const ws: WebSocket = new WebSocket(`${url}${route}/ws`);
+        const ws: WebSocket = new WebSocket(`${url}${route}/ws?token=${token}`);
 
         ws.onopen = () => {
             console.log("connected");
