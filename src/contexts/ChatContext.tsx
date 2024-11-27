@@ -377,11 +377,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                                 user.profile[0]
                             ),
                             messages: messagesToSend,
+                            use_venice: false,
                             currentThreadId: currentThreadId,
                             user_id: user.user_id ?? 0,
                         },
                         latestToken
                     );
+                    console.log("received resp", response);
                 const receivedMsg: MessageProps = {
                     id: uuidv4(),
                     timestamp: Date.now(),
