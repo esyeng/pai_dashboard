@@ -100,6 +100,7 @@ declare global {
         token: string;
         latestToken: string;
         modelId: string;
+        provider: "claude" | "venice";
         month: number;
         year: number;
         loadComplete: boolean;
@@ -110,6 +111,7 @@ declare global {
         setUser: (user: User) => void;
         setModelId: (modelId: string) => void;
         setAgentId: (agentId: string) => void;
+        setProvider: (provider: "claude" | "venice") => void;
         setShouldQueryResearchModel: (shouldQuery: boolean) => void;
         setMaxTurns: (maxTurns: number) => void;
         setAdditionalInstructions: (instructions: string) => void;
@@ -209,7 +211,7 @@ declare global {
                 logprobs: any;
                 finish_reason: string;
             }
-        ],
+        ];
         usage: {
             prompt_tokens: number;
             completion_tokens: number;
@@ -222,54 +224,54 @@ declare global {
         }
     }
 
-}
+    interface VeniceChatRequestParams {
+        max_tokens: number
+        temperature: number;
+        model: string;
+        system_prompt: string;
+        messages: any[];
+        use_venice: boolean;
+        tools: OpenAIToolParams[];
+    }
 
-interface VeniceChatRequestParams {
-    max_tokens: number
-    temperature: number;
-    model: string;
-    system_prompt: string;
-    messages: any[];
-    use_venice: boolean;
-    tools: any[]
-}
-
-interface ModelResponse {
-    response?:
-    | any
-    | {
+    interface ModelResponse {
+        response?:
+        | any
+        | {
+            text?: string;
+            response?: string | JSON;
+        };
         text?: string;
-        response?: string | JSON;
-    };
-    text?: string;
+    }
+
+    interface UserResponse {
+        session_id: string;
+        user: User;
+        user_id: string;
+        profile: any;
+    }
+
+    interface PromptMap {
+        [key: string]: string;
+    }
+
+    interface Session {
+        user: {
+            id: string;
+            email: string;
+        };
+    }
+
+    interface AuthResult {
+        type: string;
+        message: string;
+    }
+
+    // Add Clerk to Window to avoid type errors
+    interface Window {
+        Clerk: any;
+    }
 }
 
-interface UserResponse {
-    session_id: string;
-    user: User;
-    user_id: string;
-    profile: any;
-}
 
-interface PromptMap {
-    [key: string]: string;
-}
 
-interface Session {
-    user: {
-        id: string;
-        email: string;
-    };
-}
-
-interface AuthResult {
-    type: string;
-    message: string;
-}
-
-// Add Clerk to Window to avoid type errors
-interface Window {
-    Clerk: any;
-}
-
-}
