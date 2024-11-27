@@ -20,7 +20,6 @@ declare global {
         assistant_id: string;
         system_prompt: string;
         description?: string;
-        user_ids?: string[];
     }
 
     interface UserInfo {
