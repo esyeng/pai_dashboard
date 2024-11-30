@@ -7,7 +7,6 @@ import { useChat } from "@/contexts/ChatContext";
 
 
 interface OptionsProps {
-    // agents: { assistant_id: string; name: string }[];
     models: { model_id: string; name: string }[];
 }
 
@@ -59,18 +58,18 @@ export const Options: React.FC<OptionsProps> = ({ models }) => {
                     <AgentDropdown agents={provider === "claude" ? models.filter((m) => claudeModels.includes(m.model_id)) : models.filter((m) => veniceModels.includes(m.model_id))} mode="model" />
                 </div>
                 <div className="flex justify-center items-center px-2 my-1 mx-4">
-                    <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight">
+                    <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight flex-1">
                         Selected agent:{" "}
                     </span>
                     <span className="text-md text-brand-primary my-4 mr-2">
                         |
                     </span>
                     {/* <AgentDropdown agents={agents} mode="agent" /> */}
-                    <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight">
+                    <span className="text-default-font text-md py-2 pr-2 rounded leading-tight flex-2">
                         {selectedAgent}
                     </span>
                 </div>
-                <div className="flex justify-center items-center px-2 my-1 mx-4">
+                <div className="w-full flex justify-center items-center px-2 my-1 mx-4">
                     <AgentManager />
                 </div>
             </div>

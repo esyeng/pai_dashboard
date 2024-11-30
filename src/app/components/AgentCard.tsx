@@ -102,7 +102,7 @@ export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
                                 value={detailsToUpdate.description}
                                 onChange={handleChange}
                                 rows={3}
-                                className="mt-1 block w-full px-3 py-2 bg-neutral-50 border border-brand-primary rounded-md text-neutral-700/60 font-mono focus:outline-none focus:ring-2 focus:ring-brand-800 resize-y"
+                                className="mt-1 block w-full px-3 py-2 bg-neutral-50 border border-brand-primary rounded-md text-default-font font-mono focus:outline-none focus:ring-2 focus:ring-brand-800 resize-y"
                             />
                         </div>
                         <div>
@@ -115,13 +115,13 @@ export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
                                 value={detailsToUpdate.systemPrompt}
                                 onChange={handleChange}
                                 rows={5}
-                                className="mt-1 block w-full px-3 py-2 bg-neutral-50 border border-brand-primary rounded-md text-neutral-700/60 font-mono focus:outline-none focus:ring-2 focus:ring-brand-primary resize-y"
+                                className="mt-1 block w-full px-3 py-2 bg-neutral-50 border border-brand-primary rounded-md text-default-font font-mono focus:outline-none focus:ring-2 focus:ring-brand-primary resize-y"
                             />
                         </div>
                         <div className="flex justify-center mt-6">
                             <button
                                 type="submit"
-                                className="px-6 py-2 bg-brand-100 text-default-font rounded-md hover:bg-brand-primary hover:text-black transition-colors duration-300 font-mono"
+                                className="px-6 py-2 bg-brand-200 border-2 border-brand-primary text-default-font rounded-md hover:bg-brand-primary hover:text-black transition-colors duration-300 font-mono"
                             >
                                 Save Agent
                             </button>
