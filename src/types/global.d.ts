@@ -86,7 +86,7 @@ declare global {
     interface ChatContextType {
         threadState: ThreadsState;
         threadCache: Threads;
-        agents: any;
+        agents: AgentProps[];
         models: any;
         user: User | null;
         shouldQueryResearchModel: boolean;

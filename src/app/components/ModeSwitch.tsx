@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 interface ModeProps {
     modes: string[];
-    setter: (p: any) => void;
+    setter: (p: string) => void;
 };
+
 
 const ModeSwitch: React.FC<ModeProps> = ({ modes, setter }) => {
     const [selected, setSelected] = useState<string>(modes[0]);
 
+
+
     const handleModeChoice = (mode: string) => {
         setSelected(mode);
         setter(mode);
+        // console.log("mode", mode);
         // console.log("selected!", selected)
     };
 
