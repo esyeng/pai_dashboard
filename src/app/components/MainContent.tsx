@@ -91,7 +91,7 @@ export const MainContent: React.FC = () => {
                 </div>
                 {isLoaded ? (
                     <>
-                        <Options agents={agents} models={models} />
+                        <Options models={models} />
                     </>
 
                 ) : (

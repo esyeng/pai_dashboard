@@ -8,22 +8,35 @@ interface DropProps {
     mode: "model" | "agent";
 }
 
-const STORED_MODEL_ID: string = "model_id";
+// const STORED_MODEL_ID: string = "model_id";
+const STORED_CURRENT_MODEL_ID: string = "current_model_id";
+const STORED_CLAUDE_MODEL_ID: string = "claude_id";
+const STORED_VENICE_MODEL_ID: string = "venice_id";
 const STORED_AGENT_ID: string = "agent_id";
 
 export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
-    const { models, agentId, setAgentId, modelId, setModelId } = useChat();
+    const { models, agentId, setAgentId, modelId, setModelId, provider } = useChat();
 
     const handleSelection = (selectionId: string) => {
         if (mode === "model") {
             setModelId(selectionId);
-            localStorage.setItem(STORED_MODEL_ID, selectionId);
+            localStorage.setItem(STORED_CURRENT_MODEL_ID, selectionId);
+            if (provider === "claude") {
+                localStorage.setItem(STORED_CLAUDE_MODEL_ID, selectionId);
+            } else if (provider === "venice") {
+                localStorage.setItem(STORED_VENICE_MODEL_ID, selectionId);
+            }
         }
         else if (mode === "agent") {
             setAgentId(selectionId);
             localStorage.setItem(STORED_AGENT_ID, selectionId);
         };
     };
+
+    // useEffect(() => {
+    //     setModelId(provider === "claude" ? claudeModels[0] : veniceModels[0]);
+    //     localStorage.setItem(STORED_MODEL_ID, provider === "claude" ? claudeModels[0] : veniceModels[0]);
+    // }, [provider])
 
     return (
         <div className="relative inline-block text-left">
