@@ -132,9 +132,11 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
                     style={oneDark}
                     PreTag="div"
                     showLineNumbers
+                    wrapLongLines={true}
                     customStyle={{
                         margin: 0,
                         width: "100%",
+                        maxHeight: "70vh",
                         background: "rgb(23, 23, 23)",
                         padding: "1.5rem 1rem",
                     }}
