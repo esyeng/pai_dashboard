@@ -383,7 +383,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                         },
                         latestToken
                     );
-                    console.log("received resp", response);
+                console.log("received resp", response);
                 const receivedMsg: MessageProps = {
                     id: uuidv4(),
                     timestamp: Date.now(),
@@ -391,8 +391,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     sender: agentId,
                     msg: {
                         role: "assistant",
-                        content:
-                            response?.response ??
+                        content: provider === "claude" ?
+                            response?.response : response.choices[0].message.content ??
                             "If you're reading this, it means it didn't work. :(",
                     },
                 };
