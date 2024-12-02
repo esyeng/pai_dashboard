@@ -239,10 +239,8 @@ declare global {
         | {
             text?: string;
             response?: string | JSON;
-        } |
-        {
-            choices?: { stop_reason: string; message: { role: string; content: string; } }[]
-        }
+        };
+        choices?: [{ stop_reason: string; message: { role: string; content: string; } }]
         text?: string;
     }
 

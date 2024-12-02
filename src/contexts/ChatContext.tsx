@@ -392,7 +392,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     msg: {
                         role: "assistant",
                         content: provider === "claude" ?
-                            response?.response : response.choices[0].message.content ??
+                            response?.response : response?.choices?.[0]?.message?.content ??
                             "If you're reading this, it means it didn't work. :(",
                     },
                 };
