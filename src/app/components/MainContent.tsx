@@ -77,7 +77,7 @@ export const MainContent: React.FC = () => {
             >
                 <Sidebar />
             </div>
-            {hideChat ? (null) : (<div className={`w-full sm:visible sm:w-3/4 sm:self-end`}>
+            {hideChat ? (null) : (<div className={`w-full sm:visible sm:w-3/4 sm:self-end lg:mx-4`}>
                 <div className=" items-center justify-around">
                     <div className="  items-center justify-between font-mono text-sm ">
                         <div className="flex items-center justify-center">

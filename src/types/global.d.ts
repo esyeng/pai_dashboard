@@ -99,7 +99,7 @@ declare global {
         token: string;
         latestToken: string;
         modelId: string;
-        provider: "claude" | "venice";
+        provider: string;
         month: number;
         year: number;
         loadComplete: boolean;

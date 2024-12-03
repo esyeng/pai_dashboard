@@ -9,6 +9,8 @@ const BASE = process.env.BASE_URL
     ? process.env.BASE_URL
     : "https://jasmyn-dev-418676732313.us-central1.run.app";
 
+// const BASE = "http://0.0.0.0:8000";
+
 
 
 // const GPT_BASE = `${BASE}/model/gpt`;
@@ -50,11 +52,11 @@ export function parseMessageString(messageString: string): MessageProps {
 // TODO - allow for different models
 
 export const queryModel = async (
-    provider: "claude" | "venice",
+    provider: string,
     params: ClaudeChatRequestParams | VeniceChatRequestParams,
     token: any
 ): Promise<ModelResponse> => {
-    let route = provider === "claude" ? CLAUDE : VENICE;
+    let route = provider === "claude" ? CLAUDE : provider === "venice" ? VENICE : VENICE;
     try {
         if (typeof token === "object") {
             token = await token;

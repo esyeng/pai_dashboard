@@ -69,13 +69,13 @@ const ThreadList: React.FC = () => {
 
     return (
         <div className={`h-1/2 shadow-xl flex-1 w-full border-brand-50 rounded-tl-lg rounded-tr-lg rounded-bl-sm rounded-br-sm ${open ? "border-b-4" : ""}`}>
-            <div className={`flex  justify-between items-center p-2 bg-brand-50 ${open ? "rounded-tl-lg rounded-tr-lg" : "rounded-lg"}`}  >
+            <div className={`flex sm:flex-col md:flex-row justify-between items-center p-2 bg-brand-50 ${open ? "rounded-tl-lg rounded-tr-lg" : "rounded-lg"}`}  >
 
-                <h2 className="text-xl text-default-font/70  font-bold p-4">
+                <h2 className="text-sm text-default-font/70  font-bold p-4 md:text-md lg:text-xl">
                     Threads
                 </h2>
 
-                <span className={`${open ? "" : ""} text-brand-primary cursor-pointer border-2 border-brand-primary p-2 rounded-sm hover:scale-105 hover:text-default-font text-sm`} onClick={() => setOpen(prev => !prev)}>{open ? "Hide" : "Expand"}</span>
+                <span className={`${open ? "" : ""} sm:w-full md:w-20 text-brand-primary cursor-pointer border-2 border-brand-primary p-2 rounded-sm hover:scale-105 hover:text-default-font text-sm`} onClick={() => setOpen(prev => !prev)}>{open ? "Hide" : "Expand"}</span>
             </div>
             {open &&
 

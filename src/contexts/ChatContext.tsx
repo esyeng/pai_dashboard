@@ -46,6 +46,7 @@ interface ChatProviderProps {
 
 const STORED_MODEL_ID: string = "model_id";
 const STORED_AGENT_ID: string = "agent_id";
+const STORED_PROVIDER_ID: string = "provider_id";
 
 // Unique ID for each thread, used for selecting and updating. Is separate from db object thread.id
 const idGenerator = UniqueIdGenerator.getInstance();
@@ -53,10 +54,11 @@ const idGenerator = UniqueIdGenerator.getInstance();
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-    let storedAgent, storedModel;
+    let storedAgent, storedModel, storedProvider;
     if (typeof localStorage !== "undefined") {
         storedAgent = localStorage?.getItem(STORED_AGENT_ID);
         storedModel = localStorage?.getItem(STORED_MODEL_ID);
+        storedProvider = localStorage?.getItem(STORED_PROVIDER_ID);
     }
     const [threadState, dispatchThreads] = useReducer(threadsReducer, {
         threads: {},
@@ -73,8 +75,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const { getToken } = useAuth();
     // Default agent, model
     const [agentId, setAgentId] = useState<string>(storedAgent ? storedAgent : "jasmyn");
-    const [modelId, setModelId] = useState<string>(storedModel ? storedModel : "claude-3-5-sonnet-20240620");
-    const [provider, setProvider] = useState<"claude" | "venice">("claude");
+    const [modelId, setModelId] = useState<string>(storedModel ? storedModel : "dolphin-2.9.2-qwen2-72b");
+    const [provider, setProvider] = useState<string>(storedProvider ? storedProvider : "venice");
     const [user, setUser] = useState<User | null>(null);
     const [threadCache, setThreadCache] = useState<Threads>({});
     const [agents, setAgents] = useState<AgentProps[]>([]);

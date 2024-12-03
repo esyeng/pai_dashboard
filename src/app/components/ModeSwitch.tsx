@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 
 interface ModeProps {
+    mode: string;
     modes: string[];
     setter: (p: string) => void;
 };
 
+const STORED_PROVIDER_ID: string = "provider_id";
 
-const ModeSwitch: React.FC<ModeProps> = ({ modes, setter }) => {
-    const [selected, setSelected] = useState<string>(modes[0]);
+
+const ModeSwitch: React.FC<ModeProps> = ({mode, modes, setter }) => {
+    let providerId;
+    if (typeof localStorage !== "undefined") {
+        providerId = localStorage?.getItem(STORED_PROVIDER_ID);
+    }
+    const [selected, setSelected] = useState<string>(mode);
 
 
 
@@ -23,8 +30,8 @@ const ModeSwitch: React.FC<ModeProps> = ({ modes, setter }) => {
 
 
     return (
-        <div className="p-2 flex justify-center items-center w-full">
-            <div className="p-2 flex items-center justify-evenly">
+        <div className="p-2 flex justify-center items-center lg:px-0">
+            <div className="p-2 flex items-center justify-evenly lg:px-0">
                 {modes.map((mode, i) => {
                     return (
                         <span key={mode + i} className={`${selected.toLowerCase() === mode ? selectedClass : defaultClass} px-2 self-center cursor-pointer`}

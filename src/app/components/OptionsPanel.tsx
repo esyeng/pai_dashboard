@@ -18,6 +18,7 @@ const modelStore = {
     "claude": localStorage.getItem(STORED_CLAUDE_MODEL_ID) || "",
     "venice": localStorage.getItem(STORED_VENICE_MODEL_ID) || ""
 }
+const STORED_PROVIDER_ID: string = "provider_id";
 
 // const veniceModels = ["llama-3.1-405b", "llama-3.2-3b", "dolphin-2.9.2-qwen2-72b", "flux-dev-uncensored", "fluently-xl", "flux-dev", "nous-theta-8b", "qwen32b"]
 
@@ -28,6 +29,7 @@ export const Options: React.FC<OptionsProps> = ({ models }) => {
     const claudeModels = ["claude-3-5-sonnet-20240620", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"]
     const veniceModels = ["llama-3.2-3b", "dolphin-2.9.2-qwen2-72b", "nous-theta-8b", "qwen32b"]
     const selectedAgent = agents.find((a) => a.assistant_id === agentId)?.name;
+    const mode = localStorage?.getItem(STORED_PROVIDER_ID) || "";
 
 
     const handleSwitch = (providerStr: string) => {
@@ -41,38 +43,57 @@ export const Options: React.FC<OptionsProps> = ({ models }) => {
             localStorage.setItem(STORED_CURRENT_MODEL_ID, localStorage.getItem(STORED_CLAUDE_MODEL_ID) || claudeModels[0]);
             setProvider("claude");
         }
+        localStorage.setItem(STORED_PROVIDER_ID, providerStr.toLowerCase());
     }
 
     let ids = models.map((model) => model.model_id);
     console.log("modelIds", ids)
     return (
-        <div className="flex  justify-center w-full sm:flex-col">
-            <div className="mb-4 mx-2 flex flex-1 flex-col items-center justify-center my-2 lg:flex-row p-2 rounded-lg bg-brand-50/70 ">
-                <ModeSwitch modes={providers} setter={handleSwitch} />
+        <div className="flex justify-center w-full sm:flex-col lg:sticky">
+            <div className="mb-4 mx-2 w-full flex flex-col items-center justify-center my-2 lg:flex-row  p-2 rounded-lg bg-brand-50/70 sm:mx-0 ">
+                <div className="md:w-full lg:w-auto lg:flex justify-evenly">
+                    <div className="flex flex-col lg:flex-row">
+                        <div className="flex flex-2 lg:flex-col justify-center items-center px-2 my-1 mx-4 md:mx-0 lg:pl-16">
+                            <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight lg:self-start ">
+                                Provider:{" "}
+                            </span>
+                            <span className="text-md text-brand-primary my-4 mr-2 lg:hidden">
+                                |
+                            </span>
+                            <ModeSwitch mode={mode} modes={providers} setter={handleSwitch} />
+                        </div>
 
-                <div className="flex justify-center items-center px-2 my-1 mx-4">
-                    <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight">
-                        Model:{" "}
-                    </span>
-                    <span className="text-md text-brand-primary my-4 mr-2">
-                        |
-                    </span>
-                    <AgentDropdown agents={provider === "claude" ? models.filter((m) => claudeModels.includes(m.model_id)) : models.filter((m) => veniceModels.includes(m.model_id))} mode="model" />
-                </div>
-                <div className="flex justify-center items-center px-2 my-1 mx-4">
-                    <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight flex-1">
-                        Selected agent:{" "}
-                    </span>
-                    <span className="text-md text-brand-primary my-4 mr-2">
-                        |
-                    </span>
-                    {/* <AgentDropdown agents={agents} mode="agent" /> */}
-                    <span className="text-default-font text-md py-2 pr-2 rounded leading-tight flex-2">
-                        {selectedAgent}
-                    </span>
-                </div>
-                <div className="w-full flex justify-center items-center px-2 my-1 mx-4">
-                    <AgentManager />
+                        <div className="flex flex-2 justify-center items-center px-2 my-1 mx-4 md:mx-0">
+                            <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight">
+                                Model:{" "}
+                            </span>
+                            <span className="text-md text-brand-primary my-4 mr-2">
+                                |
+                            </span>
+                            <AgentDropdown agents={provider === "claude" ? models.filter((m) => claudeModels.includes(m.model_id)) : models.filter((m) => veniceModels.includes(m.model_id))} mode="model" />
+                        </div>
+                    </div>
+                    <div className="flex justify-center items-center px-2 my-1 mx-4 sm:mx-0">
+
+                        <div className="lg:flex-1 min-w-36 lg:min-w-20">
+                            <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight flex-1 min-w-28 sm:text-sm">
+                                Selected agent:{" "}
+                            </span>
+                            <span className="text-md text-brand-primary my-4 mr-2">
+                                |
+                            </span>
+                        </div>
+                        <div className="self-center w-min lg:flex-3 lg:w-full min-w-16">
+
+                            <span className="text-default-font text-md py-2 pr-2 rounded leading-tight ">
+                                {selectedAgent}
+                            </span>
+                        </div>
+                        {/* <AgentDropdown agents={agents} mode="agent" /> */}
+                    </div>
+                    <div className="flex justify-center items-center px-2 my-1 mx-4 sm:mx-0">
+                        <AgentManager />
+                    </div>
                 </div>
             </div>
         </div>

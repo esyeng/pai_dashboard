@@ -39,16 +39,16 @@ export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
     // }, [provider])
 
     return (
-        <div className="relative inline-block text-left">
+        <div className="relative inline-block text-left min-w-40 w-full lg:text-sm">
             <select
                 value={mode === "agent" ? agentId : modelId}
                 onChange={(e) => handleSelection(e.target.value)}
-                className="block appearance-none w-full font-mono bg-default-background border border-brand-primary text-brand-primary py-2 px-4 pr-8 rounded-md leading-tight hover:bg-brand-50/60 focus:bg-brand-50/30 focus:outline-none bg-none"
+                className="lg:text-xs block appearance-none w-full font-mono bg-default-background border border-brand-primary text-brand-primary py-2 px-4 pr-8 rounded-md leading-tight hover:bg-brand-50/60 focus:bg-brand-50/30 focus:outline-none bg-none"
 
             >
                 {agents.map((agent) => (
                     <option
-                        className="font-mono"
+                        className="font-mono lg:text-sm"
                         key={mode === "agent" ? (agent as { assistant_id: string; name: string }).assistant_id : (agent as { model_id: string; name: string }).model_id}
                         value={mode === "agent" ? (agent as { assistant_id: string; name: string }).assistant_id : (agent as { model_id: string; name: string }).model_id}
                     >
