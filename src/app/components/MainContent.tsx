@@ -10,11 +10,14 @@ import { useChat } from "@/contexts/ChatContext";
 import { SignInOrOut } from "./account/SignInOrOut";
 import { useAuth } from "@clerk/nextjs";
 import MessageLoadingIndicator from "./ui/MessageLoadingIndicator";
+import { useJasmynAuth } from "@/contexts/AuthContext";
 
 export const MainContent: React.FC = () => {
     const { isSidebarOpen, toggleSidebar, setSidebarOpen } = useSidebar();
     const { isLoaded, getToken } = useAuth();
-    const { agents, models, setToken, token, setLatestToken } = useChat();
+    const { agents, models, fetchThreadsData, getAgents } = useChat();
+    const { token, setToken, setLatestToken, user } = useJasmynAuth();
+    // const { agents, models, setToken, token, setLatestToken } = useChat();
     const [hideChat, setHideChat] = useState(true);
     const barNode = document.getElementById("sidebar");
 
@@ -56,6 +59,12 @@ export const MainContent: React.FC = () => {
             setLatestToken(t);
         }
     }, [isLoaded]);
+
+    useEffect(() => {
+        if (!user || !user.user_id) return;
+        getAgents(user);
+        fetchThreadsData(user.user_id);
+    }, [user]);
 
     return (
         <div className="sm:flex">

@@ -13,7 +13,6 @@ import {
     fetchThreads,
     fetchAssistants,
     fetchModels,
-    fetchUser,
     saveNewThread,
     updateThreadMessages
 } from "../lib/api";
@@ -25,6 +24,7 @@ import {
     sortObjectsByCreatedAt,
 } from "@/lib/utils/helpers";
 import { threadsReducer } from "./threadsReducer";
+import { useJasmynAuth } from "./AuthContext";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@clerk/nextjs";
 // import { logger } from '../lib/utils/logger';
@@ -66,19 +66,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         activeMessageQueue: [],
         messagesInActiveThread: [],
     });
-    const [token, setToken] = useState<
-        any | Promise<string> | string | undefined
-    >();
-    const [latestToken, setLatestToken] = useState<
-        any | Promise<string> | string | undefined
-    >();
-    const { getToken } = useAuth();
+    const { user, latestToken, loadComplete } = useJasmynAuth();
     // Default agent, model
     const [agentId, setAgentId] = useState<string>(storedAgent ? storedAgent : "jasmyn");
     const [modelId, setModelId] = useState<string>(storedModel ? storedModel : "dolphin-2.9.2-qwen2-72b");
     const [provider, setProvider] = useState<string>(storedProvider ? storedProvider : "venice");
-    const [user, setUser] = useState<User | null>(null);
     const [threadCache, setThreadCache] = useState<Threads>({});
+
+
     const [agents, setAgents] = useState<AgentProps[]>([]);
     const [models, setModels] = useState<any>([]);
     // prompts is an object used to combine user details with character prompt for personalized messages
@@ -87,7 +82,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         useState<boolean>(false);
     // Status flags
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [loadComplete, setLoadComplete] = useState<boolean>(false);
+    // const [loadComplete, setLoadComplete] = useState<boolean>(false);
     // flag for updating database thread messages
     const [updateThread, setUpdateThread] = useState<boolean>(false);
 
@@ -108,8 +103,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const actionsToInclude = ["wikipedia", "google", "process_urls", "write_report"];
 
 
+    // TODO - move this to AssistantContext
     // fetch agents from db once user data present
-    const getAgents = async (user: UserResponse) => {
+    const getAgents = async (user: UserResponse | User) => {
         console.log("get agents called");
         console.log("user object in getAgents", user);
         if (!user || !user.profile) {
@@ -151,36 +147,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // ****** effects *******
 
     useEffect(() => {
-        const refreshInterval = setInterval(() => {
-            setLatestToken(getToken())
-        }, 50000);
-
-        return () => {
-            clearInterval(refreshInterval);
-        }
-    }, [])
-
-    // sets loadComplete once token promise resolves
-    useEffect(() => {
-        if (token) {
-            setLoadComplete(true);
-        }
-        return () => {
-            if (loadComplete) {
-                console.log(`effect cleanup for loadComplete initialized, value: ${loadComplete}`);
-            }
-        };
-    }, [token]);
-
-    // executes once token promise resolves, fetches and sets user data then threads
-    useEffect(() => {
         if (loadComplete) {
-            fetchData();
-            console.log("fetching threads...");
-            fetchThreadsData(token);
             setDisableQuery(false);
         }
-    }, [loadComplete, token]);
+    }, [loadComplete]);
 
     // save thread messages after each msg
     useEffect(() => {
@@ -195,15 +165,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // ******  chat & threads methods ********
     /**
      * @method fetchThreadsData
-     * @param token: string | null
+     * @param user_id: string
      * @returns fetchedThreads: Thread[]
      */
     const fetchThreadsData = useCallback(
-        async (token: string | null): Promise<Thread[]> => {
-            if (!token) return [];
+        async (user_id: string): Promise<Thread[]> => {
             try {
                 // fetch and filter empty
-                const fetchedThreads: Thread[] = (await fetchThreads(token)).filter((t: Thread) => t.messages.length > 0);
+                const fetchedThreads: Thread[] = (await fetchThreads(user_id)).filter((t: Thread) => t.messages.length > 0);
                 const threadsObject = fetchedThreads.reduce((acc, thread) => {
                     // construct threads object, converting fetched data to object state
                     acc[
@@ -257,41 +226,34 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         []
     );
 
-    /**
-     * @method fetchData
-     * @returns authenticatedUserObject: any
-     */
-    const fetchData = useCallback(async () => {
-        try {
-            if (!token) return;
-            // once clerkAuth request completes the following executes
-            const fetchedUserData = await fetchUser(token);
-            console.log("fetchedUserData", fetchedUserData);
-            setUser(fetchedUserData);
-            clearNoteStorage(fetchedUserData);
-            await getAgents(fetchedUserData).then(() => {
-                console.log("agents fetched");
-            });
-        } catch (error) {
-            console.error("Error fetching user:", error);
-        }
-    }, [token, getAgents]);
+    // /**
+    //  * @method refreshNotes
+    //  * @returns authenticatedUserObject: any
+    //  */
+    // const refreshNotes = useCallback(async () => {
+    //     try {
+    //         if (!user) return;
+    //         clearNoteStorage(user);
+    //     } catch (error) {
+    //         console.error("Error fetching user:", error);
+    //     }
+    // }, [user]);
 
 
-    const clearNoteStorage = (user: User) => {
-        const noteId = localStorage.getItem("note user id");
-        if (!user) {
-            localStorage.setItem("notes", "");
-            localStorage.setItem("note user id", "");
-        } else if (noteId !== "") {
-            if (noteId !== user.id) {
-                localStorage.setItem("notes", "");
-                localStorage.setItem("note user id", user.id ? user.id : "");
-            }
-        } else {
-            localStorage.setItem("note user id", user.id ? user.id : "");
-        }
-    };
+    // const clearNoteStorage = (user: User) => {
+    //     const noteId = localStorage.getItem("note user id");
+    //     if (!user) {
+    //         localStorage.setItem("notes", "");
+    //         localStorage.setItem("note user id", "");
+    //     } else if (noteId !== "") {
+    //         if (noteId !== user.id) {
+    //             localStorage.setItem("notes", "");
+    //             localStorage.setItem("note user id", user.id ? user.id : "");
+    //         }
+    //     } else {
+    //         localStorage.setItem("note user id", user.id ? user.id : "");
+    //     }
+    // };
 
     /**
      * @method sendChat - http method for back and forth chatting with provider endpoint
@@ -505,16 +467,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 disableQuery,
                 user,
                 agentId,
-                token,
-                latestToken,
                 month,
                 year,
-                setToken,
-                setLatestToken,
                 modelId,
                 provider,
                 loadComplete,
-                setUser,
+                getAgents,
                 setModelId,
                 setProvider,
                 setAgentId,

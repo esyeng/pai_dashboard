@@ -96,8 +96,8 @@ declare global {
         example: string;
         character: string;
         agentId: string;
-        token: string;
-        latestToken: string;
+        // token: string;
+        // latestToken: string;
         modelId: string;
         provider: string;
         month: number;
@@ -105,9 +105,10 @@ declare global {
         loadComplete: boolean;
         selectedActions: string[];
         disableQuery: boolean;
-        setToken: (token: string | Promise<string> | any) => void;
-        setLatestToken: (token: string | Promise<string> | any) => void;
-        setUser: (user: User) => void;
+        // setToken: (token: string | Promise<string> | any) => void;
+        // setLatestToken: (token: string | Promise<string> | any) => void;
+        // setUser: (user: User) => void;
+        getAgents: (user: User | UserResponse) => Promise<any>;
         setModelId: (modelId: string) => void;
         setAgentId: (agentId: string) => void;
         setProvider: (provider: "claude" | "venice") => void;
@@ -134,8 +135,43 @@ declare global {
         createNewThread: () => Promise<any>;
         deleteThread: (threadId: string) => Promise<void>;
         exportThread: (threadId: string) => void;
-        fetchThreadsData: (token: string | null) => Promise<Thread[]>;
+        fetchThreadsData: (user_id: string) => Promise<Thread[]>;
         isLoading?: boolean;
+    }
+
+    interface AssistantContextType {
+        agents: AgentProps[];
+        models: any;
+        agentId: string;
+        modelId: string;
+        provider: string;
+        setModelId: (modelId: string) => void;
+        setAgentId: (agentId: string) => void;
+        setProvider: (provider: "claude" | "venice") => void;
+        createNewAssistant: (
+            user_id: string,
+            assistant_id: string,
+            name: string,
+            system_prompt: string,
+            description?: string
+        ) => Promise<any>;
+        saveAssistantUpdates: (
+            user_id: string,
+            assistant_id: string,
+            name: string,
+            system_prompt: string,
+            description: string
+        ) => Promise<any>;
+    }
+
+    interface AuthContextType {
+        user: User | UserResponse | null;
+        token: string;
+        latestToken: string;
+        loadComplete: boolean;
+        setToken: (token: string | Promise<string> | any) => void;
+        setLatestToken: (token: string | Promise<string> | any) => void;
+        setUser: (user: User | UserResponse) => void;
     }
 
     interface DataObject {

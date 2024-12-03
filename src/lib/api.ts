@@ -173,11 +173,11 @@ export const fetchUser = async (token: any) => {
 }
 
 export const fetchThreads = async (
-    token: string | Promise<string>
+    user_id: string
 ): Promise<Thread[]> => {
     const client = createClerkSupabaseClient();
     try {
-        const { data, error } = await client.from("threads").select("*");
+        const { data, error } = await client.from("threads").select("*").eq("user_id", user_id);
         if (error) {
             throw new Error("Failed to fetch threads" + error?.message);
         }
@@ -219,6 +219,68 @@ export const fetchModels = async (): Promise<any> => {
         throw error;
     }
 }
+
+// createAssistant
+export const createAssistant = async (
+    user_id: string,
+    assistant_id: string,
+    name: string,
+    system_prompt: string,
+    description?: string
+): Promise<any> => {
+    const client = createClerkSupabaseClient();
+    try {
+        const { data, error } = await client.from("assistants").insert([
+            {
+                assistant_id: assistant_id,
+                name: name,
+                description: description || "",
+                system_prompt: system_prompt,
+                created_by: user_id
+            }
+        ]).select();
+        if (error) {
+            throw new Error("Failed to create assistant" + error?.message);
+        };
+        console.log("created assistant data!", data);
+        return data;
+    } catch (error) {
+        console.error("Error creating assistant:", error);
+        return error;
+    }
+}
+
+// updateAssistant
+export const updateAssistant = async (
+    user_id: string,
+    assistant_id: string,
+    name: string,
+    system_prompt: string,
+    description: string
+): Promise<any> => {
+    const client = createClerkSupabaseClient();
+    try {
+        const { data, error } = await client.from("assistants")
+            .update({
+                name: name,
+                system_prompt: system_prompt,
+                description: description
+            })
+            .eq("created_by", user_id)
+            .eq("assistant_id", assistant_id)
+            .select();
+        if (error) {
+            throw new Error("Failed to update assistant" + " " + assistant_id + error?.message);
+        }
+        console.log("updated assistant data!", data)
+        return data;
+    } catch (error) {
+        console.error("Error creating assistant:", error);
+        return error;
+    }
+}
+
+// deleteAssistant
 
 export const saveNewThread = async (
     thread_id: string,
