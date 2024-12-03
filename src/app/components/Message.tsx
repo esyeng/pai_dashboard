@@ -64,7 +64,7 @@ export const Message: React.FC<MessageProps> = ({
                                                 : currentAgentName
                                             }:
                                         </span>
-                                        <div className="block text-sm flex-1 sm:text-lg">
+                                        <div className="block text-lg flex-1 md:text-sm">
                                             <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
                                                 {part.content.replace(/\n/gi, "&nbsp; \n").trim()}
                                             </ReactMarkdown>

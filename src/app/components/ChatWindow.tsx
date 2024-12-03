@@ -74,7 +74,7 @@ export const ChatWindow: React.FC = () => {
         <div className=" px-4 py-4 mx-2 sm:mx-0 h-full bg-brand-50/70 rounded-md">
             <div className="">
                 <div className="">
-                    <div className=" overflow-y-auto sm:p-4">
+                    <div className=" overflow-y-auto max-h-[32rem] sm:p-4">
                         {currentConversation.map(
                             (message: MessageProps | string, i: number) => {
                                 let msg;
