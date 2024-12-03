@@ -27,7 +27,7 @@ export const Options: React.FC<OptionsProps> = ({ models }) => {
     const { provider, setProvider, agents, agentId, modelId, setModelId } = useChat();
     const providers = ["claude", "venice"];
     const claudeModels = ["claude-3-5-sonnet-20240620", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"]
-    const veniceModels = ["llama-3.2-3b", "dolphin-2.9.2-qwen2-72b", "nous-theta-8b", "qwen32b"]
+    const veniceModels = ["llama-3.1-405b", "llama-3.2-3b", "dolphin-2.9.2-qwen2-72b", "nous-theta-8b", "qwen32b"]
     const selectedAgent = agents.find((a) => a.assistant_id === agentId)?.name;
     const mode = localStorage?.getItem(STORED_PROVIDER_ID) || "";
 

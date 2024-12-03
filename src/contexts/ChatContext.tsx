@@ -353,6 +353,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             setIsLoading(true);
             setDisableQuery(true);
             if (latestToken && user) {
+                let prof;
+                if (Array.isArray(user.profile)) {
+                    prof = user.profile[0];
+                } else prof = user.profile;
+                const sys = personalizePrompt(
+                    prompts[agentId],
+                    prof
+                );
+                // console.log("sys prompt after personalize", sys);
+                // console.log("user in context about to queryModel", user);
+                // console.log("user prof var assigned correctly?", prof);
                 const response = search
                     ? await queryResearchModel(
                         {
@@ -374,10 +385,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             model: model || "claude-3-5-sonnet-20240620",
                             temperature: temperature ?? 0.6,
                             agent_id: agentId,
-                            system_prompt: personalizePrompt(
-                                prompts[agentId],
-                                user.profile[0]
-                            ),
+                            system_prompt: sys,
                             messages: messagesToSend,
                             use_venice: false,
                             currentThreadId: currentThreadId,

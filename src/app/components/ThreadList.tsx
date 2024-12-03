@@ -124,7 +124,7 @@ const ThreadList: React.FC = () => {
                                             <button
                                                 className="px-2 h-full self-stretch cursor-pointer  focus:outline-none hover:text-default-font hover:scale-105 transition-colors duration-300 hover:underline "
                                                 onClick={() =>
-                                                    exportThread(threadItem.id)
+                                                    exportThread(threadItem.threadId)
                                                 }
                                             >
                                                 Export
