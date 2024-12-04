@@ -9,7 +9,7 @@ import { ClipboardIcon } from "@radix-ui/react-icons";
 import { CodeBlock } from "./ui/CodeBlock";
 import { parseCodeBlocks } from "../../lib/utils/helpers";
 import { useUser } from "@clerk/nextjs";
-import { useChat } from "../../contexts/ChatContext";
+import { useAssistants } from "@/contexts/AssistantContext";
 
 
 export const Message: React.FC<MessageProps> = ({
@@ -21,7 +21,7 @@ export const Message: React.FC<MessageProps> = ({
 }) => {
     const { isCopied, copyToClipboard } = useCopyToClipboard({});
     const { user, isLoaded, isSignedIn } = useUser();
-    const { agents } = useChat();
+    const { agents } = useAssistants();
     let name: any = ''
     if (!isLoaded) {
         return null;

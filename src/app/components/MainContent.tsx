@@ -7,17 +7,17 @@ import { Sidebar } from "./Sidebar";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
 import { useWindowResize } from "@/lib/hooks/use-window-resize";
 import { useChat } from "@/contexts/ChatContext";
-import { SignInOrOut } from "./account/SignInOrOut";
+import { useAssistants } from "@/contexts/AssistantContext";
+import { useJasmynAuth } from "@/contexts/AuthContext";
 import { useAuth } from "@clerk/nextjs";
 import MessageLoadingIndicator from "./ui/MessageLoadingIndicator";
-import { useJasmynAuth } from "@/contexts/AuthContext";
 
 export const MainContent: React.FC = () => {
-    const { isSidebarOpen, toggleSidebar, setSidebarOpen } = useSidebar();
+    const { isSidebarOpen, toggleSidebar } = useSidebar();
     const { isLoaded, getToken } = useAuth();
-    const { agents, models, fetchThreadsData, getAgents } = useChat();
-    const { token, setToken, setLatestToken, user } = useJasmynAuth();
-    // const { agents, models, setToken, token, setLatestToken } = useChat();
+    const { fetchThreadsData } = useChat();
+    const { models, getAgents } = useAssistants();
+    const { setToken, setLatestToken, user } = useJasmynAuth();
     const [hideChat, setHideChat] = useState(true);
     const barNode = document.getElementById("sidebar");
 
@@ -53,7 +53,7 @@ export const MainContent: React.FC = () => {
     useWindowResize(handleHideChat, { maxWidth: 640 });
 
     useEffect(() => {
-        if (isLoaded) {
+        if (isLoaded) { // clerk auth load completion flag
             let t = getToken()
             setToken(t);
             setLatestToken(t);
@@ -62,8 +62,8 @@ export const MainContent: React.FC = () => {
 
     useEffect(() => {
         if (!user || !user.user_id) return;
-        getAgents(user);
-        fetchThreadsData(user.user_id);
+        getAgents(user); // populate assistants state
+        fetchThreadsData(user.user_id); // populate threads state
     }, [user]);
 
     return (
@@ -108,26 +108,6 @@ export const MainContent: React.FC = () => {
                         <div className=" items-center justify-center rounded-lg p-4">
                             <span className="text-gray-600">Loading...</span>
                             <MessageLoadingIndicator />
-                            {/* <svg
-                                className="w-5 h-5 text-gray-600 animate-spin"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                            >
-                                <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                ></circle>
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                ></path>
-                            </svg> */}
                         </div>
                     </div>
                 )}

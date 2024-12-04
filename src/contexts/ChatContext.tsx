@@ -25,6 +25,7 @@ import {
 } from "@/lib/utils/helpers";
 import { threadsReducer } from "./threadsReducer";
 import { useJasmynAuth } from "./AuthContext";
+import { useAssistants } from "./AssistantContext";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@clerk/nextjs";
 // import { logger } from '../lib/utils/logger';
@@ -67,17 +68,18 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         messagesInActiveThread: [],
     });
     const { user, latestToken, loadComplete } = useJasmynAuth();
+    const { agentId, modelId, provider, prompts, agents, models } = useAssistants();
     // Default agent, model
-    const [agentId, setAgentId] = useState<string>(storedAgent ? storedAgent : "jasmyn");
-    const [modelId, setModelId] = useState<string>(storedModel ? storedModel : "dolphin-2.9.2-qwen2-72b");
-    const [provider, setProvider] = useState<string>(storedProvider ? storedProvider : "venice");
+    // const [agentId, setAgentId] = useState<string>(storedAgent ? storedAgent : "jasmyn");
+    // const [modelId, setModelId] = useState<string>(storedModel ? storedModel : "dolphin-2.9.2-qwen2-72b");
+    // const [provider, setProvider] = useState<string>(storedProvider ? storedProvider : "venice");
     const [threadCache, setThreadCache] = useState<Threads>({});
 
 
-    const [agents, setAgents] = useState<AgentProps[]>([]);
-    const [models, setModels] = useState<any>([]);
+    // const [agents, setAgents] = useState<AgentProps[]>([]);
+    // const [models, setModels] = useState<any>([]);
     // prompts is an object used to combine user details with character prompt for personalized messages
-    const [prompts, setPrompts] = useState<PromptMap>({});
+    // const [prompts, setPrompts] = useState<PromptMap>({});
     const [shouldQueryResearchModel, setShouldQueryResearchModel] =
         useState<boolean>(false);
     // Status flags
@@ -105,30 +107,30 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     // TODO - move this to AssistantContext
     // fetch agents from db once user data present
-    const getAgents = async (user: UserResponse | User) => {
-        console.log("get agents called");
-        console.log("user object in getAgents", user);
-        if (!user || !user.profile) {
-            console.log("no user object in getAgents");
-            return;
-        }
-        const agents = await fetchAssistants(user.profile.assistant_ids);
-        const models = await fetchModels();
-        const promptMap: PromptMap = {};
-        if (agents) {
-            console.log("agents is true", user);
-            setAgents(agents);
-            console.log("Agents!", agents);
-            agents.forEach((agent: AgentProps) => {
-                promptMap[agent.assistant_id] = agent.system_prompt;
-            });
-            setPrompts(promptMap);
-        }
-        if (models) {
-            setModels(models);
-            console.log("models", models);
-        }
-    };
+    // const getAgents = async (user: UserResponse | User) => {
+    //     console.log("get agents called");
+    //     console.log("user object in getAgents", user);
+    //     if (!user || !user.profile) {
+    //         console.log("no user object in getAgents");
+    //         return;
+    //     }
+    //     const agents = await fetchAssistants(user.profile.assistant_ids);
+    //     const models = await fetchModels();
+    //     const promptMap: PromptMap = {};
+    //     if (agents) {
+    //         console.log("agents is true", user);
+    //         setAgents(agents);
+    //         console.log("Agents!", agents);
+    //         agents.forEach((agent: AgentProps) => {
+    //             promptMap[agent.assistant_id] = agent.system_prompt;
+    //         });
+    //         setPrompts(promptMap);
+    //     }
+    //     if (models) {
+    //         setModels(models);
+    //         console.log("models", models);
+    //     }
+    // };
 
     // saves convo to database thread
     // called in effect callback after message received from server
@@ -142,7 +144,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             console.error("Error updating thread messages:", error);
         }
     };
-
 
     // ****** effects *******
 
@@ -175,6 +176,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 const fetchedThreads: Thread[] = (await fetchThreads(user_id)).filter((t: Thread) => t.messages.length > 0);
                 const threadsObject = fetchedThreads.reduce((acc, thread) => {
                     // construct threads object, converting fetched data to object state
+                    // from Thread[] to Record object -> { [x: string]: Thread }
                     acc[
                         thread.thread_id
                             ? thread.thread_id.toString()
@@ -197,6 +199,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     payload: threadsObject,
                 });
 
+                // cache for current user agent
+                // TODO -> handle clean on logout
                 setThreadCache(threadsObject);
                 localStorage.setItem(
                     "cachedThreads",
@@ -226,34 +230,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         []
     );
 
-    // /**
-    //  * @method refreshNotes
-    //  * @returns authenticatedUserObject: any
-    //  */
-    // const refreshNotes = useCallback(async () => {
-    //     try {
-    //         if (!user) return;
-    //         clearNoteStorage(user);
-    //     } catch (error) {
-    //         console.error("Error fetching user:", error);
-    //     }
-    // }, [user]);
-
-
-    // const clearNoteStorage = (user: User) => {
-    //     const noteId = localStorage.getItem("note user id");
-    //     if (!user) {
-    //         localStorage.setItem("notes", "");
-    //         localStorage.setItem("note user id", "");
-    //     } else if (noteId !== "") {
-    //         if (noteId !== user.id) {
-    //             localStorage.setItem("notes", "");
-    //             localStorage.setItem("note user id", user.id ? user.id : "");
-    //         }
-    //     } else {
-    //         localStorage.setItem("note user id", user.id ? user.id : "");
-    //     }
-    // };
 
     /**
      * @method sendChat - http method for back and forth chatting with provider endpoint
@@ -316,16 +292,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             setDisableQuery(true);
             if (latestToken && user) {
                 let prof;
-                if (Array.isArray(user.profile)) {
+                if (Array.isArray(user.profile)) { // temp fix for diff response format of diff providers, should be standardized
                     prof = user.profile[0];
                 } else prof = user.profile;
                 const sys = personalizePrompt(
                     prompts[agentId],
                     prof
                 );
-                // console.log("sys prompt after personalize", sys);
-                // console.log("user in context about to queryModel", user);
-                // console.log("user prof var assigned correctly?", prof);
                 const response = search
                     ? await queryResearchModel(
                         {
@@ -349,7 +322,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             agent_id: agentId,
                             system_prompt: sys,
                             messages: messagesToSend,
-                            use_venice: false,
+                            use_venice: useVenice ?? true,
                             currentThreadId: currentThreadId,
                             user_id: user.user_id ?? 0,
                         },
@@ -455,8 +428,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             value={{
                 threadState,
                 threadCache,
-                agents,
-                models,
                 shouldQueryResearchModel,
                 maxTurns,
                 actionsToInclude,
@@ -465,17 +436,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 example,
                 character,
                 disableQuery,
-                user,
-                agentId,
                 month,
                 year,
-                modelId,
-                provider,
-                loadComplete,
-                getAgents,
-                setModelId,
-                setProvider,
-                setAgentId,
                 setShouldQueryResearchModel,
                 setMonth,
                 setYear,

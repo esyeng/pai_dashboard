@@ -10,7 +10,7 @@ import { useChat } from "@/contexts/ChatContext";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
 
 export const Sidebar: React.FC = () => {
-    const { isSidebarOpen, toggleSidebar } = useSidebar();
+    const { isSidebarOpen } = useSidebar();
     const { shouldQueryResearchModel, setShouldQueryResearchModel } = useChat();
 
     const toggleSearchOptions = () => {

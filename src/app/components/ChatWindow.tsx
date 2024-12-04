@@ -6,22 +6,23 @@ import { Message } from "./Message";
 import MessageLoadingIndicator from "./ui/MessageLoadingIndicator";
 import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
 import { useChat } from "@/contexts/ChatContext";
+import { useAssistants } from "@/contexts/AssistantContext";
+import { useJasmynAuth } from "@/contexts/AuthContext";
 
 export const ChatWindow: React.FC = () => {
     const [inputValue, setInputValue] = useState("");
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const chatWindowRef = useRef<HTMLDivElement>(null);
     const {
-        agentId,
-        modelId,
         shouldQueryResearchModel,
         threadState: { threads, currentThreadId, messagesInActiveThread },
-        user,
         sendChat,
         isLoading,
         selectedActions,
         disableQuery
     } = useChat();
+    const { agentId, modelId } = useAssistants();
+    const { user } = useJasmynAuth();
 
     const currentConversation = useMemo(() => {
         return currentThreadId && threads[currentThreadId]?.messages
@@ -33,6 +34,7 @@ export const ChatWindow: React.FC = () => {
         console.log(
             `sending message to ${agentId}... message: ${message} in thread ${currentThreadId}`
         );
+        console.log("user from about to send message block in chat window", user);
 
         await sendChat(
             message,
@@ -42,7 +44,7 @@ export const ChatWindow: React.FC = () => {
             shouldQueryResearchModel,
             null,
             null,
-            user?.firstName
+            user?.user.firstName
         );
     };
 

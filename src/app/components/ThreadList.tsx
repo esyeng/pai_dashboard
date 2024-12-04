@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from "react";
 // import { updateThreadName } from "@/lib/api";
 import { useChat } from "@/contexts/ChatContext";
+import { useJasmynAuth } from "@/contexts/AuthContext";
 import { sortObjectsByCreatedAt } from "@/lib/utils/helpers";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
 import { useWindowResize } from "@/lib/hooks/use-window-resize";
@@ -14,12 +15,11 @@ const ThreadList: React.FC = () => {
     const {
         switchThread,
         threadState: { threads },
-        loadComplete,
         createNewThread,
         deleteThread,
         exportThread,
-        user,
     } = useChat();
+    const { loadComplete, user } = useJasmynAuth()
     const { toggleSidebar, isSidebarOpen } = useSidebar();
 
     const [open, setOpen] = useState<boolean>(true);
@@ -50,6 +50,7 @@ const ThreadList: React.FC = () => {
         }
     }, [createdOrSelected])
 
+    // TODO: implement renaming logic
     const handleThreadNameKeyDown = async (
         event: React.KeyboardEvent<HTMLSpanElement>,
         thread: Thread | any
@@ -82,12 +83,12 @@ const ThreadList: React.FC = () => {
                 <div className="max-h-96  flex flex-col overflow-y-auto items-center justify-between">
                     <div className="flex w-full justify-center self-end">
                         <button
-                            className={`w-full px-4 py-2 bg-brand-300 text-neutral-600  focus:outline-none transition-colors duration-300 border-1 border-brand-50 hover:bg-brand-primary hover:border-transparent hover:text-default-font ${user?.id ? "" : "disabled"}`}
+                            className={`w-full px-4 py-2 bg-brand-300 text-neutral-600  focus:outline-none transition-colors duration-300 border-1 border-brand-50 hover:bg-brand-primary hover:border-transparent hover:text-default-font ${user?.user.id ? "" : "disabled"}`}
                             onClick={() => {
                                 createNewThread()
                                 setCreatedOrSelected(true);
                             }
-                        }
+                            }
                         >
                             + New Thread
                         </button>

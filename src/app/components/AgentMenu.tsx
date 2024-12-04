@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { AgentCard } from './AgentCard';
-import { useChat } from '@/contexts/ChatContext';
+import { useAssistants } from '@/contexts/AssistantContext';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 
 
@@ -21,7 +21,7 @@ const STORED_AGENT_ID: string = "agent_id";
 
 
 export const AgentMenuModal: React.FC<AgentMenuModalProps> = ({ isOpen, onClose }) => {
-    const { agents, setAgentId } = useChat();
+    const { agents, setAgentId } = useAssistants();
     const agentList: AgentDetails[] = agents.map((a: AgentProps) => {
         const agent: AgentDetails = {
             assistantId: a.assistant_id,

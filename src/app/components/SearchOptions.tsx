@@ -3,13 +3,13 @@
 import React, { useState, useEffect, SetStateAction, Dispatch } from "react";
 import DateSelector from "./DateSelector";
 import { useChat } from "@/contexts/ChatContext";
+import { useAssistants } from "@/contexts/AssistantContext";
 
 
 export const SearchOptions: React.FC = () => {
     const [addExample, setAddExample] = useState<boolean>(false);
+    const { modelId } = useAssistants()
     const {
-        modelId,
-
         maxTurns,
         setMaxTurns,
         shouldQueryResearchModel,

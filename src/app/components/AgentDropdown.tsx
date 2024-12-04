@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useChat } from "../../contexts/ChatContext";
+import { useAssistants } from "@/contexts/AssistantContext";
 
 interface DropProps {
     agents: { assistant_id: string; name: string }[] | { model_id: string; name: string }[];
@@ -15,7 +15,7 @@ const STORED_VENICE_MODEL_ID: string = "venice_id";
 const STORED_AGENT_ID: string = "agent_id";
 
 export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
-    const { models, agentId, setAgentId, modelId, setModelId, provider } = useChat();
+    const { agentId, setAgentId, modelId, setModelId, provider } = useAssistants();
 
     const handleSelection = (selectionId: string) => {
         if (mode === "model") {
@@ -32,11 +32,6 @@ export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
             localStorage.setItem(STORED_AGENT_ID, selectionId);
         };
     };
-
-    // useEffect(() => {
-    //     setModelId(provider === "claude" ? claudeModels[0] : veniceModels[0]);
-    //     localStorage.setItem(STORED_MODEL_ID, provider === "claude" ? claudeModels[0] : veniceModels[0]);
-    // }, [provider])
 
     return (
         <div className="relative inline-block text-left min-w-40 w-full lg:text-sm">

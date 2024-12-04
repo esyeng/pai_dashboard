@@ -4,6 +4,7 @@ import { AgentDropdown } from "./AgentDropdown";
 import AgentManager from "./AgentManager";
 import ModeSwitch from "./ModeSwitch";
 import { useChat } from "@/contexts/ChatContext";
+import { useAssistants } from "@/contexts/AssistantContext";
 
 
 interface OptionsProps {
@@ -24,7 +25,7 @@ const STORED_PROVIDER_ID: string = "provider_id";
 
 
 export const Options: React.FC<OptionsProps> = ({ models }) => {
-    const { provider, setProvider, agents, agentId, modelId, setModelId } = useChat();
+    const { provider, setProvider, agents, agentId } = useAssistants();
     const providers = ["claude", "venice"];
     const claudeModels = ["claude-3-5-sonnet-20240620", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"]
     const veniceModels = ["llama-3.1-405b", "llama-3.2-3b", "dolphin-2.9.2-qwen2-72b", "nous-theta-8b", "qwen32b"]

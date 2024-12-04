@@ -86,32 +86,16 @@ declare global {
     interface ChatContextType {
         threadState: ThreadsState;
         threadCache: Threads;
-        agents: AgentProps[];
-        models: any;
-        user: User | null;
         shouldQueryResearchModel: boolean;
         maxTurns: number;
         actionsToInclude: string[];
         additionalInstructions: string;
         example: string;
         character: string;
-        agentId: string;
-        // token: string;
-        // latestToken: string;
-        modelId: string;
-        provider: string;
         month: number;
         year: number;
-        loadComplete: boolean;
         selectedActions: string[];
         disableQuery: boolean;
-        // setToken: (token: string | Promise<string> | any) => void;
-        // setLatestToken: (token: string | Promise<string> | any) => void;
-        // setUser: (user: User) => void;
-        getAgents: (user: User | UserResponse) => Promise<any>;
-        setModelId: (modelId: string) => void;
-        setAgentId: (agentId: string) => void;
-        setProvider: (provider: "claude" | "venice") => void;
         setShouldQueryResearchModel: (shouldQuery: boolean) => void;
         setMaxTurns: (maxTurns: number) => void;
         setAdditionalInstructions: (instructions: string) => void;
@@ -142,9 +126,11 @@ declare global {
     interface AssistantContextType {
         agents: AgentProps[];
         models: any;
+        prompts: PromptMap
         agentId: string;
         modelId: string;
         provider: string;
+        getAgents: (user: UserResponse | User) => Promise<any>;
         setModelId: (modelId: string) => void;
         setAgentId: (agentId: string) => void;
         setProvider: (provider: "claude" | "venice") => void;
