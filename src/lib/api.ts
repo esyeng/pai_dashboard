@@ -188,14 +188,14 @@ export const fetchThreads = async (
     }
 };
 
-export const fetchAssistants = async (assistantIds: string[]): Promise<any> => {
+export const fetchAssistants = async (user_id: string): Promise<any> => {
     const client = createClerkSupabaseClient();
     try {
         const { data, error } = await
             client
                 .from("assistants")
                 .select("*")
-                .in("assistant_id", assistantIds);
+                .eq("created_by", user_id);
         if (error) {
             throw new Error("Failed to fetch assistants" + error?.message);
         }
@@ -249,6 +249,16 @@ export const createAssistant = async (
         return error;
     }
 }
+
+// export const appendToUser = async (user_id: string, assistant_id: string) => {
+//     const client = createClerkSupabaseClient();
+//     try {
+//         const {data, error} = await client.from("users").update({assistant_ids: assistant_id})
+//     } catch (error) {
+
+//     }
+
+// }
 
 // updateAssistant
 export const updateAssistant = async (

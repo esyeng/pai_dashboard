@@ -11,8 +11,6 @@ import {
     queryModel,
     queryResearchModel,
     fetchThreads,
-    fetchAssistants,
-    fetchModels,
     saveNewThread,
     updateThreadMessages
 } from "../lib/api";
@@ -68,23 +66,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         messagesInActiveThread: [],
     });
     const { user, latestToken, loadComplete } = useJasmynAuth();
-    const { agentId, modelId, provider, prompts, agents, models } = useAssistants();
-    // Default agent, model
-    // const [agentId, setAgentId] = useState<string>(storedAgent ? storedAgent : "jasmyn");
-    // const [modelId, setModelId] = useState<string>(storedModel ? storedModel : "dolphin-2.9.2-qwen2-72b");
-    // const [provider, setProvider] = useState<string>(storedProvider ? storedProvider : "venice");
+    const { provider, prompts } = useAssistants();
     const [threadCache, setThreadCache] = useState<Threads>({});
 
 
-    // const [agents, setAgents] = useState<AgentProps[]>([]);
-    // const [models, setModels] = useState<any>([]);
-    // prompts is an object used to combine user details with character prompt for personalized messages
-    // const [prompts, setPrompts] = useState<PromptMap>({});
     const [shouldQueryResearchModel, setShouldQueryResearchModel] =
         useState<boolean>(false);
+
     // Status flags
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    // const [loadComplete, setLoadComplete] = useState<boolean>(false);
+
     // flag for updating database thread messages
     const [updateThread, setUpdateThread] = useState<boolean>(false);
 
@@ -103,34 +94,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     ];
     const [disableQuery, setDisableQuery] = useState<boolean>(false);
     const actionsToInclude = ["wikipedia", "google", "process_urls", "write_report"];
-
-
-    // TODO - move this to AssistantContext
-    // fetch agents from db once user data present
-    // const getAgents = async (user: UserResponse | User) => {
-    //     console.log("get agents called");
-    //     console.log("user object in getAgents", user);
-    //     if (!user || !user.profile) {
-    //         console.log("no user object in getAgents");
-    //         return;
-    //     }
-    //     const agents = await fetchAssistants(user.profile.assistant_ids);
-    //     const models = await fetchModels();
-    //     const promptMap: PromptMap = {};
-    //     if (agents) {
-    //         console.log("agents is true", user);
-    //         setAgents(agents);
-    //         console.log("Agents!", agents);
-    //         agents.forEach((agent: AgentProps) => {
-    //             promptMap[agent.assistant_id] = agent.system_prompt;
-    //         });
-    //         setPrompts(promptMap);
-    //     }
-    //     if (models) {
-    //         setModels(models);
-    //         console.log("models", models);
-    //     }
-    // };
 
     // saves convo to database thread
     // called in effect callback after message received from server

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { WrenchIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import { useAssistants } from '@/contexts/AssistantContext';
+import { useJasmynAuth } from '@/contexts/AuthContext';
 
 interface AgentDetails {
     assistantId: string;
@@ -14,6 +16,8 @@ interface EditProps {
 }
 
 export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
+    const { saveAssistantUpdates } = useAssistants();
+    const { user } = useJasmynAuth()
     const [editing, setEditing] = useState<boolean>(false);
     const [detailsToUpdate, setDetailsToUpdate] = useState<AgentDetails>({ ...agent });
 
@@ -29,6 +33,8 @@ export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
         e.preventDefault();
         console.log('Agent details updated:', detailsToUpdate);
         // Here you would typically send the data to your backend or state management
+        const { assistantId, name, systemPrompt, description } = detailsToUpdate;
+        saveAssistantUpdates(user?.user_id, assistantId, name, systemPrompt, description);
         handleCloseEdit();
     };
 

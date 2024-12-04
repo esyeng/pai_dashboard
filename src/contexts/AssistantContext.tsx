@@ -48,7 +48,7 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
             console.log("no user object in getAgents");
             return;
         }
-        const agents = await fetchAssistants(user.profile.assistant_ids);
+        const agents = await fetchAssistants(user.user_id);
         const models = await fetchModels();
         const promptMap: PromptMap = {};
         if (agents) {
@@ -73,7 +73,13 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
         system_prompt: string,
         description?: string
     ) => {
-        return 'create new!'
+        const newAssistant = await createAssistant(user_id, assistant_id, name, system_prompt, description);
+        // if (newAssistant.assistant_id) {
+        //     setAgents([...agents, newAssistant]);
+        //     setAgentId(newAssistant.assistant_id);
+        //     console.log(`Assistant ${newAssistant.assistant_id} created!`);
+        // }
+        return newAssistant;
     }
 
     const saveAssistantUpdates = async (
@@ -83,7 +89,11 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
         system_prompt: string,
         description: string
     ) => {
-        return 'update existing!'
+        const updatedAssistant = await updateAssistant(user_id, assistant_id, name, system_prompt, description);
+        // setAgents([...agents.filter((a) => a.assistant_id !== assistant_id), updatedAssistant]);
+        // setAgentId(updatedAssistant.assistant_id);
+        // console.log(`Assistant ${updatedAssistant.assistant_id} updated!`);
+        return updatedAssistant;
     }
 
     return (
