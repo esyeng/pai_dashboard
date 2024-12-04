@@ -14,7 +14,7 @@ import { useWindowResize } from "@/lib/hooks/use-window-resize";
 const ThreadList: React.FC = () => {
     const {
         switchThread,
-        threadState: { threads },
+        threadState: { threads, currentThreadId },
         createNewThread,
         deleteThread,
         exportThread,
@@ -103,7 +103,7 @@ const ThreadList: React.FC = () => {
                                         border-y-1 my-1 rounded-sm border-brand-400"
                                     >
                                         <span
-                                            className="text-brand-600 border-brand-400 border-y-2 flex-1 font-bold self-stretch rounded-tl-sm rounded-bl-sm bg-neutral-50 py-4 pl-2 pr-1 cursor-pointer duration-300 hover:bg-brand-400  hover:text-black"
+                                            className={`${currentThreadId === threadItem.threadId || currentThreadId === threadItem.thread_id ? "bg-brand-600 text-default-font border-brand-800" : "bg-neutral-50 text-brand-600 border-brand-400 hover:bg-brand-400  hover:text-black "}  border-y-2 flex-1 font-bold self-stretch rounded-tl-sm rounded-bl-sm  py-4 pl-2 pr-1 cursor-pointer duration-300 `}
                                             // contentEditable="true"
                                             // onInput={handleThreadNameInput}
                                             // onKeyDown={(event) =>
