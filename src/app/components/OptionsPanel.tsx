@@ -25,27 +25,45 @@ const STORED_PROVIDER_ID: string = "provider_id";
 
 
 export const Options: React.FC<OptionsProps> = ({ models }) => {
-    const { provider, setProvider, agents, agentId } = useAssistants();
+    const { provider, veniceModels, claudeModels, setProvider, agents, agentId, modelId, setModelId } = useAssistants();
     const providers = ["claude", "venice"];
-    const claudeModels = ["claude-3-5-sonnet-20240620", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"]
-    const veniceModels = ["llama-3.1-405b", "llama-3.2-3b", "dolphin-2.9.2-qwen2-72b", "nous-theta-8b", "qwen32b"]
+
     const selectedAgent = agents.find((a) => a.assistant_id === agentId)?.name;
     const mode = localStorage?.getItem(STORED_PROVIDER_ID) || "";
+    const storedCurrent = localStorage.getItem(STORED_CURRENT_MODEL_ID);
+    const storedVenice = localStorage.getItem(STORED_VENICE_MODEL_ID);
+    const storedClaude = localStorage.getItem(STORED_CLAUDE_MODEL_ID);
 
 
     const handleSwitch = (providerStr: string) => {
         console.log("prov str", providerStr);
-        if (providerStr.toLowerCase() === "venice") {
-            localStorage.setItem(STORED_CLAUDE_MODEL_ID, localStorage.getItem(STORED_CURRENT_MODEL_ID) || claudeModels[0]);
-            localStorage.setItem(STORED_CURRENT_MODEL_ID, localStorage.getItem(STORED_VENICE_MODEL_ID) || veniceModels[0]);
+
+        if (providerStr.toLowerCase() === "venice") { // on switch to venice, set current model to stored venice or first if none
             setProvider("venice");
-        } else if (providerStr.toLowerCase() === "claude") {
-            localStorage.setItem(STORED_VENICE_MODEL_ID, localStorage.getItem(STORED_CURRENT_MODEL_ID) || veniceModels[0]);
-            localStorage.setItem(STORED_CURRENT_MODEL_ID, localStorage.getItem(STORED_CLAUDE_MODEL_ID) || claudeModels[0]);
+            localStorage.setItem(STORED_CURRENT_MODEL_ID, storedVenice ?? veniceModels[0]);
+            setModelId(storedVenice ?? veniceModels[0]);
+        } else if (providerStr.toLowerCase() === "claude") { // on switch to claude, set current model to stored claude or first if none
             setProvider("claude");
+            localStorage.setItem(STORED_CURRENT_MODEL_ID, storedClaude ?? claudeModels[0]);
+            setModelId(storedClaude ?? claudeModels[0]);
         }
         localStorage.setItem(STORED_PROVIDER_ID, providerStr.toLowerCase());
     }
+
+    useEffect(() => {
+        if (typeof storedCurrent === 'string') { // if provider changed and there is a val for storedCurrent, set model to current
+            setModelId(storedCurrent)
+        }
+        console.log(`
+            {
+                active modelId: ${modelId},
+                storedCurrent: ${storedCurrent},
+                storedVenice: ${storedVenice},
+                storedClaude: ${storedClaude}
+                }
+                `)
+    }, [provider]);
+
 
     let ids = models.map((model) => model.model_id);
     console.log("modelIds", ids)

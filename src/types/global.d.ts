@@ -130,6 +130,8 @@ declare global {
         agentId: string;
         modelId: string;
         provider: string;
+        claudeModels: string[];
+        veniceModels: string[];
         getAgents: (user: UserResponse | User) => Promise<any>;
         setModelId: (modelId: string) => void;
         setAgentId: (agentId: string) => void;

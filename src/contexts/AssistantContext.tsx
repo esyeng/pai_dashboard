@@ -22,7 +22,7 @@ const STORED_PROVIDER_ID: string = "provider_id";
 const AssistantContext = createContext<AssistantContextType | undefined>(undefined);
 
 export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }) => {
-    let storedAgent, storedModel, storedProvider;
+    let storedAgent: any, storedModel: any, storedProvider: any;
     if (typeof localStorage !== "undefined") {
         storedAgent = localStorage?.getItem(STORED_AGENT_ID);
         storedModel = localStorage?.getItem(STORED_MODEL_ID);
@@ -38,7 +38,21 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
     const [models, setModels] = useState<any>([]);
     // prompts is an object used to combine user details with character prompt for personalized chat messages
     const [prompts, setPrompts] = useState<PromptMap>({});
+    const claudeModels = ["claude-3-5-sonnet-20240620", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"]
+    const veniceModels = ["llama-3.1-405b", "llama-3.2-3b", "dolphin-2.9.2-qwen2-72b", "nous-theta-8b", "qwen32b"]
 
+
+    useEffect(() => {
+        if (typeof storedModel === 'string') {
+            setModelId(storedModel);
+        }
+        if (typeof storedAgent === 'string') {
+            setAgentId(storedAgent);
+        }
+        if (typeof storedProvider === 'string') {
+            setProvider(storedProvider);
+        }
+    }, [])
 
     // fetch agents from db once user data present
     const getAgents = async (user: UserResponse | User) => {
@@ -105,6 +119,8 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
                 agentId,
                 modelId,
                 provider,
+                claudeModels,
+                veniceModels,
                 getAgents,
                 setModelId,
                 setAgentId,

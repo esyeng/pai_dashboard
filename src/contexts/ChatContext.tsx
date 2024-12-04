@@ -193,7 +193,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         []
     );
 
-
     /**
      * @method sendChat - http method for back and forth chatting with provider endpoint
      * @param message

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useAssistants } from "@/contexts/AssistantContext";
 
 interface DropProps {
@@ -15,9 +15,10 @@ const STORED_VENICE_MODEL_ID: string = "venice_id";
 const STORED_AGENT_ID: string = "agent_id";
 
 export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
-    const { agentId, setAgentId, modelId, setModelId, provider } = useAssistants();
+    const { agentId, veniceModels, claudeModels, setAgentId, modelId, setModelId, provider } = useAssistants();
 
     const handleSelection = (selectionId: string) => {
+        // set model to selection -> set stored claude to selection if provider is claude, stored venice if venice
         if (mode === "model") {
             setModelId(selectionId);
             localStorage.setItem(STORED_CURRENT_MODEL_ID, selectionId);
@@ -31,7 +32,21 @@ export const AgentDropdown: React.FC<DropProps> = ({ agents, mode }) => {
             setAgentId(selectionId);
             localStorage.setItem(STORED_AGENT_ID, selectionId);
         };
+        console.log(`
+            selection id: ${selectionId},
+            current agentId: ${agentId}
+            current modelId: ${modelId}
+        `)
     };
+
+    useEffect(() => {
+        // set modelId to current model in storage when provider changes, default val if none stored
+        if (provider === "claude") {
+            setModelId(localStorage.getItem(STORED_CURRENT_MODEL_ID) ?? claudeModels[0]);
+        } else if (provider === "venice") {
+            setModelId(localStorage.getItem(STORED_CURRENT_MODEL_ID) ?? veniceModels[0]);
+        }
+    }, [provider])
 
     return (
         <div className="relative inline-block text-left min-w-40 w-full lg:text-sm">
