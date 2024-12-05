@@ -14,14 +14,14 @@ export const SignInOrOut: React.FC = () => {
     if (!sessionId) {
         return (
             <div>
-                <SignInButton />
+                <SignInButton>Sign In</SignInButton>
             </div>
         )
     }
 
     return (
-        <div className="w-44 cursor-pointer absolute right-4 border border-mint rounded-lg flex justify-center items-center  hover:duration-100 hover:bg-mint hover:text-caribbean-current">
-            <SignOutButton signOutOptions={{ sessionId }} >
+        <div className=" mx-4 cursor-pointer text-center border border-brand-primary text-default-font bg-brand-50 rounded-sm justify-center items-center hover:duration-100 hover:bg-brand-300">
+            <SignOutButton signOutOptions={{ sessionId }}>
                 <button className="p-2 text-carribean-current text-md rounded leading-tight hover:duration-100 " onClick={clearNoteUser}>Sign Out</button>
             </SignOutButton>
         </div>

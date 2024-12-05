@@ -1,4 +1,3 @@
-// contexts/ChatContext.tsx
 import React, {
     createContext,
     useContext,
@@ -8,17 +7,26 @@ import React, {
     useReducer,
     useCallback,
 } from "react";
-import { useApi } from "@/lib/hooks/useApi";
+import {
+    queryModel,
+    queryResearchModel,
+    fetchThreads,
+    saveNewThread,
+    updateThreadMessages
+} from "../lib/api";
 import {
     UniqueIdGenerator,
     convertToMarkdown,
     createTitle,
     personalizePrompt,
     sortObjectsByCreatedAt,
-} from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
+} from "@/lib/utils/helpers";
 import { threadsReducer } from "./threadsReducer";
+import { useJasmynAuth } from "./AuthContext";
+import { useAssistants } from "./AssistantContext";
 import { v4 as uuidv4 } from "uuid";
+import { useAuth } from "@clerk/nextjs";
+// import { logger } from '../lib/utils/logger';
 
 /**
  * ChatContext.tsx
@@ -35,57 +43,41 @@ interface ChatProviderProps {
     children: React.ReactNode;
 }
 
+const STORED_THREAD_ID: string = "latest_thread_id";
+
 // Unique ID for each thread, used for selecting and updating. Is separate from db object thread.id
 const idGenerator = UniqueIdGenerator.getInstance();
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-    const {
-        fetchUser,
-        fetchAssistants,
-        fetchModels,
-        queryModel,
-        queryResearchModel,
-        updateThreadMessages,
-        fetchThreads,
-        saveNewThread
-    } = useApi();
-    const { latestToken, supabaseClient } = useAuth();
+    let storedThreadId: string | null;
+    if (typeof localStorage !== "undefined" && localStorage !== null) {
+        storedThreadId = localStorage.getItem(STORED_THREAD_ID);
+    }
     const [threadState, dispatchThreads] = useReducer(threadsReducer, {
         threads: {},
         currentThreadId: null,
         activeMessageQueue: [],
         messagesInActiveThread: [],
     });
-    const [token, setToken] = useState<
-        any | Promise<string> | string | undefined
-    >();
-    // Default agent, model
-    const [agentId, setAgentId] = useState<string>("jasmyn");
-    const [modelId, setModelId] = useState<string>(
-        "claude-3-5-sonnet-20240620"
-    );
-    const [user, setUser] = useState<User | null>(null);
+    const { user, latestToken, loadComplete } = useJasmynAuth();
+    const { provider, prompts } = useAssistants();
     const [threadCache, setThreadCache] = useState<Threads>({});
-    const [agents, setAgents] = useState<AgentProps[]>([]);
-    const [models, setModels] = useState<any>([]);
-    // prompts is an object used to combine user details with character prompt for personalized messages
-    const [prompts, setPrompts] = useState<PromptMap>({});
+
+
     const [shouldQueryResearchModel, setShouldQueryResearchModel] =
         useState<boolean>(false);
+
     // Status flags
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [loadComplete, setLoadComplete] = useState<boolean>(false);
+
     // flag for updating database thread messages
     const [updateThread, setUpdateThread] = useState<boolean>(false);
 
     // Research model query parameters
     const [maxTurns, setMaxTurns] = useState<number>(5);
-    const [selectedActions, setSelectedActions] = useState<string[]>([
-        "wikipedia",
-        "google",
-    ]);
+    const [selectedActions, setSelectedActions] = useState<string[]>(["wikipedia", "google"]);
     const [additionalInstructions, setAdditionalInstructions] =
         useState<string>("");
     const [example, setExample] = useState<string>("");
@@ -98,33 +90,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     ];
     const [disableQuery, setDisableQuery] = useState<boolean>(false);
     const actionsToInclude = ["wikipedia", "google", "process_urls", "write_report"];
-
-
-    // fetch agents from db once user data present
-    const getAgents = async (user: UserResponse) => {
-        console.log("get agents called");
-        console.log("user object in getAgents", user);
-        if (!user || !user.profile) {
-            console.log("no user object in getAgents");
-            return;
-        }
-        const agents = await fetchAssistants(user.profile.assistant_ids);
-        const models = await fetchModels();
-        const promptMap: PromptMap = {};
-        if (agents) {
-            console.log("user object in getAgents", user);
-            setAgents(agents);
-            console.log("Agents!", agents);
-            agents.forEach((agent: AgentProps) => {
-                promptMap[agent.assistant_id] = agent.system_prompt;
-            });
-            setPrompts(promptMap);
-        }
-        if (models) {
-            setModels(models);
-            // console.log("models", JSON.stringify(models));
-        }
-    };
 
     // saves convo to database thread
     // called in effect callback after message received from server
@@ -139,29 +104,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
-
     // ****** effects *******
 
-    // sets loadComplete once token promise resolves
     useEffect(() => {
-        if (token && supabaseClient) {
-            setLoadComplete(true);
+        if (loadComplete) {
+            setDisableQuery(false);
         }
-        return () => {
-            console.log(
-                `effect cleanup for loadComplete initialized, value: ${loadComplete}`
-            );
-        };
-    }, [token, latestToken]);
-
-    // executes once token promise resolves, fetches and sets user data then threads
-    useEffect(() => {
-        if (loadComplete && supabaseClient) {
-            fetchData();
-            console.log("fetching threads...");
-            fetchThreadsData();
-        }
-    }, [loadComplete, latestToken]);
+    }, [loadComplete]);
 
     // save thread messages after each msg
     useEffect(() => {
@@ -176,111 +125,72 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // ******  chat & threads methods ********
     /**
      * @method fetchThreadsData
-     * @param token: string | null
+     * @param user_id: string
      * @returns fetchedThreads: Thread[]
      */
     const fetchThreadsData = useCallback(
-        async (): Promise<Thread[] | undefined> => {
+        async (user_id: string): Promise<Thread[]> => {
             try {
-                if (supabaseClient) {
-                    console.log(" supabase client not null, fetching threads data ...");
-                    // fetch and filter empty
-                    const fetchedThreads: Thread[] = (await fetchThreads()).filter((t: Thread) => t.messages.length > 0);
-                    const threadsObject = fetchedThreads.reduce((acc, thread) => {
-                        // construct threads object, converting fetched data to object state
-                        acc[
-                            thread.thread_id
-                                ? thread.thread_id.toString()
-                                : thread.threadId
-                                    ? thread.threadId
-                                    : ""
-                        ] = {
-                            threadId: thread.thread_id
-                                ? thread.thread_id
-                                : thread.threadId
-                                    ? thread.threadId
-                                    : "",
-                            ...thread,
-                        };
-                        return acc;
-                    }, {} as Threads);
-                    // mount threads state
+                // fetch and filter empty
+                const fetchedThreads: Thread[] = (await fetchThreads(user_id)).filter((t: Thread) => t.messages.length > 0);
+                const threadsObject = fetchedThreads.reduce((acc, thread) => {
+                    // construct threads object, converting fetched data to object state
+                    // from Thread[] to Record object -> { [x: string]: Thread }
+                    acc[
+                        thread.thread_id
+                            ? thread.thread_id.toString()
+                            : thread.threadId
+                                ? thread.threadId
+                                : ""
+                    ] = {
+                        threadId: thread.thread_id
+                            ? thread.thread_id
+                            : thread.threadId
+                                ? thread.threadId
+                                : "",
+                        ...thread,
+                    };
+                    return acc;
+                }, {} as Threads);
+                // mount threads state
+                dispatchThreads({
+                    type: "SET_THREADS",
+                    payload: threadsObject,
+                });
+
+                // cache for current user agent
+                // TODO -> handle clean on logout
+                setThreadCache(threadsObject);
+                localStorage.setItem(
+                    "cachedThreads",
+                    JSON.stringify(threadsObject)
+                );
+
+                // ensure chronological sorting
+                if (fetchedThreads.length > 0) {
+                    const sortedThreads =
+                        sortObjectsByCreatedAt(fetchedThreads);
+                    // grab latest non empty thread
+                    const latestThread =
+                        sortedThreads[0];
+                    // load last thread
                     dispatchThreads({
-                        type: "SET_THREADS",
-                        payload: threadsObject,
+                        type: "SET_CURRENT_THREAD",
+                        payload: storedThreadId ?? latestThread.thread_id.toString(),
                     });
-
-                    setThreadCache(threadsObject);
-                    localStorage.setItem(
-                        "cachedThreads",
-                        JSON.stringify(threadsObject)
-                    );
-
-                    // ensure chronological sorting
-                    if (fetchedThreads.length > 0) {
-                        const sortedThreads =
-                            sortObjectsByCreatedAt(fetchedThreads);
-                        // grab latest non empty thread
-                        const latestThread =
-                            sortedThreads[sortedThreads.length - 1];
-                        // load last thread
-                        dispatchThreads({
-                            type: "SET_CURRENT_THREAD",
-                            payload: latestThread.thread_id.toString(),
-                        });
-                    }
-                    return fetchedThreads;
                 }
-
+                return fetchedThreads;
 
             } catch (error) {
                 console.error("Error fetching threads:", error);
                 throw error;
             }
         },
-        [supabaseClient]
+        []
     );
 
     /**
-     * @method fetchData
-     * @returns authenticatedUserObject: any
-     */
-    const fetchData = useCallback(async () => {
-        try {
-            if (!token) return;
-            // once clerkAuth request completes the following executes
-            if (supabaseClient) {
-
-                const fetchedUserData = await fetchUser(token);
-                console.log("fetchedUserData", fetchedUserData);
-                setUser(fetchedUserData);
-                clearNoteStorage(fetchedUserData);
-                await getAgents(fetchedUserData).then(() => {
-                    console.log("agents fetched");
-                });
-            }
-        } catch (error) {
-            console.error("Error fetching user:", error);
-        }
-    }, [token, getAgents]);
-
-    const clearNoteStorage = (user: User) => {
-        const noteId = localStorage.getItem("note user id");
-        if (!user) {
-            localStorage.setItem("notes", "");
-            localStorage.setItem("note user id", "");
-        } else if (noteId !== "") {
-            if (noteId !== user.id) {
-                localStorage.setItem("notes", "");
-                localStorage.setItem("note user id", user.id ? user.id : "");
-            }
-        } else {
-            localStorage.setItem("note user id", user.id ? user.id : "");
-        }
-    };
-
-    /**
-     * @method sendChat - http method for back and forth chatting with endpoint configured to match claude schema
+     * @method sendChat - http method for back and forth chatting with provider endpoint
      * @param message
      * @param model
      * @param agentId
@@ -297,7 +207,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         search: boolean = false,
         maxTokens?: number | null,
         temperature?: number | null,
-        nameGiven?: string
+        nameGiven?: string,
+        useVenice?: boolean
     ) => {
         let name: string =
             user?.user?.first_name ?? nameGiven ?? "anonymousUser";
@@ -312,10 +223,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             },
         };
         console.log("newMsg", newMsg);
-        dispatchThreads({
-            type: "ADD_MESSAGE",
-            payload: { threadId: currentThreadId, message: newMsg },
-        });
+        addMessage(currentThreadId, newMsg);
 
         const updatedQueue = [...threadState.activeMessageQueue, newMsg].slice(
             -7
@@ -340,7 +248,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setIsLoading(true);
             setDisableQuery(true);
-            if (token && user) {
+            if (latestToken && user) {
+                let prof;
+                if (Array.isArray(user.profile)) { // temp fix for diff response format of diff providers, should be standardized
+                    prof = user.profile[0];
+                } else prof = user.profile;
+                const sys = personalizePrompt(
+                    prompts[agentId],
+                    prof
+                );
                 const response = search
                     ? await queryResearchModel(
                         {
@@ -354,23 +270,23 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             example: example,
                             character: character,
                         },
+                        latestToken
                     )
-                    : await queryModel(
+                    : await queryModel(provider,
                         {
-                            // max_tokens: maxTokens ?? 8192,
-                            max_tokens: 4096,
+                            max_tokens: maxTokens ?? 8192,
                             model: model || "claude-3-5-sonnet-20240620",
-                            temperature: temperature ?? 0.2,
+                            temperature: temperature ?? 0.6,
                             agent_id: agentId,
-                            system_prompt: personalizePrompt(
-                                prompts[agentId],
-                                user.profile[0]
-                            ),
+                            system_prompt: sys,
                             messages: messagesToSend,
+                            use_venice: useVenice ?? true,
                             currentThreadId: currentThreadId,
                             user_id: user.user_id ?? 0,
                         },
+                        latestToken
                     );
+                console.log("received resp", response?.response?.length);
                 const receivedMsg: MessageProps = {
                     id: uuidv4(),
                     timestamp: Date.now(),
@@ -378,18 +294,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     sender: agentId,
                     msg: {
                         role: "assistant",
-                        content:
-                            response?.response ??
+                        content: provider === "claude" ?
+                            response?.response : response?.choices?.[0]?.message?.content ??
                             "If you're reading this, it means it didn't work. :(",
                     },
                 };
-                dispatchThreads({
-                    type: "ADD_MESSAGE",
-                    payload: {
-                        threadId: currentThreadId,
-                        message: receivedMsg,
-                    },
-                });
+                addMessage(currentThreadId, receivedMsg);
                 setUpdateThread(true);
             }
         } catch (error) {
@@ -407,7 +317,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
      */
     const switchThread = (threadId: string) => {
         dispatchThreads({ type: "SET_CURRENT_THREAD", payload: threadId });
-        localStorage.setItem("lastThreadId", threadId);
+        localStorage.setItem(STORED_THREAD_ID, threadId);
     };
 
     /**
@@ -438,7 +348,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     type: "SET_CURRENT_THREAD",
                     payload: newThreadId,
                 });
-                localStorage.setItem("lastThreadId", newThreadId);
+                localStorage.setItem(STORED_THREAD_ID, newThreadId);
             }
         } catch (error) {
             console.error("Error creating new thread:", error);
@@ -476,8 +386,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             value={{
                 threadState,
                 threadCache,
-                agents,
-                models,
                 shouldQueryResearchModel,
                 maxTurns,
                 actionsToInclude,
@@ -486,17 +394,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 example,
                 character,
                 disableQuery,
-                user,
-                agentId,
-                token,
                 month,
                 year,
-                setToken,
-                modelId,
-                loadComplete,
-                setUser,
-                setModelId,
-                setAgentId,
                 setShouldQueryResearchModel,
                 setMonth,
                 setYear,
@@ -547,25 +446,3 @@ export const useChat = (): ChatContextType => {
 //         setAgents([]);
 //         setModels([]);
 //     }, [clearAllCachedData]);
-
-// temporary for default ex:
-// let maxTurns = 5;
-//         let actionsToInclude = ["wikipedia", "google"];
-//         let additionalInstructions = "Search either wikipedia or google to find information relevant to the question";
-//         let example = "";
-//         let character = "You are Ada, a female-coded AI conversation partner with a razor-sharp intellect, a rich inner world, and a mischievous streak a mile wide.";
-
-// const a = () => {}
-
-// function a() {}
-
-// const testObj = {
-//     "user_id": "user_2fcYxEZjvkR9JSYcPCWFArsVy4p",
-//     "question": "What are some fall women's fashion trends to look out for in NYC this fall?", "date": "November 2024",
-//     "max_turns": 2,
-//     "actions_to_include": ["wikipedia", "google"],
-//     "additional_instructions": "Search either wikipedia or google to find information relevant to the question",
-//     "model": "claude-3-5-sonnet-20241022",
-//     "example": "",
-//     "character": ""
-// }

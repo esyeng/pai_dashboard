@@ -8,8 +8,8 @@ export default function Page() {
 				appearance={{
 					variables: {
 						colorPrimary: "#000000",
-						colorText: "#000000",
-						colorBackground: "#c4f4c7ff",
+						colorText: "#b473ee",
+						colorBackground: "#321E48",
 					},
 				}}
 				path="/sign-in"

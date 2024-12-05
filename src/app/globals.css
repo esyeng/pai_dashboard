@@ -84,14 +84,19 @@
         --background-end-rgb: 0, 0, 0;
     }
 }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 html {
-    background: rgb(var(--caribbean-current));
+    /* background: rgb(var(--caribbean-current)); */
     /* background: rgb(var(--dark-dark-grey)); */
 }
 
 body {
-    color: rgb(var(--text-color));
+    /* color: rgb(var(--text-color)); */
     /* background: linear-gradient(to bottom,
             transparent,
             rgb(var(--caribbean-current))) rgb(var(--other-cc)); */

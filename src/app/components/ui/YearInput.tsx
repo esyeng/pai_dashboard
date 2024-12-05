@@ -18,7 +18,7 @@ const YearInput: React.FC<YearInputProps> = ({ label, value, onChange }) => {
 
     return (
         <div className="relative">
-            <label htmlFor="year-input" className="block text-sm font-medium text-[#85d7de] mb-1">
+            <label htmlFor="year-input" className="block text-sm font-medium text-default-font mb-1">
                 {label}
             </label>
             <input
@@ -28,7 +28,7 @@ const YearInput: React.FC<YearInputProps> = ({ label, value, onChange }) => {
                 onChange={handleChange}
                 min="1500"
                 max="2100"
-                className="block w-full px-4 py-2 text-[#85d7de] bg-caribbean-current border rounded-md shadow-sm border-slate-300 pl-9 pr-3 placeholder:text-[#85d7de] transition ease-in-out hover:bg-mint/10 focus:bg-mint/10 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 focus:ring-offset-1 focus:ring-offset-[#5bdde8] duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
+                className="block w-full appearance-none px-4 py-2 text-default-font bg-default-background border rounded-md shadow-sm border-brand-primary pl-9 pr-3 placeholder:text-default-font/50 transition ease-in-out hover:bg-brand-400/10 focus:bg-brand-400/10 focus:outline-none duration-200 sm:text-sm resize-none hover:resize-y sm:w-full"
                 placeholder="YYYY"
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">

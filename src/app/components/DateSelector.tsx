@@ -9,7 +9,7 @@ const DateSelector: React.FC = () => {
     const { month, year, setMonth, setYear } = useChat();
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
             <MonthSelect
                 label="Select Month (Optional)"
                 value={month}
@@ -20,7 +20,7 @@ const DateSelector: React.FC = () => {
                 value={year}
                 onChange={(newYear) => setYear(newYear)}
             />
-            <p className="mt-4 text-sm text-gray-600">
+            <p className="mt-4 text-sm text-brand-primary">
                 Selected Date: {month}/{year}
             </p>
         </div>

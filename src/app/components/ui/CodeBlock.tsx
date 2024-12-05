@@ -47,6 +47,8 @@ export const programmingLanguages: languageMap = {
     markdown: ".md",
     plaintext: ".txt",
     dockerfile: ".dockerfile",
+    react: ".jsx",
+    react_ts: ".tsx",
     // add more file extensions here, make sure the key is same as language prop in CodeBlock.tsx component
 };
 
@@ -63,7 +65,7 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
     const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 });
 
     const downloadAsFile = () => {
-        if (typeof window === "undefined") {
+        if (!language || !value) {
             return;
         }
         const fileExtension = programmingLanguages[language] || ".file";
@@ -72,7 +74,7 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
             true
         )}${fileExtension}`;
         const fileName = window.prompt(
-            "Enter file name" || "",
+            "Enter file name",
             suggestedFileName
         );
 
@@ -99,8 +101,8 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
     };
 
     return (
-        <div className="relative w-full font-sans codeblock bg-zinc-950 my-4">
-            <div className="flex items-center justify-between w-full bg-gradient-to-b from-[#4ce6ab2d] to-[#0ea46a3b] border-2 border-caribbean-current rounded-tl-lg rounded-tr-lg px-6 py-2 pr-4 bg-zinc-800 text-zinc-100">
+        <div className=" w-full font-sans codeblock text-brand-primary my-4">
+            <div className="flex items-center justify-between w-full bg-brand-200/70 border-2 border-brand-primary rounded-tl-lg rounded-tr-lg px-6 py-2 pr-4 text-zinc-100">
                 <span className="text-md text-white">{language.split('')[0].toUpperCase() + language.slice(1, language.length)}</span>
                 <div className="flex items-center space-x-1">
                     <Button
@@ -123,29 +125,35 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
                     </Button>
                 </div>
             </div>
-            <SyntaxHighlighter
-                language={language}
-                style={oneDark}
-                PreTag="div"
-                showLineNumbers
-                customStyle={{
-                    margin: 0,
-                    width: "100%",
-                    background: "#3e3f46",
-                    padding: "1.5rem 1rem",
-                }}
-                lineNumberStyle={{
-                    userSelect: "none",
-                }}
-                codeTagProps={{
-                    style: {
-                        fontSize: "1rem",
-                        fontFamily: "var(--font-mono)",
-                    },
-                }}
-            >
-                {value}
-            </SyntaxHighlighter>
+            <div className="border-2 border-brand-primary">
+
+                <SyntaxHighlighter
+                    language={language}
+                    style={oneDark}
+                    PreTag="div"
+                    showLineNumbers
+                    // wrapLongLines={true}
+                    customStyle={{
+                        margin: 0,
+                        width: "100%",
+                        maxHeight: "70vh",
+                        background: "rgb(23, 23, 23)",
+                        padding: "1.5rem 1rem",
+                    }}
+                    lineNumberStyle={{
+                        userSelect: "none",
+                    }}
+                    codeTagProps={{
+                        style: {
+                            fontSize: "0.7rem",
+                            fontFamily: "var(--font-mono)",
+                        },
+                    }}
+                >
+                    {value}
+                </SyntaxHighlighter>
+            </div>
+
         </div>
     );
 });

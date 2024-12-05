@@ -4,83 +4,115 @@ import React, { useState, useEffect } from "react";
 import { ChatWindow } from "./ChatWindow";
 import { Options } from "./OptionsPanel";
 import { Sidebar } from "./Sidebar";
+import { useSidebar } from "@/lib/hooks/use-sidebar";
+import { useWindowResize } from "@/lib/hooks/use-window-resize";
 import { useChat } from "@/contexts/ChatContext";
-import { SignInOrOut } from "./account/SignInOrOut";
+import { useAssistants } from "@/contexts/AssistantContext";
+import { useJasmynAuth } from "@/contexts/AuthContext";
 import { useAuth } from "@clerk/nextjs";
+import MessageLoadingIndicator from "./ui/MessageLoadingIndicator";
 
 export const MainContent: React.FC = () => {
-    const [sideOnBottom, setSideOnBottom] = useState<boolean>(false);
+    const { isSidebarOpen, toggleSidebar } = useSidebar();
     const { isLoaded, getToken } = useAuth();
-    const { agents, models, setToken, token } =
-        useChat();
+    const { fetchThreadsData } = useChat();
+    const { models, getAgents } = useAssistants();
+    const { setToken, setLatestToken, user } = useJasmynAuth();
+    const [hideChat, setHideChat] = useState(true);
+    const barNode = document.getElementById("sidebar");
+
+    const handleSidebar = () => {
+        if (isSidebarOpen) {
+            setHideChat(true);
+            // bring z index back to normal for using sidebar
+            barNode?.classList.remove("-z-10");
+        }
+        else {
+            setHideChat(false);
+            // high z index of hidden sidebar was blocking actions on chat for small screens
+            barNode?.classList.add("-z-10");
+            barNode?.classList.remove("z-10");
+        }
+    }
+
+    const handleHideChat = () => {
+        setHideChat(false);
+        if (!isSidebarOpen) {
+            toggleSidebar();
+        }
+        if (barNode && barNode.classList.contains("-z-10")) {
+            barNode.classList.remove("-z-10");
+            barNode.classList.add("z-10");
+        }
+    }
+
+    // first resize event ensures that on mobile screens, sidebar being open hides chat
+    useWindowResize(handleSidebar, { minWidth: 640 });
+    // second resize event ensures that the sidebar is always open and chat isnt hidden
+    // on screens larger than mobile
+    useWindowResize(handleHideChat, { maxWidth: 640 });
 
     useEffect(() => {
-        const handleResize = () => {
-            setSideOnBottom(window.innerWidth < 768);
-        };
-        window.addEventListener("resize", handleResize);
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (isLoaded) {
-            setToken(getToken());
+        if (isLoaded) { // clerk auth load completion flag
+            let t = getToken()
+            setToken(t);
+            setLatestToken(t);
         }
     }, [isLoaded]);
 
+    useEffect(() => {
+        if (!user || !user.user_id) return;
+        getAgents(user); // populate assistants state
+        fetchThreadsData(user.user_id); // populate threads state
+    }, [user]);
+
     return (
-        <div className="flex justify-between w-full max-md:flex-col">
-            {!sideOnBottom ? <Sidebar /> : null}
-            <div className="flex flex-col flex-1 px-4 items-center justify-between max-w-full md:overflow-x-auto">
-                <div className="flex flex-col items-center justify-around md:flex-row">
-                    <div className=" w-full items-center justify-between font-mono text-sm lg:flex">
-                        <div className="flex h-10 w-full items-end justify-center">
-                            <div className="z-10 bg-ultra-violet text-white">
-                                <h1 className="flex cursor-crosshair place-items-center gap-2 p-8 w-full text-[#9de6ca] text-xl py-2 pr-8 rounded leading-tight hover:scale-105">
-                                    {"<"} jasmyn.ai {"/>"}
+        <div className="sm:flex">
+            <div className="space-y-2">
+                <button
+                    onClick={toggleSidebar}
+                    className="p-1 min-w-6 rounded-sm text-xs font-mono shadow leading-tight text-brand-primary  hover:text-default-font hover:border-2 hover:border-brand-primary hover:p-1 hover:rounded-sm  sm:hidden">
+                    {isSidebarOpen ? (<span className="min-w-5 text-brand-primary">X</span>) : (<div className="space-y-2   ">
+                        <span className="block w-5 h-0.5 bg-brand-primary "></span>
+                        <span className="block w-2 h-0.5 bg-brand-primary"></span>
+                    </div>
+                    )}
+                </button>
+
+            </div>
+            <div
+                id="sidebar"
+                className="w-full absolute sm:w-1/4 sm:static"
+            >
+                <Sidebar />
+            </div>
+            {hideChat ? (null) : (<div className={`w-full sm:visible sm:w-3/4 sm:self-end lg:mx-4`}>
+                <div className=" items-center justify-around">
+                    <div className="  items-center justify-between font-mono text-sm ">
+                        <div className="flex items-center justify-center">
+                            <div className=" items-center justify-center bg-ultra-violet text-white">
+                                <h1 className="font-monospace-body cursor-default place-items-center gap-2 p-8 text-brand-primary text-lg py-2 pr-8 rounded leading-tight">
+                                    {"<"} jasmin.ai {"/>"}
                                 </h1>
                             </div>
                         </div>
                     </div>
-                    <SignInOrOut />
                 </div>
                 {isLoaded ? (
                     <>
-                        <Options agents={agents} models={models} />
+                        <Options models={models} />
                     </>
 
                 ) : (
                     <div className="h-12">
-                        <div className="flex items-center justify-center bg-gray-200 rounded-lg p-4">
+                        <div className=" items-center justify-center rounded-lg p-4">
                             <span className="text-gray-600">Loading...</span>
-                            <svg
-                                className="w-5 h-5 text-gray-600 animate-spin"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                            >
-                                <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                ></circle>
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                ></path>
-                            </svg>
+                            <MessageLoadingIndicator />
                         </div>
                     </div>
                 )}
                 <ChatWindow />
-                {sideOnBottom ? <Sidebar /> : null}
-            </div>
+            </div>)}
         </div>
     );
 };
