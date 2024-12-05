@@ -153,6 +153,10 @@ declare global {
             system_prompt: string,
             description: string
         ) => Promise<any>;
+        runDeleteAssistant: (
+            assistant_id: string,
+            user_id: string
+        ) => Promise<any>;
     }
 
     interface AuthContextType {

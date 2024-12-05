@@ -3,7 +3,8 @@ import {
     fetchAssistants,
     fetchModels,
     createAssistant,
-    updateAssistant
+    updateAssistant,
+    deleteAssistant
 } from "../lib/api";
 import { useJasmynAuth } from "./AuthContext";
 
@@ -89,7 +90,7 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
         name: string,
         system_prompt: string,
         description?: string
-    ) => {
+    ): Promise<any> => {
         setStatus('loading');
         setStatusMessage('Creating new assistant...');
         try {
@@ -124,7 +125,7 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
         name: string,
         system_prompt: string,
         description: string
-    ) => {
+    ): Promise<any> => {
         setStatus('loading');
         setStatusMessage('Updating assistant...');
         try {
@@ -153,6 +154,35 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
         }
     }
 
+    const runDeleteAssistant = async (assistant_id: string, user_id: string): Promise<any> => {
+        setStatus("loading");
+        setStatusMessage("Deleting assistant...");
+        try {
+            const deletedAssistant = await deleteAssistant(assistant_id, user_id);
+            if (deletedAssistant && deletedAssistant.length === 0) {
+                // const deleted = deletedAssistant[0];
+                // console.log("deleted!", deleted);
+                setAgents(prevAgents => prevAgents.filter(a => a.assistant_id !== assistant_id));
+                setPrompts(prevPrompts => {
+                    const newPrompts = { ...prevPrompts };
+                    delete newPrompts[assistant_id];
+                    return newPrompts;
+                });
+                setStatus("success");
+                setStatusMessage(`Assistant ${assistant_id} deleted successfully!`);
+                console.log(`Assistant ${assistant_id} deleted!`);
+                return null;
+            } else {
+                throw new Error("Failed to delete assitant: No data returned");
+            }
+        } catch (error) {
+            setStatus('error');
+            setStatusMessage(`Failed to delete assistant: ${error}`);
+            console.error("Error deleting assistant:", error);
+            return null;
+        }
+    }
+
     return (
         <AssistantContext.Provider
             value={{
@@ -172,7 +202,8 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
                 setAgentId,
                 setProvider,
                 createNewAssistant,
-                saveAssistantUpdates
+                saveAssistantUpdates,
+                runDeleteAssistant
             }}
         >
             {children}

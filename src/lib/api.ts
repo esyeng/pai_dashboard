@@ -221,7 +221,7 @@ export const fetchModels = async (): Promise<any> => {
 }
 
 
-export const entityExistsInDb = async ( user_id: string, assistant_id: string) => {
+export const entityExistsInDb = async (user_id: string, assistant_id: string) => {
     const client = createClerkSupabaseClient();
     try {
         const { data, error } = await client.from("assistants").select().eq("assistant_id", assistant_id).eq("created_by", user_id)
@@ -269,16 +269,6 @@ export const createAssistant = async (
     }
 }
 
-// export const appendToUser = async (user_id: string, assistant_id: string) => {
-//     const client = createClerkSupabaseClient();
-//     try {
-//         const {data, error} = await client.from("users").update({assistant_ids: assistant_id})
-//     } catch (error) {
-
-//     }
-
-// }
-
 // updateAssistant
 export const updateAssistant = async (
     user_id: string,
@@ -310,6 +300,24 @@ export const updateAssistant = async (
 }
 
 // deleteAssistant
+export const deleteAssistant = async (assistant_id: string, user_id: string): Promise<any> => {
+    const client = createClerkSupabaseClient();
+    try {
+        const { data, error } = await client.from("assistants")
+            .delete()
+            .eq("assistant_id", assistant_id)
+            .eq("created_by", user_id)
+            .select("*");
+        if (error) {
+            throw new Error(`Failed to delete assistant ${assistant_id} ${error?.message}`);
+        }
+        console.log("deleted assistant successfully!", data);
+        return data;
+    } catch (error) {
+        console.error("Error deleting assistant", error);
+        return error;
+    }
+}
 
 export const saveNewThread = async (
     thread_id: string,

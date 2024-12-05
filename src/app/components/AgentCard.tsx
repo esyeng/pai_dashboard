@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { WrenchIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import { WrenchIcon, XMarkIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { useAssistants } from '@/contexts/AssistantContext';
 import { useJasmynAuth } from '@/contexts/AuthContext';
 import { StatusCard } from './StatusCard';
+import { DeleteConfirmationDialog } from './DeleteConfirmationDialog';
 
 interface AgentDetails {
     assistantId: string;
@@ -17,10 +18,11 @@ interface EditProps {
 }
 
 export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
-    const { saveAssistantUpdates, status, statusMessage } = useAssistants();
+    const { saveAssistantUpdates, runDeleteAssistant, status, statusMessage } = useAssistants();
     const { user } = useJasmynAuth()
     const [editing, setEditing] = useState<boolean>(false);
     const [detailsToUpdate, setDetailsToUpdate] = useState<AgentDetails>({ ...agent });
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
 
     const handleOpenEdit = () => setEditing(true);
     const handleCloseEdit = () => setEditing(false);
@@ -33,15 +35,21 @@ export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Agent details updated:', detailsToUpdate);
-        // Here you would typically send the data to your backend or state management
         const { name, systemPrompt, description } = detailsToUpdate;
-        // const updated =
         await saveAssistantUpdates(user?.user_id, agent.assistantId, name, systemPrompt, description);
-        // if (updated) {
-
-        // }
         handleCloseEdit();
     };
+
+    const handleDeleteClick = () => {
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        console.log("Executing delete agent...");
+        await runDeleteAssistant(agent.assistantId, user?.user_id);
+        setIsDeleteDialogOpen(false);
+
+    }
 
     return (
         <>
@@ -59,7 +67,7 @@ export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
                     <div className='p-4 flex items-center justify-end'>
                         <div className={`flex items-center justify-between ${editing ? "self-end" : ""}`}>
                             <button
-                                className="p-2  text-default-font rounded-md hover:bg-default-background hover:text-black transition-colors duration-300 font-mono"
+                                className="p-2 text-default-font rounded-md hover:bg-default-background hover:text-black transition-colors duration-300 font-mono"
                                 onClick={() => {
                                     if (!editing) {
                                         handleOpenEdit();
@@ -72,6 +80,18 @@ export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
                             >
                                 {editing ? (<XMarkIcon fill="grey" className="w-6 h-6" />) : (<WrenchIcon fill="grey" className='h-6 w-6' />)}
                             </button>
+                            <button
+                                className="p-2 text-default-font rounded-md hover:bg-default-background hover:text-black transition-colors duration-300 font-mono"
+                                onClick={handleDeleteClick}
+                            >
+                                <TrashIcon fill="grey" className='h-6 w-6' />
+                            </button>
+                            <DeleteConfirmationDialog
+                                isOpen={isDeleteDialogOpen}
+                                onClose={() => setIsDeleteDialogOpen(false)}
+                                onConfirm={handleDeleteConfirm}
+                                assistantId={agent.assistantId}
+                            />
 
                         </div>
                     </div>
