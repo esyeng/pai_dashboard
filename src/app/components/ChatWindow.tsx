@@ -85,7 +85,7 @@ export const ChatWindow: React.FC = () => {
                                     // console.log("message raw string", message);
                                     msg = JSON.parse(message);
                                     msg.msg.content.replace(/([\\n])+/g, "&nbsp; \n");
-                                    console.log("msg content after replace", msg.msg.content)
+                                    // console.log("msg content after replace", msg.msg.content)
 
                                     // console.log("msg after replace", msg);
                                 } else {

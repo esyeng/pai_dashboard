@@ -101,7 +101,7 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
     };
 
     return (
-        <div className="relative w-full font-sans codeblock text-brand-primary my-4">
+        <div className=" w-full font-sans codeblock text-brand-primary my-4">
             <div className="flex items-center justify-between w-full bg-brand-200/70 border-2 border-brand-primary rounded-tl-lg rounded-tr-lg px-6 py-2 pr-4 text-zinc-100">
                 <span className="text-md text-white">{language.split('')[0].toUpperCase() + language.slice(1, language.length)}</span>
                 <div className="flex items-center space-x-1">
