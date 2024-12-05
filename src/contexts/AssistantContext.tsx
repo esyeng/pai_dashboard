@@ -34,7 +34,7 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
     // Default agent, model
     const [agentId, setAgentId] = useState<string>(storedAgent ? storedAgent : "jasmyn");
     const [modelId, setModelId] = useState<string>(storedModel ? storedModel : "dolphin-2.9.2-qwen2-72b");
-    const [provider, setProvider] = useState<string>(storedProvider ? storedProvider : "venice");
+    const [provider, setProvider] = useState<string>(storedProvider ?? "venice");
 
     const [agents, setAgents] = useState<AgentProps[]>([]);
     const [models, setModels] = useState<any>([]);

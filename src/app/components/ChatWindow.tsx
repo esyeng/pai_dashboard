@@ -9,10 +9,12 @@ import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
 import { useChat } from "@/contexts/ChatContext";
 import { useAssistants } from "@/contexts/AssistantContext";
 import { useJasmynAuth } from "@/contexts/AuthContext";
-import { debounce } from "lodash";
+
+const MESSAGES_PER_PAGE = 8;
 
 export const ChatWindow: React.FC = () => {
     const [inputValue, setInputValue] = useState("");
+    const [visibleMessages, setVisibleMessages] = useState<number>(MESSAGES_PER_PAGE);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const chatWindowRef = useRef<HTMLDivElement>(null);
     const {
@@ -26,14 +28,15 @@ export const ChatWindow: React.FC = () => {
     const { agentId, modelId } = useAssistants();
     const { user } = useJasmynAuth();
 
+
     const currentConversation = useMemo(() => {
         return currentThreadId && threads[currentThreadId]?.messages
             ? threads[currentThreadId].messages
             : [];
     }, [threads, currentThreadId]);
 
-    const parseMessage = (message: MessageProps | string) => {
-        let msg
+    const parseMessage = useCallback((message: MessageProps | string) => {
+        let msg;
         if (typeof message === "string") {
             // console.log("message raw string", message);
             msg = JSON.parse(message);
@@ -45,7 +48,7 @@ export const ChatWindow: React.FC = () => {
             // console.log("message.msg", message.msg);
         }
         return msg as MessageProps;
-    }
+    }, [])
 
     const onSendMessage = async (message: string) => {
         console.log(
@@ -72,8 +75,6 @@ export const ChatWindow: React.FC = () => {
         }
     };
 
-    // const debouncedSetInputValue = useMemo(() => debounce(setInputValue, 100), []);
-
     const agentNameFormatted = agentId.split(/[ +_+]/).map(word => (
         word.length > 1
             ? word.split("")[0].toUpperCase() + word.slice(1, word.length)
@@ -86,37 +87,48 @@ export const ChatWindow: React.FC = () => {
         node?.scrollIntoView({ behavior: "smooth", block: "end" });
     }, []);
 
-    // useEffect(() => {
-    //     if (chatWindowRef.current) {
-    //         chatWindowRef.current.scrollIntoView({
-    //             behavior: "smooth",
-    //             block: "end",
-    //         });
-    //     }
-    // }, [currentConversation.length]);
+    const loadMoreMessages = () => {
+        setVisibleMessages(prev => Math.min(prev + MESSAGES_PER_PAGE, currentConversation.length));
+    };
+
+    const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop } = e.currentTarget;
+        if (scrollTop === 0) {
+            loadMoreMessages();
+        }
+    }, []);
+
+    useEffect(() => { // paginate for performance, should improve to use an endless scroll lazy load
+        setVisibleMessages(MESSAGES_PER_PAGE);
+    }, [currentThreadId]);
+
+    const renderedMessages = useMemo(() => {
+        return currentConversation.slice(-visibleMessages).map((message: MessageProps, i: number) => {
+            const msg = parseMessage(message);
+            return (
+                <Message
+                    key={msg.id || i}
+                    id={msg.id}
+                    msg={msg.msg}
+                    timestamp={msg.timestamp}
+                    sender={msg.sender}
+                    agentId={msg.agentId}
+                />
+            );
+        });
+    }, [currentConversation, visibleMessages, parseMessage]);
 
     return (
-        <div className=" px-4 py-4 mx-2 sm:mx-0 h-full bg-brand-50/70 rounded-md" ref={scrollToBottom}>
+        <div className=" px-4 py-4 mx-2 h-full bg-default-background rounded-md" ref={scrollToBottom}>
             <div className="">
                 <div className="">
-                    <div className=" overflow-y-auto max-h-[32rem] sm:p-4">
-                        {currentConversation.map(
-                            (message: MessageProps, i: number) => {
-                                let msg = parseMessage(message);
-                                // console.log("message type before replace?", typeof message);
-
-                                return (
-                                    <Message
-                                        key={msg.id || i}
-                                        id={msg.id}
-                                        msg={msg.msg}
-                                        timestamp={msg.timestamp}
-                                        sender={msg.sender}
-                                        agentId={msg.agentId}
-                                    />
-                                );
-                            }
+                    <div className="max-h-[32rem] border-b border-b-brand-primary overflow-y-auto" onScroll={handleScroll} ref={chatWindowRef}>
+                        {visibleMessages < currentConversation.length && (
+                            <button onClick={loadMoreMessages} className="w-full px-4 py-2 mb-4 bg-brand-200 text-neutral-600 rounded hover:bg-brand-400 transition ease-in-out duration-200">
+                                Load More
+                            </button>
                         )}
+                        {renderedMessages}
                         {isLoading && (
                             <div className="h-12">
                                 <div className="">

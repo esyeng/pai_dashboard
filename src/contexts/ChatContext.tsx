@@ -248,7 +248,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setIsLoading(true);
             setDisableQuery(true);
-            if (token && user) {
+            if (latestToken && user) {
                 let prof;
                 if (Array.isArray(user.profile)) { // temp fix for diff response format of diff providers, should be standardized
                     prof = user.profile[0];
