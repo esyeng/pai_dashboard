@@ -49,7 +49,7 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
                                 </Dialog.Title>
                                 <div className="mt-2">
                                     <p className="text-sm text-gray-500 dark:text-gray-300">
-                                        This is an irreversible action. Are you sure you'd like to delete {assistantId}?
+                                        {`This is an irreversible action. Are you sure you'd like to delete ${assistantId}?`}
                                     </p>
                                 </div>
 
