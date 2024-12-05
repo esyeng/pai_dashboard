@@ -7,6 +7,7 @@ import {
 } from "../lib/api";
 import { useJasmynAuth } from "./AuthContext";
 
+
 /**
  * AssistantContext.tsx
  */
@@ -22,6 +23,8 @@ const STORED_PROVIDER_ID: string = "provider_id";
 const AssistantContext = createContext<AssistantContextType | undefined>(undefined);
 
 export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }) => {
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'info'>('idle');
+    const [statusMessage, setStatusMessage] = useState('');
     let storedAgent: any, storedModel: any, storedProvider: any;
     if (typeof localStorage !== "undefined") {
         storedAgent = localStorage?.getItem(STORED_AGENT_ID);
@@ -87,13 +90,32 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
         system_prompt: string,
         description?: string
     ) => {
-        const newAssistant = await createAssistant(user_id, assistant_id, name, system_prompt, description);
-        // if (newAssistant.assistant_id) {
-        //     setAgents([...agents, newAssistant]);
-        //     setAgentId(newAssistant.assistant_id);
-        //     console.log(`Assistant ${newAssistant.assistant_id} created!`);
-        // }
-        return newAssistant;
+        setStatus('loading');
+        setStatusMessage('Creating new assistant...');
+        try {
+            const newAssistant = await createAssistant(user_id, assistant_id, name, system_prompt, description);
+            if (newAssistant && newAssistant.length > 0) {
+                const createdAssistant = newAssistant[0]; // Assuming the API returns an array with the created assistant
+                setAgents(prevAgents => [...prevAgents, createdAssistant]);
+                setAgentId(createdAssistant.assistant_id);
+                // Update prompts state
+                setPrompts(prevPrompts => ({
+                    ...prevPrompts,
+                    [createdAssistant.assistant_id]: createdAssistant.system_prompt
+                }));
+                setStatus('success');
+                setStatusMessage(`Assistant ${createdAssistant.assistant_id} created successfully!`);
+                console.log(`Assistant ${createdAssistant.assistant_id} created!`);
+                return createdAssistant;
+            } else {
+                throw new Error('Failed to create assistant: No data returned');
+            }
+        } catch (error) {
+            setStatus('error');
+            setStatusMessage(`Failed to create assistant: ${error}`);
+            console.error("Error creating assistant:", error);
+            return null;
+        }
     }
 
     const saveAssistantUpdates = async (
@@ -103,16 +125,39 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
         system_prompt: string,
         description: string
     ) => {
-        const updatedAssistant = await updateAssistant(user_id, assistant_id, name, system_prompt, description);
-        // setAgents([...agents.filter((a) => a.assistant_id !== assistant_id), updatedAssistant]);
-        // setAgentId(updatedAssistant.assistant_id);
-        // console.log(`Assistant ${updatedAssistant.assistant_id} updated!`);
-        return updatedAssistant;
+        setStatus('loading');
+        setStatusMessage('Updating assistant...');
+        try {
+            const updatedAssistant = await updateAssistant(user_id, assistant_id, name, system_prompt, description);
+            if (updatedAssistant && updatedAssistant.length > 0) {
+                const updated = updatedAssistant[0]; // Assuming the API returns an array with the updated assistant
+                console.log("updated!", updated);
+                setAgents(prevAgents => prevAgents.map(a => a.assistant_id === assistant_id ? updated : a));
+                // Update prompts state
+                setPrompts(prevPrompts => ({
+                    ...prevPrompts,
+                    [updated.assistant_id]: updated.system_prompt
+                }));
+                setStatus('success');
+                setStatusMessage(`Assistant ${updated.assistant_id} updated successfully!`);
+                console.log(`Assistant ${updated.assistant_id} updated!`);
+                return updated;
+            } else {
+                throw new Error('Failed to update assistant: No data returned');
+            }
+        } catch (error) {
+            setStatus('error');
+            setStatusMessage(`Failed to update assistant: ${error}`);
+            console.error("Error updating assistant:", error);
+            return null;
+        }
     }
 
     return (
         <AssistantContext.Provider
             value={{
+                status,
+                statusMessage,
                 agents,
                 models,
                 prompts,
@@ -121,6 +166,7 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
                 provider,
                 claudeModels,
                 veniceModels,
+                setStatusMessage,
                 getAgents,
                 setModelId,
                 setAgentId,

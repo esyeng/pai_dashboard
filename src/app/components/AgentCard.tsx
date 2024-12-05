@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { WrenchIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { useAssistants } from '@/contexts/AssistantContext';
 import { useJasmynAuth } from '@/contexts/AuthContext';
+import { StatusCard } from './StatusCard';
 
 interface AgentDetails {
     assistantId: string;
@@ -16,7 +17,7 @@ interface EditProps {
 }
 
 export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
-    const { saveAssistantUpdates } = useAssistants();
+    const { saveAssistantUpdates, status, statusMessage } = useAssistants();
     const { user } = useJasmynAuth()
     const [editing, setEditing] = useState<boolean>(false);
     const [detailsToUpdate, setDetailsToUpdate] = useState<AgentDetails>({ ...agent });
@@ -29,12 +30,16 @@ export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
         setDetailsToUpdate(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Agent details updated:', detailsToUpdate);
         // Here you would typically send the data to your backend or state management
-        const { assistantId, name, systemPrompt, description } = detailsToUpdate;
-        saveAssistantUpdates(user?.user_id, assistantId, name, systemPrompt, description);
+        const { name, systemPrompt, description } = detailsToUpdate;
+        // const updated =
+        await saveAssistantUpdates(user?.user_id, agent.assistantId, name, systemPrompt, description);
+        // if (updated) {
+
+        // }
         handleCloseEdit();
     };
 
@@ -42,6 +47,7 @@ export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
         <>
             <div className={`flex ${editing ? "flex-col" : "flex-row"} justify-between items-start w-full p-2 bg-brand-50/50 rounded-md my-1 cursor-pointer hover:bg-brand-50`}>
                 <div className='flex justify-end items-center w-full'>
+                    {status !== 'idle' && <StatusCard status={status} message={statusMessage} />}
                     <div className='flex flex-col items-start flex-1' onClick={() => onClick(agent.assistantId)}>
                         <span className='text-default-font text-xl py-2 pr-2 rounded leading-tight' >
                             {agent.name}
@@ -71,20 +77,16 @@ export const AgentCard: React.FC<EditProps> = ({ agent, onClick }) => {
                     </div>
                 </div>
                 {editing ? (<div className='flex flex-col w-full'>
+                    <div className='flex items-center space-x-2 my-1'>
+                        <span className="block text-xs font-medium text-brand-primary font-mono">
+                            Assistant ID:
+                        </span>
+                        <span className="block text-sm font-medium text-default-font font-mono">
+                            {agent.assistantId}
+                        </span>
+
+                    </div>
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label htmlFor="assistantId" className="block text-sm font-medium text-brand-primary font-mono">
-                                Assistant ID
-                            </label>
-                            <input
-                                type="text"
-                                id="assistantId"
-                                name="assistantId"
-                                value={detailsToUpdate.assistantId}
-                                onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 bg-neutral-50 border border-brand-primary rounded-md text-default-font font-mono focus:outline-none"
-                            />
-                        </div>
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium text-brand-primary font-mono">
                                 Name

@@ -220,6 +220,25 @@ export const fetchModels = async (): Promise<any> => {
     }
 }
 
+
+export const entityExistsInDb = async ( user_id: string, assistant_id: string) => {
+    const client = createClerkSupabaseClient();
+    try {
+        const { data, error } = await client.from("assistants").select().eq("assistant_id", assistant_id).eq("created_by", user_id)
+        if (error) {
+            throw new Error("Failed to check if ass exists" + error?.message);
+        };
+        if (data.length) {
+            console.log("assistant already exists", data);
+            return true
+        } else return false
+    } catch (error) {
+        console.error("Error checking assistant:", error);
+        return error;
+    }
+}
+
+
 // createAssistant
 export const createAssistant = async (
     user_id: string,
@@ -238,7 +257,7 @@ export const createAssistant = async (
                 system_prompt: system_prompt,
                 created_by: user_id
             }
-        ]).select();
+        ]).select("*");
         if (error) {
             throw new Error("Failed to create assistant" + error?.message);
         };
@@ -276,9 +295,9 @@ export const updateAssistant = async (
                 system_prompt: system_prompt,
                 description: description
             })
-            .eq("created_by", user_id)
             .eq("assistant_id", assistant_id)
-            .select();
+            .eq("created_by", user_id)
+            .select("*");
         if (error) {
             throw new Error("Failed to update assistant" + " " + assistant_id + error?.message);
         }
