@@ -99,7 +99,7 @@ export const parseCodeBlocks = (text: string): { type: 'text' | 'code'; content:
     while ((match = codeBlockRegex.exec(text)) !== null) {
         const [fullMatch, language, code] = match;
         const textBeforeCode = text.slice(lastIndex, match.index);
-        console.log("textBeforeCode before trim!!", textBeforeCode);
+        // console.log("textBeforeCode before trim!!", textBeforeCode);
         if (textBeforeCode.trim() !== '') {
             parts.push({ type: 'text', content: textBeforeCode, language: '' });
         }
