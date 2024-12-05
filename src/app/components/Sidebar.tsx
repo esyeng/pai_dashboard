@@ -18,7 +18,7 @@ export const Sidebar: React.FC = () => {
     }
 
     return (
-        <div className={`top-0 left-0 h-screen ease-in-out duration-300 bg-default-background ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} overflow-y-auto sm:w-1/4 sm:h-full sm:fixed sm:mb-28`}>
+        <div className={`top-0 left-0 px-2 h-screen ease-in-out duration-300 bg-default-background ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} overflow-y-auto sm:w-1/4 sm:h-full sm:fixed sm:mb-28`}>
             <div className="">
 
                 <div className="flex justify-center items-center px-2 my-1 ">

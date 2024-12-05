@@ -58,7 +58,7 @@ export const AgentMenuModal: React.FC<AgentMenuModalProps> = ({ isOpen, onClose 
 
     if (!isOpen) return null;
     return (
-        <>(<div className='p-4 py-8 m-2 fixed inset-0 bg-default-background backdrop-blur-sm  items-center justify-center z-50 overflow-y-auto overscroll-contain'>
+        <>(<div className='p-4 pb-8 h-screen m-2 fixed inset-0 bg-default-background backdrop-blur-sm items-center justify-center z-50 overflow-y-auto overscroll-contain'>
             <div className='flex flex-col items-center justify-center overflow-y-auto p-4'>
 
                 <span className="text-brand-primary text-md py-2 pr-2 rounded leading-tight">AI Assistant Menu</span>
@@ -68,8 +68,8 @@ export const AgentMenuModal: React.FC<AgentMenuModalProps> = ({ isOpen, onClose 
                 >
                     <XMarkIcon className="w-6 h-6" />
                 </button>
-                <div className='overflow-y-auto'>
-                    <div className='flex flex-col items-center justify-center'>
+                <div className=''>
+                    <div className='flex flex-col items-center justify-center h-screen overflow-y-auto'>
                         {agentList.map((a) => {
                             return (
                                 <div key={a.assistantId} className='w-full'>

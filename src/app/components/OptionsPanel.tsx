@@ -68,7 +68,7 @@ export const Options: React.FC<OptionsProps> = ({ models }) => {
     let ids = models.map((model) => model.model_id);
     console.log("modelIds", ids)
     return (
-        <div className="flex justify-center w-full sm:flex-col lg:sticky">
+        <div className="flex justify-center w-full sm:flex-col lg:mx-4 lg:pr-4 lg:sticky">
             <div className="mb-4 mx-2 w-full flex flex-col items-center justify-center my-2 lg:flex-row  p-2 rounded-lg bg-brand-50/70 sm:mx-0 ">
                 <div className="md:w-full lg:w-auto lg:flex justify-evenly">
                     <div className="flex flex-col lg:flex-row">

@@ -90,7 +90,7 @@ export const MainContent: React.FC = () => {
                 <div className=" items-center justify-around">
                     <div className="  items-center justify-between font-mono text-sm ">
                         <div className="flex items-center justify-center">
-                            <div className="z-10 items-center justify-center bg-ultra-violet text-white">
+                            <div className=" items-center justify-center bg-ultra-violet text-white">
                                 <h1 className="font-monospace-body cursor-default place-items-center gap-2 p-8 text-brand-primary text-lg py-2 pr-8 rounded leading-tight">
                                     {"<"} jasmin.ai {"/>"}
                                 </h1>

@@ -146,7 +146,7 @@ export const ChatWindow: React.FC = () => {
                             </div>
                         )}
                     </div>
-                    <div className="flex flex-col mb-4 items-stretch justify-items-stretch sm:w-full sm:flex-row">
+                    <div className="flex flex-col mx-2 my-4 items-stretch justify-items-stretch sm:w-full sm:flex-row">
                         <textarea
                             ref={inputRef}
                             className="flex-grow p-2 mr-2 mb-2 border border-brand-primary rounded-xl max-h-[420px] text-neutral-700 bg-default-background min-h-20 py-2 pr-3 placeholder:text-d transition ease-in-out hover:bg-neutral-100/20 focus:bg-neutral-100/40 focus:border-black duration-200 sm:text-sm resize-y sm:w-full"
