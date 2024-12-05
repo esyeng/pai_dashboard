@@ -43,9 +43,7 @@ interface ChatProviderProps {
     children: React.ReactNode;
 }
 
-const STORED_MODEL_ID: string = "model_id";
-const STORED_AGENT_ID: string = "agent_id";
-const STORED_PROVIDER_ID: string = "provider_id";
+const STORED_THREAD_ID: string = "latest_thread_id";
 
 // Unique ID for each thread, used for selecting and updating. Is separate from db object thread.id
 const idGenerator = UniqueIdGenerator.getInstance();
@@ -53,11 +51,9 @@ const idGenerator = UniqueIdGenerator.getInstance();
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-    let storedAgent, storedModel, storedProvider;
-    if (typeof localStorage !== "undefined") {
-        storedAgent = localStorage?.getItem(STORED_AGENT_ID);
-        storedModel = localStorage?.getItem(STORED_MODEL_ID);
-        storedProvider = localStorage?.getItem(STORED_PROVIDER_ID);
+    let storedThreadId: string | null;
+    if (typeof localStorage !== "undefined" && localStorage !== null) {
+        storedThreadId = localStorage.getItem(STORED_THREAD_ID);
     }
     const [threadState, dispatchThreads] = useReducer(threadsReducer, {
         threads: {},
@@ -65,7 +61,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         activeMessageQueue: [],
         messagesInActiveThread: [],
     });
-    const { user, latestToken, loadComplete } = useJasmynAuth();
+    const { user, token, loadComplete } = useJasmynAuth();
     const { provider, prompts } = useAssistants();
     const [threadCache, setThreadCache] = useState<Threads>({});
 
@@ -176,11 +172,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                         sortObjectsByCreatedAt(fetchedThreads);
                     // grab latest non empty thread
                     const latestThread =
-                        sortedThreads[sortedThreads.length - 1];
+                        sortedThreads[0];
                     // load last thread
                     dispatchThreads({
                         type: "SET_CURRENT_THREAD",
-                        payload: latestThread.thread_id.toString(),
+                        payload: storedThreadId ?? latestThread.thread_id.toString(),
                     });
                 }
                 return fetchedThreads;
@@ -252,7 +248,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setIsLoading(true);
             setDisableQuery(true);
-            if (latestToken && user) {
+            if (token && user) {
                 let prof;
                 if (Array.isArray(user.profile)) { // temp fix for diff response format of diff providers, should be standardized
                     prof = user.profile[0];
@@ -274,7 +270,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             example: example,
                             character: character,
                         },
-                        latestToken
+                        token
                     )
                     : await queryModel(provider,
                         {
@@ -288,9 +284,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             currentThreadId: currentThreadId,
                             user_id: user.user_id ?? 0,
                         },
-                        latestToken
+                        token
                     );
-                console.log("received resp", response);
+                console.log("received resp", response?.response?.length);
                 const receivedMsg: MessageProps = {
                     id: uuidv4(),
                     timestamp: Date.now(),
@@ -321,7 +317,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
      */
     const switchThread = (threadId: string) => {
         dispatchThreads({ type: "SET_CURRENT_THREAD", payload: threadId });
-        localStorage.setItem("lastThreadId", threadId);
+        localStorage.setItem(STORED_THREAD_ID, threadId);
     };
 
     /**
@@ -352,7 +348,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     type: "SET_CURRENT_THREAD",
                     payload: newThreadId,
                 });
-                localStorage.setItem("lastThreadId", newThreadId);
+                localStorage.setItem(STORED_THREAD_ID, newThreadId);
             }
         } catch (error) {
             console.error("Error creating new thread:", error);
