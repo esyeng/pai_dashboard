@@ -68,8 +68,8 @@ export const AgentMenuModal: React.FC<AgentMenuModalProps> = ({ isOpen, onClose 
                 >
                     <XMarkIcon className="w-6 h-6" />
                 </button>
-                <div className=''>
-                    <div className='flex flex-col items-center justify-center h-screen overflow-y-auto'>
+                <div className='h-screen overflow-y-auto'>
+                    <div className='flex flex-col items-center justify-center overflow-y-auto'>
                         {agentList.map((a) => {
                             return (
                                 <div key={a.assistantId} className='w-full'>

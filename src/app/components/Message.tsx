@@ -34,7 +34,7 @@ export const Message: React.FC<MessageProps> = ({
     // const [streamedText, setStreamedText] = useState<string>('');
     const currentUserName: string = name && name.length ? name : "AnonymousUser";
     const currentAgentName: string = agents && agents.length ? agents.filter((a: AgentProps) => a.assistant_id == agentId)[0]?.name : "";
-    console.log('currentAgentName?', currentAgentName);
+    // console.log('currentAgentName?', currentAgentName);
 
     const isUserMessage = msg?.role === "user";
     const messageClass = isUserMessage

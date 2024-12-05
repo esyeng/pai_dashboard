@@ -93,7 +93,7 @@ export const parseCodeBlocks = (text: string): { type: 'text' | 'code'; content:
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
     const parts: { type: 'text' | 'code'; content: string; language: string }[] = [];
     let lastIndex = 0;
-    console.log("parts in parseCodeBlocks function", parts)
+    // console.log("parts in parseCodeBlocks function", parts)
 
     let match;
     while ((match = codeBlockRegex.exec(text)) !== null) {

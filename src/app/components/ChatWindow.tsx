@@ -1,14 +1,15 @@
 // ChatWindow.tsx
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo, use } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { Message } from "./Message";
-import { StreamingMessage } from "./StreamingMessage"
+// import { StreamingMessage } from "./StreamingMessage"
 import MessageLoadingIndicator from "./ui/MessageLoadingIndicator";
 import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
 import { useChat } from "@/contexts/ChatContext";
 import { useAssistants } from "@/contexts/AssistantContext";
 import { useJasmynAuth } from "@/contexts/AuthContext";
+import { debounce } from "lodash";
 
 export const ChatWindow: React.FC = () => {
     const [inputValue, setInputValue] = useState("");
@@ -30,6 +31,21 @@ export const ChatWindow: React.FC = () => {
             ? threads[currentThreadId].messages
             : [];
     }, [threads, currentThreadId]);
+
+    const parseMessage = (message: MessageProps | string) => {
+        let msg
+        if (typeof message === "string") {
+            // console.log("message raw string", message);
+            msg = JSON.parse(message);
+            msg.msg.content.replace(/([\\n])+/g, "&nbsp; \n");
+
+        } else {
+            msg = message;
+            msg.msg.content.replace(/([\\n])+/g, `&nbsp; \n`);
+            // console.log("message.msg", message.msg);
+        }
+        return msg as MessageProps;
+    }
 
     const onSendMessage = async (message: string) => {
         console.log(
@@ -56,6 +72,8 @@ export const ChatWindow: React.FC = () => {
         }
     };
 
+    // const debouncedSetInputValue = useMemo(() => debounce(setInputValue, 100), []);
+
     const agentNameFormatted = agentId.split(/[ +_+]/).map(word => (
         word.length > 1
             ? word.split("")[0].toUpperCase() + word.slice(1, word.length)
@@ -64,47 +82,30 @@ export const ChatWindow: React.FC = () => {
 
     const { onKeyDown } = useEnterSubmit(handleSendMessage);
 
-    useEffect(() => {
-        if (chatWindowRef.current) {
-            chatWindowRef.current.scrollIntoView({
-                behavior: "smooth",
-                block: "end",
-            });
-        }
-    }, [currentConversation.length]);
+    const scrollToBottom = useCallback((node: any) => {
+        node?.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, []);
+
+    // useEffect(() => {
+    //     if (chatWindowRef.current) {
+    //         chatWindowRef.current.scrollIntoView({
+    //             behavior: "smooth",
+    //             block: "end",
+    //         });
+    //     }
+    // }, [currentConversation.length]);
 
     return (
-        <div className=" px-4 py-4 mx-2 sm:mx-0 h-full bg-brand-50/70 rounded-md">
+        <div className=" px-4 py-4 mx-2 sm:mx-0 h-full bg-brand-50/70 rounded-md" ref={scrollToBottom}>
             <div className="">
                 <div className="">
                     <div className=" overflow-y-auto max-h-[32rem] sm:p-4">
                         {currentConversation.map(
-                            (message: MessageProps | string, i: number) => {
-                                let msg;
-                                console.log("message type before replace?", typeof message);
-                                if (typeof message === "string") {
-                                    // console.log("message raw string", message);
-                                    msg = JSON.parse(message);
-                                    msg.msg.content.replace(/([\\n])+/g, "&nbsp; \n");
+                            (message: MessageProps, i: number) => {
+                                let msg = parseMessage(message);
+                                // console.log("message type before replace?", typeof message);
 
-                                } else {
-                                    msg = message;
-                                    msg.msg.content.replace(/([\\n])+/g, `&nbsp; \n`);
-                                    console.log("message.msg", message.msg);
-                                }
                                 return (
-
-                                    // <div key={msg.id || i}>no
-                                    // (msg.msg.role === "assistant" && i === currentConversation.length - 1) ?
-                                    //     <StreamingMessage
-                                    //         key={msg.id || i}
-                                    //         id={msg.id}
-                                    //         msg={msg.msg}
-                                    //         timestamp={msg.timestamp}
-                                    //         sender={msg.sender}
-                                    //         agentId={msg.agentId}
-                                    //         interval={2}
-                                    //     /> :
                                     <Message
                                         key={msg.id || i}
                                         id={msg.id}
@@ -113,7 +114,6 @@ export const ChatWindow: React.FC = () => {
                                         sender={msg.sender}
                                         agentId={msg.agentId}
                                     />
-
                                 );
                             }
                         )}
@@ -121,27 +121,6 @@ export const ChatWindow: React.FC = () => {
                             <div className="h-12">
                                 <div className="">
                                     <MessageLoadingIndicator />
-                                    {/* <svg */}
-                                    {/* //             className="w-5 h-5 text-gray-600 animate-spin"
-                            //             xmlns="http://www.w3.org/2000/svg"
-                            //             fill="none"
-                            //             viewBox="0 0 24 24"
-                            //         > */}
-                                    {/* //             <circle
-                            //                 className="opacity-25"
-                            //                 cx="12"
-                            //                 cy="12"
-                            //                 r="10"
-                            //                 stroke="currentColor"
-                            //                 strokeWidth="4"
-                            //             ></circle>
-                            //             <path
-                            //                 className="opacity-75"
-                            //                 fill="currentColor"
-                            //                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            //             ></path>
-                            //         </svg>
-                            //  */}
                                 </div>
                             </div>
                         )}
@@ -176,35 +155,3 @@ export const ChatWindow: React.FC = () => {
         </div>
     );
 };
-
-// {testData && (
-//     <div className="p-4 flex items-center justify-center">
-//         <h1 className="flex gap-2 p-8 w-full text-[#9de6ca] text-xl rounded">
-//             test data!: {JSON.stringify(testData)}
-//         </h1>
-//     </div>
-// )}
-
-// <button onClick={handleTestSearch}>TextResearchResponse</button>
-// const handleTestSearch = async () => {
-//     const testObj = {
-//         "user_id": "user_2fcYxEZjvkR9JSYcPCWFArsVy4p",
-//         "question": "What are some fall women's fashion trends to look out for in NYC this fall?", "date": "November 2024",
-//         "max_turns": 2,
-//         "actions_to_include": ["wikipedia", "google"],
-//         "additional_instructions": "Search either wikipedia or google to find information relevant to the question",
-//         "model": "claude-3-5-sonnet-20241022",
-//         "example": "",
-//         "character": ""
-//     }
-//     console.log("await token");
-//     if (token) {
-//         console.log("token!")
-//         let res = await queryResearchModel(testObj, token);
-//         console.log("res", res);
-//         if (res) {
-//             setTestData(res);
-//         }
-//     }
-
-// }
