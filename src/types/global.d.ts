@@ -124,6 +124,8 @@ declare global {
     }
 
     interface AssistantContextType {
+        status: 'idle' | 'loading' | 'success' | 'error' | 'info';
+        statusMessage: string;
         agents: AgentProps[];
         models: any;
         prompts: PromptMap
@@ -132,6 +134,7 @@ declare global {
         provider: string;
         claudeModels: string[];
         veniceModels: string[];
+        setStatusMessage: (msg: str) => void;
         getAgents: (user: UserResponse | User) => Promise<any>;
         setModelId: (modelId: string) => void;
         setAgentId: (agentId: string) => void;
