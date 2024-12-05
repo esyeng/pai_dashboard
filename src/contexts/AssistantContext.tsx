@@ -6,8 +6,6 @@ import {
     updateAssistant,
     deleteAssistant
 } from "../lib/api";
-import { useJasmynAuth } from "./AuthContext";
-
 
 /**
  * AssistantContext.tsx
@@ -96,10 +94,9 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
         try {
             const newAssistant = await createAssistant(user_id, assistant_id, name, system_prompt, description);
             if (newAssistant && newAssistant.length > 0) {
-                const createdAssistant = newAssistant[0]; // Assuming the API returns an array with the created assistant
-                setAgents(prevAgents => [...prevAgents, createdAssistant]);
+                const createdAssistant = newAssistant[0]; // API returns created rows as obj in array
+                setAgents(prevAgents => [...prevAgents, createdAssistant]); // append new agent
                 setAgentId(createdAssistant.assistant_id);
-                // Update prompts state
                 setPrompts(prevPrompts => ({
                     ...prevPrompts,
                     [createdAssistant.assistant_id]: createdAssistant.system_prompt
@@ -131,10 +128,9 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
         try {
             const updatedAssistant = await updateAssistant(user_id, assistant_id, name, system_prompt, description);
             if (updatedAssistant && updatedAssistant.length > 0) {
-                const updated = updatedAssistant[0]; // Assuming the API returns an array with the updated assistant
+                const updated = updatedAssistant[0]; // // API returns created rows as obj in array
                 console.log("updated!", updated);
-                setAgents(prevAgents => prevAgents.map(a => a.assistant_id === assistant_id ? updated : a));
-                // Update prompts state
+                setAgents(prevAgents => prevAgents.map(a => a.assistant_id === assistant_id ? updated : a)); // replace prev with updated
                 setPrompts(prevPrompts => ({
                     ...prevPrompts,
                     [updated.assistant_id]: updated.system_prompt
@@ -160,10 +156,8 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
         try {
             const deletedAssistant = await deleteAssistant(assistant_id, user_id);
             if (deletedAssistant && deletedAssistant.length === 0) {
-                // const deleted = deletedAssistant[0];
-                // console.log("deleted!", deleted);
-                setAgents(prevAgents => prevAgents.filter(a => a.assistant_id !== assistant_id));
-                setPrompts(prevPrompts => {
+                setAgents(prevAgents => prevAgents.filter(a => a.assistant_id !== assistant_id)); // filter deleted
+                setPrompts(prevPrompts => { // delete prompt object entry w/o directly mutating state
                     const newPrompts = { ...prevPrompts };
                     delete newPrompts[assistant_id];
                     return newPrompts;

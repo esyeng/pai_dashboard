@@ -61,7 +61,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         activeMessageQueue: [],
         messagesInActiveThread: [],
     });
-    const { user, token, loadComplete } = useJasmynAuth();
+    const { user, latestToken, loadComplete } = useJasmynAuth();
     const { provider, prompts } = useAssistants();
     const [threadCache, setThreadCache] = useState<Threads>({});
 
@@ -270,7 +270,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             example: example,
                             character: character,
                         },
-                        token
+                        latestToken
                     )
                     : await queryModel(provider,
                         {
@@ -284,7 +284,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                             currentThreadId: currentThreadId,
                             user_id: user.user_id ?? 0,
                         },
-                        token
+                        latestToken
                     );
                 console.log("received resp", response?.response?.length);
                 const receivedMsg: MessageProps = {
