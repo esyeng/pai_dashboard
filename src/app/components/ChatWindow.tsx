@@ -3,6 +3,7 @@
 
 import React, { useState, useRef, useEffect, useMemo, use } from "react";
 import { Message } from "./Message";
+import { StreamingMessage } from "./StreamingMessage"
 import MessageLoadingIndicator from "./ui/MessageLoadingIndicator";
 import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
 import { useChat } from "@/contexts/ChatContext";
@@ -85,9 +86,7 @@ export const ChatWindow: React.FC = () => {
                                     // console.log("message raw string", message);
                                     msg = JSON.parse(message);
                                     msg.msg.content.replace(/([\\n])+/g, "&nbsp; \n");
-                                    // console.log("msg content after replace", msg.msg.content)
 
-                                    // console.log("msg after replace", msg);
                                 } else {
                                     msg = message;
                                     msg.msg.content.replace(/([\\n])+/g, `&nbsp; \n`);
@@ -96,7 +95,16 @@ export const ChatWindow: React.FC = () => {
                                 return (
 
                                     // <div key={msg.id || i}>no
-
+                                    // (msg.msg.role === "assistant" && i === currentConversation.length - 1) ?
+                                    //     <StreamingMessage
+                                    //         key={msg.id || i}
+                                    //         id={msg.id}
+                                    //         msg={msg.msg}
+                                    //         timestamp={msg.timestamp}
+                                    //         sender={msg.sender}
+                                    //         agentId={msg.agentId}
+                                    //         interval={2}
+                                    //     /> :
                                     <Message
                                         key={msg.id || i}
                                         id={msg.id}
@@ -105,7 +113,6 @@ export const ChatWindow: React.FC = () => {
                                         sender={msg.sender}
                                         agentId={msg.agentId}
                                     />
-                                    // </div>
 
                                 );
                             }
@@ -154,14 +161,16 @@ export const ChatWindow: React.FC = () => {
                             disabled={isLoading}
                         />
                     </div>
-                    <div className=" flex items-center justify-center w-full"></div>
-                    <button
-                        className="mr-4 mb-8 w-full transition ease-in-out px-4 py-2 bg-brand-200 text-neutral-600 rounded hover:bg-brand-500/50 hover:border-transparent duration-300 disabled:opacity-75 disabled:hover:bg-[#151515] disabled:hover:text-[#fff] disabled:cursor-not-allowed sm:max-w-64"
-                        onClick={handleSendMessage}
-                        disabled={disableQuery}
-                    >
-                        {shouldQueryResearchModel ? "Search" : "Send"}
-                    </button>
+                    <div className=" flex items-center justify-center w-full">
+
+                        <button
+                            className="mx-4 mb-8 w-full transition ease-in-out px-4 py-2 bg-brand-200 text-neutral-600 rounded hover:bg-brand-500/50 hover:border-transparent duration-300 disabled:opacity-75 disabled:hover:bg-[#151515] disabled:hover:text-[#fff] disabled:cursor-not-allowed"
+                            onClick={handleSendMessage}
+                            disabled={disableQuery}
+                        >
+                            {shouldQueryResearchModel ? "Search" : "Send"}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
