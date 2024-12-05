@@ -9,7 +9,7 @@ import { sortObjectsByCreatedAt } from "@/lib/utils/helpers";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
 import { useWindowResize } from "@/lib/hooks/use-window-resize";
 
-
+const ITEMS_PER_PAGE = 10;
 
 const ThreadList: React.FC = () => {
     const {
@@ -26,6 +26,13 @@ const ThreadList: React.FC = () => {
     const [createdOrSelected, setCreatedOrSelected] = useState<boolean>(false);
     const threadsArray = Object.values(threads);
     const sortedThreads = sortObjectsByCreatedAt(threadsArray);
+    const totalPages = Math.ceil(sortedThreads.length / ITEMS_PER_PAGE);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+
+    const paginatedThreads = sortedThreads.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
 
     if (Object.entries(threads).length > 0) {
@@ -94,8 +101,8 @@ const ThreadList: React.FC = () => {
                         </button>
                     </div>
                     <ul className="grid grid-cols-1 overflow-y-auto w-full bg-default-background">
-                        {loadComplete && sortedThreads.length > 0 ? (
-                            [...sortedThreads].reverse().map((threadItem: any) => {
+                        {loadComplete && paginatedThreads.length > 0 ? (
+                            [...paginatedThreads].map((threadItem: any) => {
                                 return (
                                     <li
                                         key={threadItem.id}
@@ -177,6 +184,25 @@ const ThreadList: React.FC = () => {
                             </div>
                         )}
                     </ul>
+                    <div className="flex justify-between items-center mt-4">
+                        <button
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="px-4 py-2 bg-brand-300 text-neutral-600 rounded disabled:opacity-50"
+                        >
+                            Previous
+                        </button>
+                        <span>
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className="px-4 py-2 bg-brand-300 text-neutral-600 rounded disabled:opacity-50"
+                        >
+                            Next
+                        </button>
+                    </div>
                     <div className="bg-orange-100 rounded-b-lg rounded-tr-lg">
                     </div>
                 </div>

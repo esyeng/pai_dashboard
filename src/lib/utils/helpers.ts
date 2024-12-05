@@ -242,7 +242,7 @@ export const sortObjectsByCreatedAt = (objects: any[]): any[] => {
         }
 
         return timeA - timeB;
-    });
+    }).reverse();
 }
 
 
