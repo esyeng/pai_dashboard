@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, SetStateAction, Dispatch } from "react";
 import DateSelector from "./DateSelector";
-import { useChat } from "@/contexts/ChatContext";
 import { useAssistants } from "@/contexts/AssistantContext";
+import { useSearch } from "@/contexts/SearchContext";
 
 
 export const SearchOptions: React.FC = () => {
@@ -24,7 +24,7 @@ export const SearchOptions: React.FC = () => {
         setCharacter,
         setDisableQuery,
         disableQuery
-    } = useChat();
+    } = useSearch();
 
     const testObj = {
         "user_id": "user_2fcYxEZjvkR9JSYcPCWFArsVy4p",

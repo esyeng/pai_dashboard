@@ -3,10 +3,10 @@
 import React, { useState } from 'react';
 import MonthSelect from './ui/MonthSelect';
 import YearInput from './ui/YearInput';
-import { useChat } from '@/contexts/ChatContext';
+import { useSearch } from '@/contexts/SearchContext';
 
 const DateSelector: React.FC = () => {
-    const { month, year, setMonth, setYear } = useChat();
+    const { month, year, setMonth, setYear } = useSearch();
 
     return (
         <div className="space-y-4 w-full">

@@ -58,13 +58,13 @@ export const Message: React.FC<MessageProps> = ({
                                 <>
                                     <div className="flex flex-col sm:flex-row">
                                         <span className={`block ${isUserMessage
-                                            ? 'text-brand-50' : 'text-brand-primary'} text-sm pr-2  sm:text-lg`}>
+                                            ? 'text-brand-50' : 'text-brand-primary'} text-sm pr-2  flex-1 sm:text-lg`}>
                                             {msg.role === "user"
                                                 ? currentUserName
                                                 : currentAgentName
                                             }:
                                         </span>
-                                        <div className="block text-lg flex-1 md:text-sm">
+                                        <div className="block text-lg flex-3 md:text-sm">
                                             <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
                                                 {part.content.replace(/\n/gi, "&nbsp; \n").trim()}
                                             </ReactMarkdown>

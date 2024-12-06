@@ -190,6 +190,7 @@ export const AssistantProvider: React.FC<AssistantProviderProps> = ({ children }
                 provider,
                 claudeModels,
                 veniceModels,
+                setStatus,
                 setStatusMessage,
                 getAgents,
                 setModelId,

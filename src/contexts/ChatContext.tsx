@@ -12,7 +12,8 @@ import {
     queryResearchModel,
     fetchThreads,
     saveNewThread,
-    updateThreadMessages
+    updateThreadMessages,
+    deleteThread
 } from "../lib/api";
 import {
     UniqueIdGenerator,
@@ -24,18 +25,11 @@ import {
 import { threadsReducer } from "./threadsReducer";
 import { useJasmynAuth } from "./AuthContext";
 import { useAssistants } from "./AssistantContext";
+import { useSearch } from "./SearchContext";
 import { v4 as uuidv4 } from "uuid";
-import { useAuth } from "@clerk/nextjs";
-// import { logger } from '../lib/utils/logger';
 
 /**
  * ChatContext.tsx
- *
- * ChatContext is a ReactContext object that represents which contexts other components read or provide.
- * It is the object returned from createContext, and gets passed as the argument to useContext.
- * At the end of this file the useChat hook is defined which calls useContext,
- * granting access to all variables in the ChatContext.Provider returned by this component
- * to the child component it is called from
  */
 
 
@@ -62,34 +56,26 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         messagesInActiveThread: [],
     });
     const { user, latestToken, loadComplete } = useJasmynAuth();
-    const { provider, prompts } = useAssistants();
+    const { provider, prompts, status, statusMessage, setStatus, setStatusMessage } = useAssistants();
+    const {
+        setDisableQuery,
+        maxTurns,
+        selectedActions,
+        additionalInstructions,
+        example,
+        character,
+        month,
+        year,
+        months
+    } = useSearch();
     const [threadCache, setThreadCache] = useState<Threads>({});
 
-
-    const [shouldQueryResearchModel, setShouldQueryResearchModel] =
-        useState<boolean>(false);
 
     // Status flags
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     // flag for updating database thread messages
     const [updateThread, setUpdateThread] = useState<boolean>(false);
-
-    // Research model query parameters
-    const [maxTurns, setMaxTurns] = useState<number>(5);
-    const [selectedActions, setSelectedActions] = useState<string[]>(["wikipedia", "google"]);
-    const [additionalInstructions, setAdditionalInstructions] =
-        useState<string>("");
-    const [example, setExample] = useState<string>("");
-    const [character, setCharacter] = useState<string>("");
-    const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
-    const [year, setYear] = useState<number>(new Date().getFullYear());
-    const months = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    const [disableQuery, setDisableQuery] = useState<boolean>(false);
-    const actionsToInclude = ["wikipedia", "google", "process_urls", "write_report"];
 
     // saves convo to database thread
     // called in effect callback after message received from server
@@ -104,8 +90,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
-    // ****** effects *******
-
+    // enable send on load complete
     useEffect(() => {
         if (loadComplete) {
             setDisableQuery(false);
@@ -355,9 +340,26 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
-    const deleteThread = async (threadId: string) => {
+    const runDeleteThread = async (id: number, threadId: string) => {
         // TODO: Implement backend deletion
-        dispatchThreads({ type: "DELETE_THREAD", payload: threadId });
+        setStatus("loading");
+        setStatusMessage(`deleting thread ${id}`);
+        try {
+            const deletedThread = await deleteThread(id);
+            if (deletedThread) {
+                dispatchThreads({ type: "DELETE_THREAD", payload: threadId });
+                setStatus("success");
+                setStatusMessage(`Thread ${id} ${threadId} deleted successfully`)
+                return null;
+            } else {
+                throw new Error("Failed to delete thread");
+            }
+        } catch (error) {
+            setStatus('error');
+            setStatusMessage(`Failed to delete thread: ${error}`);
+            console.error("Error deleting thread:", error);
+            return null;
+        }
     };
 
     const exportThread = (threadId: string): void => {
@@ -386,29 +388,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             value={{
                 threadState,
                 threadCache,
-                shouldQueryResearchModel,
-                maxTurns,
-                actionsToInclude,
-                additionalInstructions,
-                selectedActions,
-                example,
-                character,
-                disableQuery,
-                month,
-                year,
-                setShouldQueryResearchModel,
-                setMonth,
-                setYear,
-                setMaxTurns,
-                setAdditionalInstructions,
-                setSelectedActions,
-                setExample,
-                setCharacter,
-                setDisableQuery,
                 sendChat,
                 switchThread,
                 createNewThread,
-                deleteThread,
+                runDeleteThread,
                 exportThread,
                 fetchThreadsData,
                 isLoading,

@@ -9,8 +9,9 @@ import { useEnterSubmit } from "../../lib/hooks/use-enter-submit";
 import { useChat } from "@/contexts/ChatContext";
 import { useAssistants } from "@/contexts/AssistantContext";
 import { useJasmynAuth } from "@/contexts/AuthContext";
+import { useSearch } from "@/contexts/SearchContext";
 
-const MESSAGES_PER_PAGE = 8;
+const MESSAGES_PER_PAGE = 6;
 
 export const ChatWindow: React.FC = () => {
     const [inputValue, setInputValue] = useState("");
@@ -19,19 +20,21 @@ export const ChatWindow: React.FC = () => {
     const chatWindowRef = useRef<HTMLDivElement>(null);
     const {
         shouldQueryResearchModel,
-        threadState: { threads, currentThreadId, messagesInActiveThread },
-        sendChat,
-        isLoading,
         selectedActions,
         disableQuery
-    } = useChat();
+    } = useSearch();
+    const {
+        threadState: { threads, currentThreadId, messagesInActiveThread },
+        sendChat,
+        isLoading
+    } = useChat()
     const { agentId, modelId } = useAssistants();
     const { user } = useJasmynAuth();
 
 
     const currentConversation = useMemo(() => {
         return currentThreadId && threads[currentThreadId]?.messages
-            ? threads[currentThreadId].messages
+            ? messagesInActiveThread
             : [];
     }, [threads, currentThreadId]);
 
@@ -55,6 +58,7 @@ export const ChatWindow: React.FC = () => {
             `sending message to ${agentId}... message: ${message} in thread ${currentThreadId}`
         );
         console.log("user from about to send message block in chat window", user);
+        console.log("should query", shouldQueryResearchModel);
 
         await sendChat(
             message,
@@ -122,7 +126,7 @@ export const ChatWindow: React.FC = () => {
         <div className=" px-4 py-4 mx-2 h-full bg-default-background rounded-md" ref={scrollToBottom}>
             <div className="">
                 <div className="">
-                    <div className="max-h-[32rem] border-b border-b-brand-primary overflow-y-auto" onScroll={handleScroll} ref={chatWindowRef}>
+                    <div className="max-h-[32rem] min-h-56 border-b border-b-brand-primary overflow-y-auto" onScroll={handleScroll} ref={chatWindowRef}>
                         {visibleMessages < currentConversation.length && (
                             <button onClick={loadMoreMessages} className="w-full px-4 py-2 mb-4 bg-brand-200 text-neutral-600 rounded hover:bg-brand-400 transition ease-in-out duration-200">
                                 Load More

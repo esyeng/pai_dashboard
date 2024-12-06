@@ -3,6 +3,7 @@
 import { Inter } from "next/font/google";
 import { ChatProvider } from "@/contexts/ChatContext";
 import { AssistantProvider } from "@/contexts/AssistantContext";
+import { SearchProvider } from "@/contexts/SearchContext"
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ClerkProvider } from "@clerk/nextjs";
 import { SidebarProvider } from "@/lib/hooks/use-sidebar";
@@ -22,13 +23,15 @@ export default function RootLayout({
                 <body className={`h-full ${inter.className}`}>
                     <AuthProvider>
                         <AssistantProvider>
-                            <ChatProvider>
-                                <ErrorBoundary>
-                                    <SidebarProvider>
-                                        <div>{children}</div>
-                                    </SidebarProvider>
-                                </ErrorBoundary>
-                            </ChatProvider>
+                            <SearchProvider>
+                                <ChatProvider>
+                                    <ErrorBoundary>
+                                        <SidebarProvider>
+                                            <div>{children}</div>
+                                        </SidebarProvider>
+                                    </ErrorBoundary>
+                                </ChatProvider>
+                            </SearchProvider>
                         </AssistantProvider>
                     </AuthProvider>
                 </body>

@@ -5,6 +5,7 @@ import AgentManager from "./AgentManager";
 import ModeSwitch from "./ModeSwitch";
 import { useChat } from "@/contexts/ChatContext";
 import { useAssistants } from "@/contexts/AssistantContext";
+import { useSearch } from "@/contexts/SearchContext";
 
 
 interface OptionsProps {
@@ -26,10 +27,12 @@ const STORED_PROVIDER_ID: string = "provider_id";
 
 export const Options: React.FC<OptionsProps> = ({ models }) => {
     const { provider, veniceModels, claudeModels, setProvider, agents, agentId, modelId, setModelId } = useAssistants();
+    const { shouldQueryResearchModel } = useSearch()
     const providers = ["claude", "venice"];
+    const searchProviders = ["claude"];
 
     const selectedAgent = agents.find((a) => a.assistant_id === agentId)?.name;
-    const mode = localStorage?.getItem(STORED_PROVIDER_ID) || "";
+    const mode = localStorage?.getItem(STORED_PROVIDER_ID) || "claude";
     const storedCurrent = localStorage.getItem(STORED_CURRENT_MODEL_ID);
     const storedVenice = localStorage.getItem(STORED_VENICE_MODEL_ID);
     const storedClaude = localStorage.getItem(STORED_CLAUDE_MODEL_ID);
@@ -79,7 +82,7 @@ export const Options: React.FC<OptionsProps> = ({ models }) => {
                             <span className="text-md text-brand-primary my-4 mr-2 lg:hidden">
                                 |
                             </span>
-                            <ModeSwitch mode={mode} modes={providers} setter={handleSwitch} />
+                            {shouldQueryResearchModel ? (<ModeSwitch mode={mode} modes={searchProviders} setter={handleSwitch} />) : (<ModeSwitch mode={mode} modes={providers} setter={handleSwitch} />)}
                         </div>
 
                         <div className="flex flex-2 justify-center items-center px-2 my-1 mx-4 md:mx-0">

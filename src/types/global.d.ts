@@ -86,25 +86,6 @@ declare global {
     interface ChatContextType {
         threadState: ThreadsState;
         threadCache: Threads;
-        shouldQueryResearchModel: boolean;
-        maxTurns: number;
-        actionsToInclude: string[];
-        additionalInstructions: string;
-        example: string;
-        character: string;
-        month: number;
-        year: number;
-        selectedActions: string[];
-        disableQuery: boolean;
-        setShouldQueryResearchModel: (shouldQuery: boolean) => void;
-        setMaxTurns: (maxTurns: number) => void;
-        setAdditionalInstructions: (instructions: string) => void;
-        setSelectedActions: (actions: string[]) => void;
-        setExample: (example: string) => void;
-        setCharacter: (character: string) => void;
-        setMonth: (month: number) => void;
-        setYear: (year: number) => void;
-        setDisableQuery: (disableQuery: boolean) => void
         sendChat: (
             message: string,
             model: string,
@@ -117,7 +98,7 @@ declare global {
         ) => Promise<void>;
         switchThread: (threadId: string) => void;
         createNewThread: () => Promise<any>;
-        deleteThread: (threadId: string) => Promise<void>;
+        runDeleteThread: (id: number, threadId: string) => Promise<any>;
         exportThread: (threadId: string) => void;
         fetchThreadsData: (user_id: string) => Promise<Thread[]>;
         isLoading?: boolean;
@@ -134,7 +115,8 @@ declare global {
         provider: string;
         claudeModels: string[];
         veniceModels: string[];
-        setStatusMessage: (msg: str) => void;
+        setStatus: (status: 'idle' | 'loading' | 'success' | 'error' | 'info') => void;
+        setStatusMessage: (msg: string) => void;
         getAgents: (user: UserResponse | User) => Promise<any>;
         setModelId: (modelId: string) => void;
         setAgentId: (agentId: string) => void;
@@ -167,6 +149,29 @@ declare global {
         setToken: (token: string | Promise<string> | any) => void;
         setLatestToken: (token: string | Promise<string> | any) => void;
         setUser: (user: User | UserResponse) => void;
+    }
+
+    interface SearchContextType {
+        shouldQueryResearchModel: boolean;
+        maxTurns: number;
+        actionsToInclude: string[];
+        additionalInstructions: string;
+        example: string;
+        character: string;
+        month: number;
+        months: string[];
+        year: number;
+        selectedActions: string[];
+        disableQuery: boolean;
+        setShouldQueryResearchModel: (shouldQuery: boolean) => void;
+        setMaxTurns: (maxTurns: number) => void;
+        setAdditionalInstructions: (instructions: string) => void;
+        setSelectedActions: (actions: string[]) => void;
+        setExample: (example: string) => void;
+        setCharacter: (character: string) => void;
+        setMonth: (month: number) => void;
+        setYear: (year: number) => void;
+        setDisableQuery: (disableQuery: boolean) => void
     }
 
     interface DataObject {

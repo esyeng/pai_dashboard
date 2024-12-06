@@ -1,20 +1,26 @@
 "use client";
 
-import * as ScrollArea from "@radix-ui/react-scroll-area";
 import React from "react";
 import NotesPanel from "./NotesPanel";
 import ThreadList from "./ThreadList";
 import { SignInOrOut } from "./account/SignInOrOut";
 import { SearchOptions } from "./SearchOptions";
-import { useChat } from "@/contexts/ChatContext";
+import { useSearch } from "@/contexts/SearchContext";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
+import { useAssistants } from "@/contexts/AssistantContext";
 
 export const Sidebar: React.FC = () => {
     const { isSidebarOpen } = useSidebar();
-    const { shouldQueryResearchModel, setShouldQueryResearchModel } = useChat();
+    const { shouldQueryResearchModel, setShouldQueryResearchModel } = useSearch();
+    const {provider, setProvider, claudeModels, setModelId} = useAssistants();
 
     const toggleSearchOptions = () => {
         setShouldQueryResearchModel(!shouldQueryResearchModel);
+        if (shouldQueryResearchModel && provider === "venice") {
+            setProvider("claude");
+            setModelId(claudeModels[0]);
+        }
+
     }
 
     return (
