@@ -16,7 +16,7 @@ const ThreadList: React.FC = () => {
         switchThread,
         threadState: { threads, currentThreadId },
         createNewThread,
-        deleteThread,
+        runDeleteThread,
         exportThread,
     } = useChat();
     const { loadComplete, user } = useJasmynAuth()
@@ -138,7 +138,7 @@ const ThreadList: React.FC = () => {
                                                 Export
                                             </button>
 
-                                            <button className="duration-200 ease-in-out hover:opacity-100 border-tr-2 border-br-2 border-brand-500 p-1 flex items-center justify-center hover:border-brand-primary">
+                                            <button className="duration-200 ease-in-out hover:opacity-100 border-tr-2 border-br-2 border-brand-500 p-1 flex items-center justify-center hover:border-brand-primary" onClick={() => runDeleteThread(threadItem.id, threadItem.threadId)}>
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     className="h-4 w-4 hover:fill-error-200"

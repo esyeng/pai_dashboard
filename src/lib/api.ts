@@ -389,3 +389,23 @@ export const updateThreadMessages = async (
         return error;
     }
 };
+
+export const deleteThread = async (id: number) => {
+    const client = createClerkSupabaseClient();
+    try {
+        const { data, error } = await client
+        .from("threads")
+        .delete()
+        .eq("id", id)
+        .select("*");
+    if (error) {
+            console.log("error from delete thread thing", error);
+            throw new Error("Failed to delete thread");
+        }
+        if (data) console.log("succes delete", data);
+        return data;
+    } catch (error) {
+        console.error("Error updating thread messages:", error);
+        return error;
+    }
+}
