@@ -1,8 +1,7 @@
-// src/app/components/ThreadList.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
-// import { updateThreadName } from "@/lib/api";
+import { ThreadTitleEditor } from "./ui/ThreadTitle";
 import { useChat } from "@/contexts/ChatContext";
 import { useJasmynAuth } from "@/contexts/AuthContext";
 import { sortObjectsByCreatedAt } from "@/lib/utils/helpers";
@@ -47,33 +46,16 @@ const ThreadList: React.FC = () => {
         }
     }
 
+    useWindowResize(handleCreateOrSelect, { minWidth: 640 });
 
-    useWindowResize(handleCreateOrSelect, { minWidth: 640 })
     useEffect(() => {
         if (createdOrSelected) {
             // if sidebar is open and window size is mobile,
             // new thread or select thread should close sidebar
             setCreatedOrSelected(false);
         }
-    }, [createdOrSelected])
+    }, [createdOrSelected]);
 
-    // TODO: implement renaming logic
-    const handleThreadNameKeyDown = async (
-        event: React.KeyboardEvent<HTMLSpanElement>,
-        thread: Thread | any
-    ) => {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            const newName = (
-                event.target as HTMLSpanElement
-            ).textContent?.trim();
-            if (newName !== "") {
-                switchThread(thread.id);
-                // await updateThreadName(thread.id, newName);
-                console.log("call to backend: update thread name");
-            }
-        }
-    };
 
     return (
         <div className={`h-1/2 shadow-xl flex-1 w-full border-brand-50 rounded-tl-lg rounded-tr-lg rounded-bl-sm rounded-br-sm ${open ? "border-b-4" : ""}`}>
@@ -109,24 +91,12 @@ const ThreadList: React.FC = () => {
                                         className="flex min-h-16 items-center justify-between bg-default-background
                                         border-y-1 my-1 rounded-sm border-brand-400"
                                     >
-                                        <span
-                                            className={`${currentThreadId === threadItem.threadId || currentThreadId === threadItem.thread_id ? "bg-brand-600 text-default-font border-brand-800" : "bg-neutral-50 text-brand-600 border-brand-400 hover:bg-brand-400  hover:text-black "}  border-y-2 flex-1 font-bold self-stretch rounded-tl-sm rounded-bl-sm  py-4 pl-2 pr-1 cursor-pointer duration-300 `}
-                                            // contentEditable="true"
-                                            // onInput={handleThreadNameInput}
-                                            // onKeyDown={(event) =>
-                                            // 	handleThreadNameKeyDown(
-                                            // 		event,
-                                            // 		threadItem
-                                            // 	)
-                                            // }
-                                            onClick={() => {
-                                                console.log("switching thread", threadItem.thread_id);
-                                                switchThread(threadItem.thread_id);
-                                                setCreatedOrSelected(true);
-                                            }}
-                                        >
-                                            {threadItem.title !== "New Thread" ? threadItem.title.substring(0, threadItem.title.length) : threadItem.title}
-                                        </span>
+                                        <ThreadTitleEditor thread={threadItem} onClick={() => {
+                                            console.log("switching thread", threadItem.thread_id);
+                                            switchThread(threadItem.thread_id);
+                                            setCreatedOrSelected(true);
+                                        }} />
+
                                         <div className="h-full border-t-2 border-r-2 border-b-2 border-brand-primary bg-default-background text-brand-primary rounded-tr-sm rounded-br-sm flex">
 
                                             <button

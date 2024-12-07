@@ -60,6 +60,7 @@ declare global {
         userId: string;
         messages: MessageProps[];
         thread_id?: string;
+        name_editable: boolean = false;
     }
 
     type Threads = Record<string, Thread>;
@@ -96,6 +97,7 @@ declare global {
             temperature?: number | null,
             nameGiven?: string
         ) => Promise<void>;
+        dispatchThreads: React.Dispatch<ThreadsAction>;
         switchThread: (threadId: string) => void;
         createNewThread: () => Promise<any>;
         runDeleteThread: (id: number, threadId: string) => Promise<any>;

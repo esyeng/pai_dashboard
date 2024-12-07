@@ -70,7 +70,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     } = useSearch();
     const [threadCache, setThreadCache] = useState<Threads>({});
 
-
     // Status flags
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -119,6 +118,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 // fetch and filter empty
                 const fetchedThreads: Thread[] = (await fetchThreads(user_id)).filter((t: Thread) => t.messages.length > 0);
                 const threadsObject = fetchedThreads.reduce((acc, thread) => {
+                    // if the Thread is at least 2 messages long, add flag to allow name edits
+                    if (thread.messages.length >= 2) {
+                        thread.name_editable = true;
+                    }
                     // construct threads object, converting fetched data to object state
                     // from Thread[] to Record object -> { [x: string]: Thread }
                     acc[
@@ -389,6 +392,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 threadState,
                 threadCache,
                 sendChat,
+                dispatchThreads,
                 switchThread,
                 createNewThread,
                 runDeleteThread,

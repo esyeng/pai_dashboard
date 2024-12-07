@@ -353,7 +353,7 @@ export const updateThreadName = async (threadId: string, title: string) => {
         const { data, error } = await client
             .from("threads")
             .update({ title: title })
-            .match({ thread_id: threadId });
+            .eq("thread_id", threadId);
         if (error) {
             throw new Error("Failed to update thread name");
         }
