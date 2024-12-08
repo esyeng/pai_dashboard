@@ -89,6 +89,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
+    // sets name as editable
+    const setEditable = (thread: Thread) => {
+        const id = thread.thread_id ?? thread.threadId;
+        if (id) {
+            dispatchThreads({
+                type: "UPDATE_THREAD",
+                payload: {
+                    threadId: id,
+                    updates: { name_editable: true }
+                }
+            })
+        }
+    }
+
     // enable send on load complete
     useEffect(() => {
         if (loadComplete) {
@@ -101,7 +115,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         if (!updateThread) return
         if (threadState.currentThreadId && threadState.threads[threadState.currentThreadId].messages) {
             console.log("updating thread messages");
-            updateThreadSavedMessages(threadState.threads[threadState.currentThreadId].id, threadState.threads[threadState.currentThreadId].messages);
+            const currentThread = threadState.threads[threadState.currentThreadId]
+            updateThreadSavedMessages(currentThread.id, currentThread.messages);
+            if (currentThread.messages.length >= 2) {
+                setEditable(currentThread);
+            }
             setUpdateThread(false);
         }
     }, [updateThread]);
@@ -121,6 +139,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     // if the Thread is at least 2 messages long, add flag to allow name edits
                     if (thread.messages.length >= 2) {
                         thread.name_editable = true;
+                    } else {
+                        thread.name_editable = false;
                     }
                     // construct threads object, converting fetched data to object state
                     // from Thread[] to Record object -> { [x: string]: Thread }

@@ -60,7 +60,7 @@ declare global {
         userId: string;
         messages: MessageProps[];
         thread_id?: string;
-        name_editable: boolean = false;
+        name_editable: boolean;
     }
 
     type Threads = Record<string, Thread>;
@@ -174,6 +174,11 @@ declare global {
         setMonth: (month: number) => void;
         setYear: (year: number) => void;
         setDisableQuery: (disableQuery: boolean) => void
+    }
+
+    interface WebSocketContextType {
+        sendMessage: (payload: any) => void;
+        connected: boolean;
     }
 
     interface DataObject {
