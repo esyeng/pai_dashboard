@@ -125,7 +125,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     useEffect(() => {
         if (latestToken && typeof latestToken === "string") {
             // setWsUrl(`${BASE}/model/claude/ws?token=${latestToken}`)
-            console.log('latest token!', latestToken);
+            console.log('latest token!', latestToken.length);
         } else getUrl(latestToken);
         if (token && typeof token === "string") {
             // console.log('token!', token);
