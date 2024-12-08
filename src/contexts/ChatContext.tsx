@@ -3,7 +3,7 @@ import React, {
     useContext,
     useState,
     useEffect,
-    useMemo,
+    useRef,
     useReducer,
     useCallback,
 } from "react";
@@ -13,7 +13,8 @@ import {
     fetchThreads,
     saveNewThread,
     updateThreadMessages,
-    deleteThread
+    deleteThread,
+    BASE
 } from "../lib/api";
 import {
     UniqueIdGenerator,
@@ -26,6 +27,7 @@ import { threadsReducer } from "./threadsReducer";
 import { useJasmynAuth } from "./AuthContext";
 import { useAssistants } from "./AssistantContext";
 import { useSearch } from "./SearchContext";
+import { useAuth } from "@clerk/nextjs";
 import { v4 as uuidv4 } from "uuid";
 
 /**
@@ -44,6 +46,7 @@ const idGenerator = UniqueIdGenerator.getInstance();
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
+// def
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     let storedThreadId: string | null;
     if (typeof localStorage !== "undefined" && localStorage !== null) {
@@ -55,8 +58,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         activeMessageQueue: [],
         messagesInActiveThread: [],
     });
-    const { user, latestToken, loadComplete } = useJasmynAuth();
-    const { provider, prompts, status, statusMessage, setStatus, setStatusMessage } = useAssistants();
+    const { user, token, latestToken, loadComplete } = useJasmynAuth();
+    const { provider, prompts, status, statusMessage, setStatus, setStatusMessage, agentId } = useAssistants();
     const {
         setDisableQuery,
         maxTurns,
@@ -75,6 +78,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     // flag for updating database thread messages
     const [updateThread, setUpdateThread] = useState<boolean>(false);
+
+    /** ws connection state */
+    //flag for realtime messaging with websocket
+    const { isLoaded, getToken } = useAuth();
+    const [useWebSocket, setUseWebSocket] = useState<boolean>(false);
+    const [connected, setConnected] = React.useState(false);
+    const wsRef = useRef<WebSocket | null>(null);
+    const [wsUrl, setWsUrl] = useState<string>(`${BASE}/model/claude/ws?token=${token}`);
+
 
     // saves convo to database thread
     // called in effect callback after message received from server
@@ -102,6 +114,98 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             })
         }
     }
+
+    // useEffect(() => {
+    //     if (isLoaded) { // clerk auth load completion flag
+    //         let t = getToken()
+
+    //     }
+    // }, [isLoaded])
+
+    useEffect(() => {
+        if (latestToken && typeof latestToken === "string") {
+            // setWsUrl(`${BASE}/model/claude/ws?token=${latestToken}`)
+            console.log('latest token!', latestToken);
+        } else getUrl(latestToken);
+        if (token && typeof token === "string") {
+            // console.log('token!', token);
+        } else getUrl(token);
+    }, [latestToken, token])
+
+    const getUrl = async (token: string | Promise<any>) => {
+        if (typeof token === "object") {
+            token = await token;
+        }
+        if (token && typeof token === "string") {
+            console.log('token!', token.length);
+            setWsUrl(`${BASE}/model/claude/ws?token=${token}`);
+        }
+    }
+
+    const toggleWebSocketMode = () => setUseWebSocket(prev => !prev);
+
+    useEffect(() => {
+        console.log(wsUrl)
+        if (provider === 'claude' && useWebSocket && wsUrl) {
+            wsRef.current = new WebSocket(wsUrl);
+
+            wsRef.current.onopen = () => {
+                console.log('WebSocket connection established!');
+            };
+
+            wsRef.current.onmessage = (event) => {
+                console.log("whats this event", event);
+
+                // console.log('data?', data);
+                if (event && typeof event.data === "string") {
+                    const receivedMsg: MessageProps = {
+                        id: uuidv4(),
+                        timestamp: Date.now(),
+                        agentId: agentId,
+                        sender: agentId,
+                        msg: {
+                            role: "assistant",
+                            content: event.data
+                        },
+                    };
+                    if (threadState.currentThreadId) {
+                        addMessage(threadState.currentThreadId, receivedMsg);
+                    }
+                    setUpdateThread(true);
+                    setIsLoading(false);
+                    setDisableQuery(false);
+                    return;
+                }
+
+
+            }
+
+            wsRef.current.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+            wsRef.current.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            wsRef.current.onclose = () => {
+                console.log('WebSocket connection closed.');
+            };
+
+        } else {
+            // if not using WebSocket, ensure to close any existing connection
+            if (wsRef.current) {
+                wsRef.current.close();
+                wsRef.current = null;
+            }
+        }
+
+        return () => {
+            // cleanup on unmount or provider switch
+            if (wsRef.current) {
+                wsRef.current.close();
+            }
+        }
+    }, [useWebSocket, provider, wsUrl])
 
     // enable send on load complete
     useEffect(() => {
@@ -251,71 +355,104 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 content: msgObj.msg.content,
             }
         });
-
-
-        try {
-            setIsLoading(true);
-            setDisableQuery(true);
+        if (provider === 'claude' && useWebSocket) {
+            // instead of REST, send via websocket:
             if (latestToken && user) {
-                let prof;
-                if (Array.isArray(user.profile)) { // temp fix for diff response format of diff providers, should be standardized
-                    prof = user.profile[0];
-                } else prof = user.profile;
-                const sys = personalizePrompt(
-                    prompts[agentId],
-                    prof
-                );
-                const response = search
-                    ? await queryResearchModel(
-                        {
-                            user_id: user.user_id ?? 0,
-                            question: message,
-                            model: model || "claude-3-5-sonnet-20241022",
-                            date: `${months[month + 1]} ${year}`,
-                            max_turns: maxTurns,
-                            actions_to_include: selectedActions,
-                            additional_instructions: additionalInstructions,
-                            example: example,
-                            character: character,
-                        },
-                        latestToken
-                    )
-                    : await queryModel(provider,
-                        {
-                            max_tokens: maxTokens ?? 8192,
-                            model: model || "claude-3-5-sonnet-20240620",
-                            temperature: temperature ?? 0.6,
-                            agent_id: agentId,
-                            system_prompt: sys,
-                            messages: messagesToSend,
-                            use_venice: useVenice ?? true,
-                            currentThreadId: currentThreadId,
-                            user_id: user.user_id ?? 0,
-                        },
-                        latestToken
-                    );
-                console.log("received resp", response?.response?.length);
-                const receivedMsg: MessageProps = {
-                    id: uuidv4(),
-                    timestamp: Date.now(),
-                    agentId: agentId,
-                    sender: agentId,
-                    msg: {
-                        role: "assistant",
-                        content: provider === "claude" ?
-                            response?.response : response?.choices?.[0]?.message?.content ??
-                            "If you're reading this, it means it didn't work. :(",
-                    },
-                };
-                addMessage(currentThreadId, receivedMsg);
-                setUpdateThread(true);
+                let sys = personalizePrompt(prompts[agentId], user.profile);
+                const payload = search
+                    ? {
+                        type: "search",
+                        question: message,
+                        max_turns: maxTurns,
+                        actions_to_include: selectedActions,
+                        additional_instructions: additionalInstructions,
+                        example: example,
+                        character: character,
+                    }
+                    : {
+                        type: "chat",
+                        max_tokens: maxTokens ?? 8192,
+                        model: model || "claude-3-5-sonnet-20240620",
+                        temperature: temperature ?? 0.6,
+                        agent_id: agentId,
+                        system_prompt: sys,
+                        messages: updatedQueue.map(msg => ({
+                            role: msg.msg.role,
+                            content: msg.msg.content
+                        }))
+                    };
+
+                // send payload over ws
+                wsRef.current?.send(JSON.stringify(payload));
+                setIsLoading(true);
+                setDisableQuery(true);
             }
-        } catch (error) {
-            console.error("Error sending chat:", error);
-        } finally {
-            setIsLoading(false);
-            setDisableQuery(false);
+        } else {
+            try {
+                setIsLoading(true);
+                setDisableQuery(true);
+                if (latestToken && user) {
+                    let prof;
+                    if (Array.isArray(user.profile)) { // temp fix for diff response format of diff providers, should be standardized
+                        prof = user.profile[0];
+                    } else prof = user.profile;
+                    const sys = personalizePrompt(
+                        prompts[agentId],
+                        prof
+                    );
+                    const response = search
+                        ? await queryResearchModel(
+                            {
+                                user_id: user.user_id ?? 0,
+                                question: message,
+                                model: model || "claude-3-5-sonnet-20241022",
+                                date: `${months[month + 1]} ${year}`,
+                                max_turns: maxTurns,
+                                actions_to_include: selectedActions,
+                                additional_instructions: additionalInstructions,
+                                example: example,
+                                character: character,
+                            },
+                            latestToken
+                        )
+                        : await queryModel(provider,
+                            {
+                                max_tokens: maxTokens ?? 8192,
+                                model: model || "claude-3-5-sonnet-20240620",
+                                temperature: temperature ?? 0.6,
+                                agent_id: agentId,
+                                system_prompt: sys,
+                                messages: messagesToSend,
+                                use_venice: useVenice ?? true,
+                                currentThreadId: currentThreadId,
+                                user_id: user.user_id ?? 0,
+                            },
+                            latestToken
+                        );
+                    console.log("received resp", response?.response?.length);
+                    const receivedMsg: MessageProps = {
+                        id: uuidv4(),
+                        timestamp: Date.now(),
+                        agentId: agentId,
+                        sender: agentId,
+                        msg: {
+                            role: "assistant",
+                            content: provider === "claude" ?
+                                response?.response : response?.choices?.[0]?.message?.content ??
+                                "If you're reading this, it means it didn't work. :(",
+                        },
+                    };
+                    addMessage(currentThreadId, receivedMsg);
+                    setUpdateThread(true);
+                }
+            } catch (error) {
+                console.error("Error sending chat:", error);
+            } finally {
+                setIsLoading(false);
+                setDisableQuery(false);
+            }
         }
+
     };
 
     /**
@@ -411,6 +548,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             value={{
                 threadState,
                 threadCache,
+                useWebSocket,
+                toggleWebSocketMode,
                 sendChat,
                 dispatchThreads,
                 switchThread,

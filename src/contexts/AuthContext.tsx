@@ -36,8 +36,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // ****** effects *******
 
     useEffect(() => {
-        const refreshInterval = setInterval(() => {
-            setLatestToken(getToken())
+        const refreshInterval = setInterval(async () => {
+            setLatestToken(await getToken())
         }, 50000);
 
         return () => {

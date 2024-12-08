@@ -87,6 +87,7 @@ declare global {
     interface ChatContextType {
         threadState: ThreadsState;
         threadCache: Threads;
+        useWebSocket: boolean;
         sendChat: (
             message: string,
             model: string,
@@ -97,6 +98,7 @@ declare global {
             temperature?: number | null,
             nameGiven?: string
         ) => Promise<void>;
+        toggleWebSocketMode: () => void;
         dispatchThreads: React.Dispatch<ThreadsAction>;
         switchThread: (threadId: string) => void;
         createNewThread: () => Promise<any>;

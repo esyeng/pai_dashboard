@@ -5,7 +5,7 @@ import { safeJSONParse } from "./utils/helpers";
 
 dotenv.config();
 
-const BASE = process.env.BASE_URL
+export const BASE = process.env.BASE_URL
     ? process.env.BASE_URL
     : "https://jasmyn-dev-418676732313.us-central1.run.app";
 

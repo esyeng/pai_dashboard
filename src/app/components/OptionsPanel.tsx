@@ -6,6 +6,7 @@ import ModeSwitch from "./ModeSwitch";
 import { useChat } from "@/contexts/ChatContext";
 import { useAssistants } from "@/contexts/AssistantContext";
 import { useSearch } from "@/contexts/SearchContext";
+import { ConnectionToggle } from "./ui/ConnectionToggle";
 
 
 interface OptionsProps {
@@ -83,6 +84,7 @@ export const Options: React.FC<OptionsProps> = ({ models }) => {
                                 |
                             </span>
                             {shouldQueryResearchModel ? (<ModeSwitch mode={mode} modes={searchProviders} setter={handleSwitch} />) : (<ModeSwitch mode={mode} modes={providers} setter={handleSwitch} />)}
+                            <ConnectionToggle />
                         </div>
 
                         <div className="flex flex-2 justify-center items-center px-2 my-1 mx-4 md:mx-0">
