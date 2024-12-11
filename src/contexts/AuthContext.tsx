@@ -1,112 +1,117 @@
-// AuthContext.tsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import dotenv from "dotenv";
-dotenv.config();
+import React, {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    useCallback
+} from "react";
+import {
+    fetchUser,
+} from "../lib/api";
+import { useAuth } from "@clerk/nextjs";
 
-// Add clerk to Window to avoid type errors
-declare global {
-    interface Window {
-        Clerk: any;
-    }
+/**
+ * AuthContext.tsx
+ */
+
+interface AuthProviderProps {
+    children: React.ReactNode;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [supabaseClient, setSupabaseClient] = useState<SupabaseClient | null>(null);
-    const [latestToken, setLatestToken] = useState<string | null>(null);
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+
+    const [token, setToken] = useState<
+        any | Promise<string> | string | undefined
+    >();
+    const [latestToken, setLatestToken] = useState<
+        any | Promise<string> | string | undefined
+    >();
+    const { getToken } = useAuth();
+    const [user, setUser] = useState<UserResponse | User | null>(null);
+    const [loadComplete, setLoadComplete] = useState<boolean>(false);
+
+
+    // ****** effects *******
 
     useEffect(() => {
-        let client: SupabaseClient | null = null;
-        let unsubscribe: (() => void) | null = null;
+        const refreshInterval = setInterval(async () => {
+            setLatestToken(await getToken())
+        }, 50000);
 
-        const initializeAuth = async () => {
-            if (!window.Clerk) {
-                console.error("Clerk is not available");
-                return;
-            }
-
-            const createClientWithToken = async () => {
-                const clerkToken = await window.Clerk.session?.getToken({
-                    template: "supabase",
-                });
-
-                setLatestToken(clerkToken);
-
-                return createClient(
-                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-                    {
-                        global: {
-                            fetch: async (url, options = {}) => {
-                                const clerkToken = await window.Clerk.session?.getToken({
-                                    template: "supabase",
-                                });
-
-                                // Construct fetch headers
-                                const headers = new Headers(options?.headers);
-                                headers.set("Authorization", `Bearer ${clerkToken}`);
-
-                                // Now call the default fetch
-                                return fetch(url, {
-                                    ...options,
-                                    headers,
-                                });
-                            },
-                        },
-                    }
-                );
-            };
-
-            client = await createClientWithToken();
-            setSupabaseClient(client);
-
-            // Listen for auth state changes
-            unsubscribe = window.Clerk.addListener(async (event: any) => {
-                if (event.type === "session.updated" || event.type === "session.created") {
-                    // Recreate the client with the new token
-                    client = await createClientWithToken();
-                    setSupabaseClient(client);
-                }
-            });
-        };
-
-        initializeAuth();
-
-        // Cleanup function
         return () => {
-            if (unsubscribe) {
-                unsubscribe();
-            }
-            if (client) {
-                client.removeAllChannels();
+            clearInterval(refreshInterval);
+        }
+    }, [])
+
+    // sets loadComplete once token promise resolves
+    useEffect(() => {
+        if (token) {
+            setLoadComplete(true);
+        }
+        return () => {
+            if (loadComplete) {
+                console.log(`effect cleanup for loadComplete initialized, value: ${loadComplete}`);
             }
         };
-    }, []);
+    }, [token]);
 
-    const getLatestToken = async () => {
-        if (window.Clerk) {
-            const token = await window.Clerk.session?.getToken({
-                template: "supabase",
-            });
-            setLatestToken(token);
-            return token;
+    // executes once token promise resolves, fetches and sets user data
+    useEffect(() => {
+        if (loadComplete) {
+            fetchUserData();
         }
-        return null;
+    }, [loadComplete, token]);
+
+    /**
+    * @method fetchUserData
+    * @returns authenticatedUserObject: any
+    */
+    const fetchUserData = useCallback(async () => {
+        try {
+            if (!token) return;
+            // once clerkAuth request completes the following executes
+            const fetchedUserData = await fetchUser(token);
+            console.log("fetchedUserData", fetchedUserData);
+            setUser(fetchedUserData);
+            clearNoteStorage(fetchedUserData);
+
+        } catch (error) {
+            console.error("Error fetching user:", error);
+        }
+    }, [token]);
+
+
+    const clearNoteStorage = (user: User) => {
+        const noteId = localStorage.getItem("note user id");
+        if (!user) {
+            localStorage.setItem("notes", "");
+            localStorage.setItem("note user id", "");
+        } else if (noteId !== "") {
+            if (noteId !== user.id) {
+                localStorage.setItem("notes", "");
+                localStorage.setItem("note user id", user.id ? user.id : "");
+            }
+        } else {
+            localStorage.setItem("note user id", user.id ? user.id : "");
+        }
     };
 
+
     return (
-        <AuthContext.Provider value={{ supabaseClient, latestToken, getLatestToken }}>
+        <AuthContext.Provider
+            value={{ token, latestToken, user, loadComplete, setToken, setLatestToken, setUser }}
+        >
             {children}
         </AuthContext.Provider>
     );
-}
+};
 
-export function useAuth(): AuthContextType {
+export const useJasmynAuth = (): AuthContextType => {
     const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
+    if (!context) {
+        throw new Error("useJasmynAuth must be used within a AuthProvider");
     }
     return context;
 }

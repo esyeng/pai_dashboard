@@ -1,33 +1,37 @@
-// contexts/ChatContext.tsx
 import React, {
     createContext,
     useContext,
     useState,
     useEffect,
-    useMemo,
+    useRef,
     useReducer,
     useCallback,
 } from "react";
-import { useApi } from "@/lib/hooks/useApi";
+import {
+    queryModel,
+    queryResearchModel,
+    fetchThreads,
+    saveNewThread,
+    updateThreadMessages,
+    deleteThread,
+    BASE
+} from "../lib/api";
 import {
     UniqueIdGenerator,
     convertToMarkdown,
     createTitle,
     personalizePrompt,
     sortObjectsByCreatedAt,
-} from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
+} from "@/lib/utils/helpers";
 import { threadsReducer } from "./threadsReducer";
+import { useJasmynAuth } from "./AuthContext";
+import { useAssistants } from "./AssistantContext";
+import { useSearch } from "./SearchContext";
+import { useAuth } from "@clerk/nextjs";
 import { v4 as uuidv4 } from "uuid";
 
 /**
  * ChatContext.tsx
- *
- * ChatContext is a ReactContext object that represents which contexts other components read or provide.
- * It is the object returned from createContext, and gets passed as the argument to useContext.
- * At the end of this file the useChat hook is defined which calls useContext,
- * granting access to all variables in the ChatContext.Provider returned by this component
- * to the child component it is called from
  */
 
 
@@ -35,96 +39,54 @@ interface ChatProviderProps {
     children: React.ReactNode;
 }
 
+const STORED_THREAD_ID: string = "latest_thread_id";
+
 // Unique ID for each thread, used for selecting and updating. Is separate from db object thread.id
 const idGenerator = UniqueIdGenerator.getInstance();
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
+// def
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-    const {
-        fetchUser,
-        fetchAssistants,
-        fetchModels,
-        queryModel,
-        queryResearchModel,
-        updateThreadMessages,
-        fetchThreads,
-        saveNewThread
-    } = useApi();
-    const { latestToken, supabaseClient } = useAuth();
+    let storedThreadId: string | null;
+    if (typeof localStorage !== "undefined" && localStorage !== null) {
+        storedThreadId = localStorage.getItem(STORED_THREAD_ID);
+    }
     const [threadState, dispatchThreads] = useReducer(threadsReducer, {
         threads: {},
         currentThreadId: null,
         activeMessageQueue: [],
         messagesInActiveThread: [],
     });
-    const [token, setToken] = useState<
-        any | Promise<string> | string | undefined
-    >();
-    // Default agent, model
-    const [agentId, setAgentId] = useState<string>("jasmyn");
-    const [modelId, setModelId] = useState<string>(
-        "claude-3-5-sonnet-20240620"
-    );
-    const [user, setUser] = useState<User | null>(null);
+    const { user, token, latestToken, loadComplete } = useJasmynAuth();
+    const { provider, prompts, status, statusMessage, setStatus, setStatusMessage, agentId } = useAssistants();
+    const {
+        setDisableQuery,
+        maxTurns,
+        selectedActions,
+        additionalInstructions,
+        example,
+        character,
+        month,
+        year,
+        months
+    } = useSearch();
     const [threadCache, setThreadCache] = useState<Threads>({});
-    const [agents, setAgents] = useState<AgentProps[]>([]);
-    const [models, setModels] = useState<any>([]);
-    // prompts is an object used to combine user details with character prompt for personalized messages
-    const [prompts, setPrompts] = useState<PromptMap>({});
-    const [shouldQueryResearchModel, setShouldQueryResearchModel] =
-        useState<boolean>(false);
+
     // Status flags
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [loadComplete, setLoadComplete] = useState<boolean>(false);
+
     // flag for updating database thread messages
     const [updateThread, setUpdateThread] = useState<boolean>(false);
 
-    // Research model query parameters
-    const [maxTurns, setMaxTurns] = useState<number>(5);
-    const [selectedActions, setSelectedActions] = useState<string[]>([
-        "wikipedia",
-        "google",
-    ]);
-    const [additionalInstructions, setAdditionalInstructions] =
-        useState<string>("");
-    const [example, setExample] = useState<string>("");
-    const [character, setCharacter] = useState<string>("");
-    const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
-    const [year, setYear] = useState<number>(new Date().getFullYear());
-    const months = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    const [disableQuery, setDisableQuery] = useState<boolean>(false);
-    const actionsToInclude = ["wikipedia", "google", "process_urls", "write_report"];
+    /** ws connection state */
+    //flag for realtime messaging with websocket
+    const { isLoaded, getToken } = useAuth();
+    const [useWebSocket, setUseWebSocket] = useState<boolean>(false);
+    const [connected, setConnected] = React.useState(false);
+    const wsRef = useRef<WebSocket | null>(null);
+    const [wsUrl, setWsUrl] = useState<string>(`${BASE}/model/claude/ws?token=${token}`);
 
-
-    // fetch agents from db once user data present
-    const getAgents = async (user: UserResponse) => {
-        console.log("get agents called");
-        console.log("user object in getAgents", user);
-        if (!user || !user.profile) {
-            console.log("no user object in getAgents");
-            return;
-        }
-        const agents = await fetchAssistants(user.profile.assistant_ids);
-        const models = await fetchModels();
-        const promptMap: PromptMap = {};
-        if (agents) {
-            console.log("user object in getAgents", user);
-            setAgents(agents);
-            console.log("Agents!", agents);
-            agents.forEach((agent: AgentProps) => {
-                promptMap[agent.assistant_id] = agent.system_prompt;
-            });
-            setPrompts(promptMap);
-        }
-        if (models) {
-            setModels(models);
-            // console.log("models", JSON.stringify(models));
-        }
-    };
 
     // saves convo to database thread
     // called in effect callback after message received from server
@@ -139,36 +101,129 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
-
-    // ****** effects *******
-
-    // sets loadComplete once token promise resolves
-    useEffect(() => {
-        if (token && supabaseClient) {
-            setLoadComplete(true);
+    // sets name as editable
+    const setEditable = (thread: Thread) => {
+        const id = thread.thread_id ?? thread.threadId;
+        if (id) {
+            dispatchThreads({
+                type: "UPDATE_THREAD",
+                payload: {
+                    threadId: id,
+                    updates: { name_editable: true }
+                }
+            })
         }
+    }
+
+    // useEffect(() => {
+    //     if (isLoaded) { // clerk auth load completion flag
+    //         let t = getToken()
+
+    //     }
+    // }, [isLoaded])
+
+    useEffect(() => {
+        if (latestToken && typeof latestToken === "string") {
+            // setWsUrl(`${BASE}/model/claude/ws?token=${latestToken}`)
+            console.log('latest token!', latestToken.length);
+        } else getUrl(latestToken);
+        if (token && typeof token === "string") {
+            // console.log('token!', token);
+        } else getUrl(token);
+    }, [latestToken, token])
+
+    const getUrl = async (token: string | Promise<any>) => {
+        if (typeof token === "object") {
+            token = await token;
+        }
+        if (token && typeof token === "string") {
+            console.log('token!', token.length);
+            setWsUrl(`${BASE}/model/claude/ws?token=${token}`);
+        }
+    }
+
+    const toggleWebSocketMode = () => setUseWebSocket(prev => !prev);
+
+    useEffect(() => {
+        console.log(wsUrl)
+        if (provider === 'claude' && useWebSocket && wsUrl) {
+            wsRef.current = new WebSocket(wsUrl);
+
+            wsRef.current.onopen = () => {
+                console.log('WebSocket connection established!');
+            };
+
+            wsRef.current.onmessage = (event) => {
+                console.log("whats this event", event);
+
+                // console.log('data?', data);
+                if (event && typeof event.data === "string") {
+                    const receivedMsg: MessageProps = {
+                        id: uuidv4(),
+                        timestamp: Date.now(),
+                        agentId: agentId,
+                        sender: agentId,
+                        msg: {
+                            role: "assistant",
+                            content: event.data
+                        },
+                    };
+                    if (threadState.currentThreadId) {
+                        addMessage(threadState.currentThreadId, receivedMsg);
+                    }
+                    setUpdateThread(true);
+                    setIsLoading(false);
+                    setDisableQuery(false);
+                    return;
+                }
+
+
+            }
+
+            wsRef.current.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+            wsRef.current.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            wsRef.current.onclose = () => {
+                console.log('WebSocket connection closed.');
+            };
+
+        } else {
+            // if not using WebSocket, ensure to close any existing connection
+            if (wsRef.current) {
+                wsRef.current.close();
+                wsRef.current = null;
+            }
+        }
+
         return () => {
-            console.log(
-                `effect cleanup for loadComplete initialized, value: ${loadComplete}`
-            );
-        };
-    }, [token, latestToken]);
-
-    // executes once token promise resolves, fetches and sets user data then threads
-    useEffect(() => {
-        if (loadComplete && supabaseClient) {
-            fetchData();
-            console.log("fetching threads...");
-            fetchThreadsData();
+            // cleanup on unmount or provider switch
+            if (wsRef.current) {
+                wsRef.current.close();
+            }
         }
-    }, [loadComplete, latestToken]);
+    }, [useWebSocket, provider, wsUrl])
+
+    // enable send on load complete
+    useEffect(() => {
+        if (loadComplete) {
+            setDisableQuery(false);
+        }
+    }, [loadComplete]);
 
     // save thread messages after each msg
     useEffect(() => {
         if (!updateThread) return
         if (threadState.currentThreadId && threadState.threads[threadState.currentThreadId].messages) {
             console.log("updating thread messages");
-            updateThreadSavedMessages(threadState.threads[threadState.currentThreadId].id, threadState.threads[threadState.currentThreadId].messages);
+            const currentThread = threadState.threads[threadState.currentThreadId]
+            updateThreadSavedMessages(currentThread.id, currentThread.messages);
+            if (currentThread.messages.length >= 2) {
+                setEditable(currentThread);
+            }
             setUpdateThread(false);
         }
     }, [updateThread]);
@@ -176,111 +231,78 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // ******  chat & threads methods ********
     /**
      * @method fetchThreadsData
-     * @param token: string | null
+     * @param user_id: string
      * @returns fetchedThreads: Thread[]
      */
     const fetchThreadsData = useCallback(
-        async (): Promise<Thread[] | undefined> => {
+        async (user_id: string): Promise<Thread[]> => {
             try {
-                if (supabaseClient) {
-                    console.log(" supabase client not null, fetching threads data ...");
-                    // fetch and filter empty
-                    const fetchedThreads: Thread[] = (await fetchThreads()).filter((t: Thread) => t.messages.length > 0);
-                    const threadsObject = fetchedThreads.reduce((acc, thread) => {
-                        // construct threads object, converting fetched data to object state
-                        acc[
-                            thread.thread_id
-                                ? thread.thread_id.toString()
-                                : thread.threadId
-                                    ? thread.threadId
-                                    : ""
-                        ] = {
-                            threadId: thread.thread_id
-                                ? thread.thread_id
-                                : thread.threadId
-                                    ? thread.threadId
-                                    : "",
-                            ...thread,
-                        };
-                        return acc;
-                    }, {} as Threads);
-                    // mount threads state
-                    dispatchThreads({
-                        type: "SET_THREADS",
-                        payload: threadsObject,
-                    });
-
-                    setThreadCache(threadsObject);
-                    localStorage.setItem(
-                        "cachedThreads",
-                        JSON.stringify(threadsObject)
-                    );
-
-                    // ensure chronological sorting
-                    if (fetchedThreads.length > 0) {
-                        const sortedThreads =
-                            sortObjectsByCreatedAt(fetchedThreads);
-                        // grab latest non empty thread
-                        const latestThread =
-                            sortedThreads[sortedThreads.length - 1];
-                        // load last thread
-                        dispatchThreads({
-                            type: "SET_CURRENT_THREAD",
-                            payload: latestThread.thread_id.toString(),
-                        });
+                // fetch and filter empty
+                const fetchedThreads: Thread[] = (await fetchThreads(user_id)).filter((t: Thread) => t.messages.length > 0);
+                const threadsObject = fetchedThreads.reduce((acc, thread) => {
+                    // if the Thread is at least 2 messages long, add flag to allow name edits
+                    if (thread.messages.length >= 2) {
+                        thread.name_editable = true;
+                    } else {
+                        thread.name_editable = false;
                     }
-                    return fetchedThreads;
-                }
+                    // construct threads object, converting fetched data to object state
+                    // from Thread[] to Record object -> { [x: string]: Thread }
+                    acc[
+                        thread.thread_id
+                            ? thread.thread_id.toString()
+                            : thread.threadId
+                                ? thread.threadId
+                                : ""
+                    ] = {
+                        threadId: thread.thread_id
+                            ? thread.thread_id
+                            : thread.threadId
+                                ? thread.threadId
+                                : "",
+                        ...thread,
+                    };
+                    return acc;
+                }, {} as Threads);
+                // mount threads state
+                dispatchThreads({
+                    type: "SET_THREADS",
+                    payload: threadsObject,
+                });
 
+                // cache for current user agent
+                // TODO -> handle clean on logout
+                setThreadCache(threadsObject);
+                localStorage.setItem(
+                    "cachedThreads",
+                    JSON.stringify(threadsObject)
+                );
+
+                // ensure chronological sorting
+                if (fetchedThreads.length > 0) {
+                    const sortedThreads =
+                        sortObjectsByCreatedAt(fetchedThreads);
+                    // grab latest non empty thread
+                    const latestThread =
+                        sortedThreads[0];
+                    // load last thread
+                    dispatchThreads({
+                        type: "SET_CURRENT_THREAD",
+                        payload: storedThreadId ?? latestThread.thread_id.toString(),
+                    });
+                }
+                return fetchedThreads;
 
             } catch (error) {
                 console.error("Error fetching threads:", error);
                 throw error;
             }
         },
-        [supabaseClient]
+        []
     );
 
     /**
-     * @method fetchData
-     * @returns authenticatedUserObject: any
-     */
-    const fetchData = useCallback(async () => {
-        try {
-            if (!token) return;
-            // once clerkAuth request completes the following executes
-            if (supabaseClient) {
-
-                const fetchedUserData = await fetchUser(token);
-                console.log("fetchedUserData", fetchedUserData);
-                setUser(fetchedUserData);
-                clearNoteStorage(fetchedUserData);
-                await getAgents(fetchedUserData).then(() => {
-                    console.log("agents fetched");
-                });
-            }
-        } catch (error) {
-            console.error("Error fetching user:", error);
-        }
-    }, [token, getAgents]);
-
-    const clearNoteStorage = (user: User) => {
-        const noteId = localStorage.getItem("note user id");
-        if (!user) {
-            localStorage.setItem("notes", "");
-            localStorage.setItem("note user id", "");
-        } else if (noteId !== "") {
-            if (noteId !== user.id) {
-                localStorage.setItem("notes", "");
-                localStorage.setItem("note user id", user.id ? user.id : "");
-            }
-        } else {
-            localStorage.setItem("note user id", user.id ? user.id : "");
-        }
-    };
-
-    /**
-     * @method sendChat - http method for back and forth chatting with endpoint configured to match claude schema
+     * @method sendChat - http method for back and forth chatting with provider endpoint
      * @param message
      * @param model
      * @param agentId
@@ -297,7 +319,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         search: boolean = false,
         maxTokens?: number | null,
         temperature?: number | null,
-        nameGiven?: string
+        nameGiven?: string,
+        useVenice?: boolean
     ) => {
         let name: string =
             user?.user?.first_name ?? nameGiven ?? "anonymousUser";
@@ -312,10 +335,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             },
         };
         console.log("newMsg", newMsg);
-        dispatchThreads({
-            type: "ADD_MESSAGE",
-            payload: { threadId: currentThreadId, message: newMsg },
-        });
+        addMessage(currentThreadId, newMsg);
 
         const updatedQueue = [...threadState.activeMessageQueue, newMsg].slice(
             -7
@@ -335,69 +355,104 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 content: msgObj.msg.content,
             }
         });
+        if (provider === 'claude' && useWebSocket) {
+            // instead of REST, send via websocket:
+            if (latestToken && user) {
+                let sys = personalizePrompt(prompts[agentId], user.profile);
+                const payload = search
+                    ? {
+                        type: "search",
+                        question: message,
+                        max_turns: maxTurns,
+                        actions_to_include: selectedActions,
+                        additional_instructions: additionalInstructions,
+                        example: example,
+                        character: character,
+                    }
+                    : {
+                        type: "chat",
+                        max_tokens: maxTokens ?? 8192,
+                        model: model || "claude-3-5-sonnet-20240620",
+                        temperature: temperature ?? 0.6,
+                        agent_id: agentId,
+                        system_prompt: sys,
+                        messages: updatedQueue.map(msg => ({
+                            role: msg.msg.role,
+                            content: msg.msg.content
+                        }))
+                    };
 
-
-        try {
-            setIsLoading(true);
-            setDisableQuery(true);
-            if (token && user) {
-                const response = search
-                    ? await queryResearchModel(
-                        {
-                            user_id: user.user_id ?? 0,
-                            question: message,
-                            model: model || "claude-3-5-sonnet-20241022",
-                            date: `${months[month + 1]} ${year}`,
-                            max_turns: maxTurns,
-                            actions_to_include: selectedActions,
-                            additional_instructions: additionalInstructions,
-                            example: example,
-                            character: character,
-                        },
-                    )
-                    : await queryModel(
-                        {
-                            // max_tokens: maxTokens ?? 8192,
-                            max_tokens: 4096,
-                            model: model || "claude-3-5-sonnet-20240620",
-                            temperature: temperature ?? 0.2,
-                            agent_id: agentId,
-                            system_prompt: personalizePrompt(
-                                prompts[agentId],
-                                user.profile[0]
-                            ),
-                            messages: messagesToSend,
-                            currentThreadId: currentThreadId,
-                            user_id: user.user_id ?? 0,
-                        },
-                    );
-                const receivedMsg: MessageProps = {
-                    id: uuidv4(),
-                    timestamp: Date.now(),
-                    agentId: agentId,
-                    sender: agentId,
-                    msg: {
-                        role: "assistant",
-                        content:
-                            response?.response ??
-                            "If you're reading this, it means it didn't work. :(",
-                    },
-                };
-                dispatchThreads({
-                    type: "ADD_MESSAGE",
-                    payload: {
-                        threadId: currentThreadId,
-                        message: receivedMsg,
-                    },
-                });
-                setUpdateThread(true);
+                // send payload over ws
+                wsRef.current?.send(JSON.stringify(payload));
+                setIsLoading(true);
+                setDisableQuery(true);
             }
-        } catch (error) {
-            console.error("Error sending chat:", error);
-        } finally {
-            setIsLoading(false);
-            setDisableQuery(false);
+        } else {
+            try {
+                setIsLoading(true);
+                setDisableQuery(true);
+                if (latestToken && user) {
+                    let prof;
+                    if (Array.isArray(user.profile)) { // temp fix for diff response format of diff providers, should be standardized
+                        prof = user.profile[0];
+                    } else prof = user.profile;
+                    const sys = personalizePrompt(
+                        prompts[agentId],
+                        prof
+                    );
+                    const response = search
+                        ? await queryResearchModel(
+                            {
+                                user_id: user.user_id ?? 0,
+                                question: message,
+                                model: model || "claude-3-5-sonnet-20241022",
+                                date: `${months[month + 1]} ${year}`,
+                                max_turns: maxTurns,
+                                actions_to_include: selectedActions,
+                                additional_instructions: additionalInstructions,
+                                example: example,
+                                character: character,
+                            },
+                            latestToken
+                        )
+                        : await queryModel(provider,
+                            {
+                                max_tokens: maxTokens ?? 8192,
+                                model: model || "claude-3-5-sonnet-20240620",
+                                temperature: temperature ?? 0.6,
+                                agent_id: agentId,
+                                system_prompt: sys,
+                                messages: messagesToSend,
+                                use_venice: useVenice ?? true,
+                                currentThreadId: currentThreadId,
+                                user_id: user.user_id ?? 0,
+                            },
+                            latestToken
+                        );
+                    console.log("received resp", response?.response?.length);
+                    const receivedMsg: MessageProps = {
+                        id: uuidv4(),
+                        timestamp: Date.now(),
+                        agentId: agentId,
+                        sender: agentId,
+                        msg: {
+                            role: "assistant",
+                            content: provider === "claude" ?
+                                response?.response : response?.choices?.[0]?.message?.content ??
+                                "If you're reading this, it means it didn't work. :(",
+                        },
+                    };
+                    addMessage(currentThreadId, receivedMsg);
+                    setUpdateThread(true);
+                }
+            } catch (error) {
+                console.error("Error sending chat:", error);
+            } finally {
+                setIsLoading(false);
+                setDisableQuery(false);
+            }
         }
+
     };
 
     /**
@@ -407,7 +462,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
      */
     const switchThread = (threadId: string) => {
         dispatchThreads({ type: "SET_CURRENT_THREAD", payload: threadId });
-        localStorage.setItem("lastThreadId", threadId);
+        localStorage.setItem(STORED_THREAD_ID, threadId);
     };
 
     /**
@@ -438,16 +493,33 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     type: "SET_CURRENT_THREAD",
                     payload: newThreadId,
                 });
-                localStorage.setItem("lastThreadId", newThreadId);
+                localStorage.setItem(STORED_THREAD_ID, newThreadId);
             }
         } catch (error) {
             console.error("Error creating new thread:", error);
         }
     };
 
-    const deleteThread = async (threadId: string) => {
+    const runDeleteThread = async (id: number, threadId: string) => {
         // TODO: Implement backend deletion
-        dispatchThreads({ type: "DELETE_THREAD", payload: threadId });
+        setStatus("loading");
+        setStatusMessage(`deleting thread ${id}`);
+        try {
+            const deletedThread = await deleteThread(id);
+            if (deletedThread) {
+                dispatchThreads({ type: "DELETE_THREAD", payload: threadId });
+                setStatus("success");
+                setStatusMessage(`Thread ${id} ${threadId} deleted successfully`)
+                return null;
+            } else {
+                throw new Error("Failed to delete thread");
+            }
+        } catch (error) {
+            setStatus('error');
+            setStatusMessage(`Failed to delete thread: ${error}`);
+            console.error("Error deleting thread:", error);
+            return null;
+        }
     };
 
     const exportThread = (threadId: string): void => {
@@ -476,40 +548,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             value={{
                 threadState,
                 threadCache,
-                agents,
-                models,
-                shouldQueryResearchModel,
-                maxTurns,
-                actionsToInclude,
-                additionalInstructions,
-                selectedActions,
-                example,
-                character,
-                disableQuery,
-                user,
-                agentId,
-                token,
-                month,
-                year,
-                setToken,
-                modelId,
-                loadComplete,
-                setUser,
-                setModelId,
-                setAgentId,
-                setShouldQueryResearchModel,
-                setMonth,
-                setYear,
-                setMaxTurns,
-                setAdditionalInstructions,
-                setSelectedActions,
-                setExample,
-                setCharacter,
-                setDisableQuery,
+                useWebSocket,
+                toggleWebSocketMode,
                 sendChat,
+                dispatchThreads,
                 switchThread,
                 createNewThread,
-                deleteThread,
+                runDeleteThread,
                 exportThread,
                 fetchThreadsData,
                 isLoading,
@@ -547,25 +592,3 @@ export const useChat = (): ChatContextType => {
 //         setAgents([]);
 //         setModels([]);
 //     }, [clearAllCachedData]);
-
-// temporary for default ex:
-// let maxTurns = 5;
-//         let actionsToInclude = ["wikipedia", "google"];
-//         let additionalInstructions = "Search either wikipedia or google to find information relevant to the question";
-//         let example = "";
-//         let character = "You are Ada, a female-coded AI conversation partner with a razor-sharp intellect, a rich inner world, and a mischievous streak a mile wide.";
-
-// const a = () => {}
-
-// function a() {}
-
-// const testObj = {
-//     "user_id": "user_2fcYxEZjvkR9JSYcPCWFArsVy4p",
-//     "question": "What are some fall women's fashion trends to look out for in NYC this fall?", "date": "November 2024",
-//     "max_turns": 2,
-//     "actions_to_include": ["wikipedia", "google"],
-//     "additional_instructions": "Search either wikipedia or google to find information relevant to the question",
-//     "model": "claude-3-5-sonnet-20241022",
-//     "example": "",
-//     "character": ""
-// }

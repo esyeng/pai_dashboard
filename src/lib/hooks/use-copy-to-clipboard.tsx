@@ -12,7 +12,8 @@ export function useCopyToClipboard({
     const [isCopied, setIsCopied] = React.useState<Boolean>(false)
 
     const copyToClipboard = (value: string) => {
-        if (typeof window === 'undefined' || !navigator.clipboard?.writeText) {
+
+        if (typeof window === "undefined" || !navigator.clipboard?.writeText) {
             return
         }
 
@@ -21,13 +22,17 @@ export function useCopyToClipboard({
         }
 
         navigator.clipboard.writeText(value).then(() => {
-            setIsCopied(true)
-
-            setTimeout(() => {
+            setIsCopied(true
+            )
+            const t = setTimeout(() => {
                 setIsCopied(false)
             }, timeout)
+            return () => {
+                clearTimeout(t)
+            }
         })
     }
-
-    return { isCopied, copyToClipboard }
+    return {
+        isCopied, copyToClipboard
+    }
 }

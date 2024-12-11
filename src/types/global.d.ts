@@ -20,7 +20,6 @@ declare global {
         assistant_id: string;
         system_prompt: string;
         description?: string;
-        user_ids?: string[];
     }
 
     interface UserInfo {
@@ -61,6 +60,7 @@ declare global {
         userId: string;
         messages: MessageProps[];
         thread_id?: string;
+        name_editable: boolean;
     }
 
     type Threads = Record<string, Thread>;
@@ -87,36 +87,7 @@ declare global {
     interface ChatContextType {
         threadState: ThreadsState;
         threadCache: Threads;
-        agents: any;
-        models: any;
-        user: User | null;
-        shouldQueryResearchModel: boolean;
-        maxTurns: number;
-        actionsToInclude: string[];
-        additionalInstructions: string;
-        example: string;
-        character: string;
-        agentId: string;
-        token: string;
-        modelId: string;
-        month: number;
-        year: number;
-        loadComplete: boolean;
-        selectedActions: string[];
-        disableQuery: boolean;
-        setToken: (token: string | Promise<string> | any) => void;
-        setUser: (user: User) => void;
-        setModelId: (modelId: string) => void;
-        setAgentId: (agentId: string) => void;
-        setShouldQueryResearchModel: (shouldQuery: boolean) => void;
-        setMaxTurns: (maxTurns: number) => void;
-        setAdditionalInstructions: (instructions: string) => void;
-        setSelectedActions: (actions: string[]) => void;
-        setExample: (example: string) => void;
-        setCharacter: (character: string) => void;
-        setMonth: (month: number) => void;
-        setYear: (year: number) => void;
-        setDisableQuery: (disableQuery: boolean) => void
+        useWebSocket: boolean;
         sendChat: (
             message: string,
             model: string,
@@ -127,18 +98,89 @@ declare global {
             temperature?: number | null,
             nameGiven?: string
         ) => Promise<void>;
+        toggleWebSocketMode: () => void;
+        dispatchThreads: React.Dispatch<ThreadsAction>;
         switchThread: (threadId: string) => void;
         createNewThread: () => Promise<any>;
-        deleteThread: (threadId: string) => Promise<void>;
+        runDeleteThread: (id: number, threadId: string) => Promise<any>;
         exportThread: (threadId: string) => void;
-        fetchThreadsData: () => Promise<Thread[] | undefined>;
+        fetchThreadsData: (user_id: string) => Promise<Thread[]>;
         isLoading?: boolean;
     }
 
+    interface AssistantContextType {
+        status: 'idle' | 'loading' | 'success' | 'error' | 'info';
+        statusMessage: string;
+        agents: AgentProps[];
+        models: any;
+        prompts: PromptMap
+        agentId: string;
+        modelId: string;
+        provider: string;
+        claudeModels: string[];
+        veniceModels: string[];
+        setStatus: (status: 'idle' | 'loading' | 'success' | 'error' | 'info') => void;
+        setStatusMessage: (msg: string) => void;
+        getAgents: (user: UserResponse | User) => Promise<any>;
+        setModelId: (modelId: string) => void;
+        setAgentId: (agentId: string) => void;
+        setProvider: (provider: "claude" | "venice") => void;
+        createNewAssistant: (
+            user_id: string,
+            assistant_id: string,
+            name: string,
+            system_prompt: string,
+            description?: string
+        ) => Promise<any>;
+        saveAssistantUpdates: (
+            user_id: string,
+            assistant_id: string,
+            name: string,
+            system_prompt: string,
+            description: string
+        ) => Promise<any>;
+        runDeleteAssistant: (
+            assistant_id: string,
+            user_id: string
+        ) => Promise<any>;
+    }
+
     interface AuthContextType {
-        supabaseClient: SupabaseClient | null;
-        latestToken: string | null;
-        getLatestToken: () => Promise<string | null>;
+        user: User | UserResponse | null;
+        token: string;
+        latestToken: string;
+        loadComplete: boolean;
+        setToken: (token: string | Promise<string> | any) => void;
+        setLatestToken: (token: string | Promise<string> | any) => void;
+        setUser: (user: User | UserResponse) => void;
+    }
+
+    interface SearchContextType {
+        shouldQueryResearchModel: boolean;
+        maxTurns: number;
+        actionsToInclude: string[];
+        additionalInstructions: string;
+        example: string;
+        character: string;
+        month: number;
+        months: string[];
+        year: number;
+        selectedActions: string[];
+        disableQuery: boolean;
+        setShouldQueryResearchModel: (shouldQuery: boolean) => void;
+        setMaxTurns: (maxTurns: number) => void;
+        setAdditionalInstructions: (instructions: string) => void;
+        setSelectedActions: (actions: string[]) => void;
+        setExample: (example: string) => void;
+        setCharacter: (character: string) => void;
+        setMonth: (month: number) => void;
+        setYear: (year: number) => void;
+        setDisableQuery: (disableQuery: boolean) => void
+    }
+
+    interface WebSocketContextType {
+        sendMessage: (payload: any) => void;
+        connected: boolean;
     }
 
     interface DataObject {
@@ -169,6 +211,73 @@ declare global {
         user_id: string | 0;
     }
 
+    interface OpenAIToolParams {
+        type: string;
+        function: {
+            name: string;
+            description: string;
+            parameters: {
+                type: string;
+                properties: {
+                    [string]: {
+                        type: string;
+                        description: string;
+                    }
+                }
+                required: string[];
+                additionalProperties: boolean;
+            }
+        }
+    }
+
+    interface ToolResponse {
+        id: string;
+        object: string;
+        created: number;
+        model: string;
+        choices: [
+            {
+                index: number;
+                message: {
+                    role: string,
+                    content: null,
+                    tool_calls: [
+                        {
+                            id: string;
+                            type: string;
+                            function: {
+                                name: string;
+                                arguments: string;
+                            }
+                        }
+                    ]
+                }
+                logprobs: any;
+                finish_reason: string;
+            }
+        ];
+        usage: {
+            prompt_tokens: number;
+            completion_tokens: number;
+            total_tokens: number;
+            completion_tokens_details: {
+                reasoning_tokens: number;
+                accepted_prediction_tokens: number;
+                rejected_prediction_tokens: number;
+            }
+        }
+    }
+
+    interface VeniceChatRequestParams {
+        max_tokens: number
+        temperature: number;
+        model: string;
+        system_prompt: string;
+        messages: any[];
+        use_venice: boolean;
+        tools: OpenAIToolParams[];
+    }
+
     interface ModelResponse {
         response?:
         | any
@@ -176,6 +285,7 @@ declare global {
             text?: string;
             response?: string | JSON;
         };
+        choices?: [{ stop_reason: string; message: { role: string; content: string; } }]
         text?: string;
     }
 
@@ -206,5 +316,7 @@ declare global {
     interface Window {
         Clerk: any;
     }
-
 }
+
+
+
