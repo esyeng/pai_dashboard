@@ -1,4 +1,3 @@
-This is a personal AI chat server developed by Esme Keats @esyeng. All rights reserved. MIT License.
 
 # JasmynAI - Personalized AI Agent conversational dashboard
 
